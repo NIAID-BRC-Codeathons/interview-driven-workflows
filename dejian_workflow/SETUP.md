@@ -19,6 +19,16 @@ See `PROPOSAL.md` for the full project context.
 - **Network access** to GitHub (fetching real workflows from the IWC
   registry) and, for two optional steps below, to api.anthropic.com and a
   Galaxy instance.
+- **A Galaxy account and API key — set this up before you start testing if
+  you want to exercise the full pipeline**, including actually running a
+  workflow against real data (`scripts/run_workflow_tests.sh`). This is the
+  **preferred way to test**: sign up free at
+  [usegalaxy.org](https://usegalaxy.org), then get your key from
+  **User → Preferences → Manage API Key**. Without this, that one step
+  falls back to downloading and configuring a disposable Galaxy instance
+  from scratch, which works with zero setup but is slow and heavy (see
+  step 3). Everything else in this pipeline (routing, fetching, static
+  validation) needs no account at all.
 
 No Docker, no database, no server process — this is a set of command-line
 scripts you run directly.
@@ -69,12 +79,17 @@ you use the feature that needs them:
 | Env var | Needed for | How to get one |
 | --- | --- | --- |
 | `ANTHROPIC_API_KEY` | `scripts/build_workflow.py` (generating a new workflow when nothing in the catalog matches) | console.anthropic.com — this makes a real, billed API call per run |
-| `GALAXY_URL` + `GALAXY_USER_KEY` | `scripts/run_workflow_tests.sh` against an existing Galaxy instance | Your Galaxy account's API key (Galaxy → User → Preferences → Manage API Key). usegalaxy.org works for a quick test. |
+| `GALAXY_URL` + `GALAXY_USER_KEY` | `scripts/run_workflow_tests.sh` against an existing Galaxy instance — **preferred, set this up in advance** | Your Galaxy account's API key (Galaxy → User → Preferences → Manage API Key). usegalaxy.org is free and works well for this. |
 | `GITHUB_TOKEN` | `scripts/fetch_iwc_workflow.py`, only if you hit GitHub's 60-requests/hour anonymous rate limit | A GitHub personal access token, no special scopes needed |
 
-Without `GALAXY_URL`/`GALAXY_USER_KEY`, `run_workflow_tests.sh` falls back to
-downloading a disposable Galaxy instance automatically — no account needed,
-but expect it to take several minutes and a few GB of disk on first run.
+**Use `GALAXY_URL`/`GALAXY_USER_KEY` if you can** — it runs against a real,
+already-running Galaxy in a couple of minutes. Without it,
+`run_workflow_tests.sh` falls back to downloading and configuring a
+disposable Galaxy instance from scratch automatically — no account needed,
+but expect several minutes to tens of minutes and several GB of disk/network
+use, largely because it also has to install each tool's own dependencies the
+first time. Prepare the account beforehand (see Prerequisites) rather than
+discovering this mid-test.
 
 Set them for your current shell session:
 
@@ -111,8 +126,9 @@ python3 scripts/run_pipeline.py interviews/raw/my-request.txt
 To go further:
 
 ```bash
-# Execute the workflow against real data (needs GALAXY_URL/KEY, or waits for
-# a disposable Galaxy to download):
+# Execute the workflow against real data -- fast with GALAXY_URL/KEY set
+# (preferred), otherwise waits for a disposable Galaxy to download and
+# configure (slow, first run only):
 scripts/run_workflow_tests.sh workflows/use/<interview-id>/workflow.ga
 
 # Propose and apply a change to an adapted workflow (see the script's
@@ -135,8 +151,10 @@ scripts/adapt_workflow.py apply   workflows/adapt/<id>/workflow.ga change_spec.j
   `ANTHROPIC_API_KEY`, or run `ant auth login` if you use the Claude CLI.
 - **`run_workflow_tests.sh` seems stuck** — if neither `GALAXY_URL` nor
   `GALAXY_ROOT` is set, it's downloading and configuring a disposable Galaxy
-  instance, which genuinely takes several minutes the first time. This is
-  expected, not a hang.
+  instance plus per-tool dependencies, which genuinely takes several minutes
+  to tens of minutes the first time. This is expected, not a hang — but it's
+  also avoidable: set `GALAXY_URL`/`GALAXY_USER_KEY` to a real Galaxy account
+  (see Prerequisites) and this step takes a couple of minutes instead.
 
 ## Removing / cleaning up after testing
 
