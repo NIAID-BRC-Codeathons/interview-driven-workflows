@@ -38,11 +38,21 @@ def tokenize(text: str) -> set[str]:
     return {t for t in re.findall(r"[a-z0-9]+", text.lower()) if len(t) >= 2}
 
 
+DIMENSION_FIELDS = ("organism", "data_type", "analysis_type")
+
+
 def _entry_tokens(entry: dict) -> set[str]:
     tokens: set[str] = set()
-    for field in ("keywords", "organism", "data_type", "analysis_type"):
+    for field in ("keywords",) + DIMENSION_FIELDS:
         for value in entry.get(field, []):
             tokens |= tokenize(value)
+    return tokens
+
+
+def _field_tokens(entry: dict, field: str) -> set[str]:
+    tokens: set[str] = set()
+    for value in entry.get(field, []):
+        tokens |= tokenize(value)
     return tokens
 
 
@@ -70,6 +80,11 @@ def match(description: str, catalog: list[dict] | None = None, top_n: int = 5) -
       "_confidence" matched IDF-weight / this entry's total IDF-weight (0-1) --
                      roughly "what fraction of this workflow's identity did
                      the description account for"
+      "_unconfirmed_dimensions" which of organism/data_type/analysis_type had
+                     ZERO overlap with the description -- i.e. an assumption
+                     the router made silently rather than a stated fact. Used
+                     by generate_followup_questions.py to close that gap by
+                     asking, not guessing.
 
     "_confidence" is comparable across entries of different keyword-list
     lengths and is what scripts/route.py thresholds on; the raw matched-term
@@ -87,11 +102,16 @@ def match(description: str, catalog: list[dict] | None = None, top_n: int = 5) -
             continue
         matched_weight = sum(weights[t] for t in matched)
         entry_weight = sum(weights[t] for t in entry_tokens) or 1.0
+        unconfirmed = [
+            field for field in DIMENSION_FIELDS
+            if _field_tokens(entry, field) and not (_field_tokens(entry, field) & query_tokens)
+        ]
         scored.append(
             {
                 **entry,
                 "_matched": sorted(matched),
                 "_confidence": round(matched_weight / entry_weight, 3),
+                "_unconfirmed_dimensions": unconfirmed,
             }
         )
 

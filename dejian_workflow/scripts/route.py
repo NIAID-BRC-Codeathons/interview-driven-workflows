@@ -17,6 +17,11 @@ IWC registry. A "build" decision here can mean either "no workflow exists"
 or "no workflow is in this catalog yet" -- scripts/search_pipeline_catalog.py's
 "no match" message says this explicitly; treat a build decision as a prompt
 to check the catalog before trusting it as a registry-wide answer.
+
+This function does NOT surface where its own decision might be wrong --
+see generate_followup_questions.py (Goal 4) for that, which consumes this
+function's output and turns unconfirmed assumptions into questions for the
+researcher rather than routing silently.
 """
 
 import argparse

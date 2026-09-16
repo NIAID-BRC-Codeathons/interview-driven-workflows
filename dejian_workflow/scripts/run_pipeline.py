@@ -15,6 +15,13 @@ Decision handling:
              spec (see adapt_workflow.py's docstring) -- this script does
              not fabricate one. It hands you a real base workflow and tells
              you the exact next command to run.
+
+Before any of that, it prints follow-up questions (Goal 4) surfacing any
+assumption the routing decision made silently -- see
+generate_followup_questions.py. This is advisory, not a gate: nothing here
+collects your answers and re-routes based on them; that closed loop isn't
+built yet. Treat the questions as "ask before trusting this," not proof
+the decision is already validated.
 """
 
 import argparse
@@ -26,6 +33,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from route import route_interview_file  # noqa: E402
 from fetch_iwc_workflow import fetch  # noqa: E402
+from generate_followup_questions import generate_questions  # noqa: E402
 
 
 def main() -> None:
@@ -41,6 +49,12 @@ def main() -> None:
             f"top match: {result['top_match']['name']} "
             f"(confidence {result['top_match']['_confidence']:.2f}, id={result['top_match']['id']})"
         )
+
+    questions = generate_questions(args.interview.read_text(), route_result=result)
+    if questions:
+        print(f"\n{len(questions)} follow-up question(s) before trusting this routing decision:")
+        for i, q in enumerate(questions, 1):
+            print(f"  {i}. {q}")
     print()
 
     output_dir = Path("workflows") / ("build" if decision == "build" else "adapt" if decision == "adapt" else "use") / args.interview.stem

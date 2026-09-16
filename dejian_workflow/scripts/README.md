@@ -8,6 +8,7 @@ is a separate script so it can be run and debugged independently, and
 | ------------------------------ | ---------------------------------------------------------------- | ------ |
 | `search_pipeline_catalog.py`  | Keyword-match a description against the curated bacteria/virus catalog | **working** |
 | `route.py`                    | Goal 1: use / adapt / build decision                            | **working v0** (thresholds on `search_pipeline_catalog.py` confidence) |
+| `generate_followup_questions.py` | Goal 4: surface routing assumptions as questions for the researcher | **working v0** (deterministic, no LLM — see docstring for the closed-loop gap) |
 | `fetch_iwc_workflow.py`       | Download a real `.ga` + test file from the IWC registry         | **working** |
 | `validate_workflow.sh`        | Static validation (wraps `planemo workflow_lint`)                | **working** (real, no live Galaxy needed) |
 | `run_workflow_tests.sh`       | Executed Planemo test run                                       | **working, verified** — real passing run against usegalaxy.org, see `eval/results/2026-09-16-cgmlst-usegalaxy.md` |
@@ -20,16 +21,23 @@ there's no Galaxy Workflow Foundry or MCP runtime wired up here, so
 `build_workflow.py` uses a plain LLM call instead, and `adapt_workflow.py`
 takes an already-decided change spec rather than interpreting free text
 itself (see each script's docstring for why, and what a real Foundry
-integration would replace).
+integration would replace). Similarly, `generate_followup_questions.py`
+surfaces questions but doesn't collect answers or re-route based on them —
+there's no interactive interview loop here, only the half of Goal 4 that
+identifies what should be asked.
 
 ## Quickstart
 
 ```
 pip install -r requirements.txt   # planemo, pyyaml, anthropic
 
-# Route + fetch/validate an existing interview:
+# Route + fetch/validate an existing interview (prints follow-up questions
+# for any unconfirmed assumption before proceeding):
 python3 scripts/run_pipeline.py interviews/raw/example-sarscov2-amplicon.txt
 python3 scripts/run_pipeline.py interviews/raw/example-ecoli-outbreak-cgmlst.txt
+
+# See just the follow-up questions, without running the rest of the pipeline:
+python3 scripts/generate_followup_questions.py interviews/raw/example-ecoli-outbreak-cgmlst.txt
 
 # Build path (needs ANTHROPIC_API_KEY):
 python3 scripts/run_pipeline.py interviews/raw/<a-description-that-matches-nothing>.txt
