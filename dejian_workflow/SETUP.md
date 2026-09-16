@@ -29,10 +29,13 @@ If you don't already have it:
 
 ```bash
 git clone https://github.com/NIAID-BRC-Codeathons/interview-driven-workflows.git
-cd interview-driven-workflows
+cd interview-driven-workflows/dejian_workflow
 ```
 
-(If you're reading this from an existing checkout, just `cd` into it.)
+This pipeline lives under `dejian_workflow/` in the shared repo — all
+commands below assume you're `cd`'d into that subdirectory, not the repo
+root. (If you're reading this from an existing checkout, just `cd` into
+`dejian_workflow/`.)
 
 ## 2. Install dependencies
 
@@ -185,17 +188,19 @@ service's account settings (Galaxy: User → Preferences → Manage API Key;
 Anthropic: console.anthropic.com → API Keys) — this pipeline has no way to
 do that for you.
 
-**5. Remove the pipeline entirely:** if you no longer want this checkout at
-all, first check for anything you'd lose:
+**5. Remove your local checkout entirely:** if you no longer want this on
+your machine at all, first check for anything you'd lose:
 
 ```bash
 git status   # confirm nothing you want to keep is uncommitted
 ```
 
-then delete the project directory itself (`rm -rf` on the whole checkout, or
-just delete it in Finder/Explorer). This is a plain git checkout with no
-system-level registration anywhere else, so deleting the directory is a
-complete uninstall.
+then delete the top-level `interview-driven-workflows/` directory (`rm -rf`
+on the whole checkout, or just delete it in Finder/Explorer) — deleting
+`dejian_workflow/` alone would remove it from the shared repo for the whole
+team on your next push, which is a very different, much bigger action; don't
+do that without team agreement. A plain local deletion has no system-level
+registration anywhere else, so it's a complete local uninstall.
 
 ## What's not deployable yet
 
