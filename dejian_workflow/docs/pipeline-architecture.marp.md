@@ -100,6 +100,30 @@ lists, not just a raw count.
 
 ---
 
+## Stage 2b — Follow-up questions (Goal 4)
+
+```
+route.py → generate_followup_questions.py
+```
+
+For each routed candidate: did the description actually confirm
+organism / data_type / analysis_type, or is it a silent assumption?
+Anything with **zero matched keywords** becomes a question, not a guess.
+
+Real example (E. coli cgMLST request, routed to "adapt", confidence 0.21):
+1. assumes **bacteria** — description didn't confirm
+2. assumes **assembly/FASTA** — description didn't confirm
+3. assumes **strain typing** — description didn't confirm
+4. only a partial match — what's actually different?
+
+**Deterministic, not LLM-based** — needs no credentials, only surfaces gaps
+that provably exist in the matching data, never fabricated concerns.
+
+**Known limit:** surfaces questions, doesn't collect answers or re-route on
+them — the interview loop that closes this isn't built yet.
+
+---
+
 ## Stage 3a — Use path
 
 ```
@@ -208,6 +232,7 @@ For real, sensitive, or restricted research data, use the local mode.
 | Piece | Status |
 |---|---|
 | Catalog, routing, fetch, static validation, byte-stable adapt | **Real**, tested against live GitHub + Galaxy Tool Shed |
+| Follow-up questions | Real, deterministic — surfaces gaps, but no answer-collection loop yet |
 | Build path | Real LLM call + real validation, but no live Galaxy Workflow Foundry integration |
 | Adapt path's "what to change" | Needs a human/LLM-authored change spec — no NL interpretation yet |
 | Catalog coverage | ~20 curated workflows, not the full IWC registry |
