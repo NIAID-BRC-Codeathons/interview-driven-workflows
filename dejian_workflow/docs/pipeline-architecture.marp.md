@@ -6,9 +6,12 @@ size: 16:9
 ---
 
 <style>
-section.flow { font-size: 26px; }
-.box { border: 2px solid #444; border-radius: 8px; padding: 6px 14px; display: inline-block; }
-.arrow { font-size: 22px; }
+section { font-size: 23px; padding: 40px 60px; }
+section h2 { margin-top: 0; margin-bottom: 0.5em; }
+section p, section ul, section ol { margin: 0.45em 0; }
+section li { margin: 0.15em 0; }
+section pre { margin: 0.5em 0; line-height: 1.35; font-size: 0.85em; }
+section table { font-size: 0.9em; }
 </style>
 
 # How the Pipeline Works
