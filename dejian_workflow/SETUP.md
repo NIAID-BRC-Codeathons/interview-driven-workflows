@@ -124,13 +124,24 @@ export GALAXY_USER_KEY=...
 
 ## 4. Try it
 
-Three example interviews ship in `interviews/raw/` so you have something to
-run immediately:
+Three synthetic example interviews ship in `interviews/raw/` so you have
+something to run immediately:
 
 ```bash
 python3 scripts/run_pipeline.py interviews/raw/example-sarscov2-amplicon.txt
 python3 scripts/run_pipeline.py interviews/raw/example-ecoli-outbreak-cgmlst.txt
 python3 scripts/run_pipeline.py interviews/raw/example-unknown-pathogen-nanopore.txt
+```
+
+There are also 50 **real** interviews (`interviews/raw/biostars-*.txt`),
+sourced from an actual Q&A forum rather than written to demonstrate the
+pipeline — see "How the real interview data was collected" below for where
+they came from, and `interviews/BIOSTARS_SOURCES.md` for the index:
+
+```bash
+for f in interviews/raw/biostars-*.txt; do
+  python3 scripts/generate_followup_questions.py "$f"
+done
 ```
 
 Each run prints its routing decision (use / adapt / build), fetches or
@@ -161,6 +172,80 @@ scripts/run_workflow_tests.sh workflows/use/<interview-id>/workflow.ga
 scripts/adapt_workflow.py propose workflows/adapt/<id>/workflow.ga change_spec.json
 scripts/adapt_workflow.py apply   workflows/adapt/<id>/workflow.ga change_spec.json out.ga
 ```
+
+## How the real interview data was collected
+
+This pipeline needs real researcher language to test against, not text
+written to make it look good. Here's exactly how the 50 `biostars-*.txt`
+interviews were obtained, including the approaches that didn't work.
+
+**The goal:** real, unscripted bioinformatics questions about bacteria/virus
+analyses — the messiest input the pipeline is supposed to handle.
+
+**What was tried and failed:**
+
+1. **Scraping biostars.org search results directly** (`curl`, plain HTTP).
+   Blocked — the site returns a Cloudflare bot-challenge page (`Just a
+   moment...`), not content, to any non-browser request.
+2. **The official, documented Biostars API** (`biostars.org/info/api/`).
+   Also blocked — same Cloudflare challenge, even on the documented API
+   path.
+3. **Claude's own web-fetch tooling.** Also blocked — HTTP 403.
+4. **Deliberately defeating that bot protection.** Considered and
+   **declined** — Cloudflare's challenge is a deliberate technical access
+   control the site operator put up, and circumventing it isn't something
+   this project does, regardless of how few records were needed (50, in
+   this case). This is a firm line, not a scope negotiation.
+
+**What actually worked: a published, openly-licensed dataset, not a scrape.**
+Someone had already extracted Biostars content through the official API and
+published it as a research dataset:
+
+> Luna, Augustin. (2023). *BioStars Posts API Output* [Data set]. Zenodo.
+> https://doi.org/10.5281/zenodo.7813785
+> Licensed CC BY 4.0 — the same license Biostars uses for its own content.
+
+That's a legitimate download, not a workaround: a single 976 MB JSON file,
+532,421 entries covering every post type (Question, Answer, Comment, Blog,
+Tutorial, Forum, Tool, Job, News) through Biostars post ID 9557161. (The
+first download attempt was silently truncated by a connection drop — worth
+knowing if you re-fetch it yourself: verify the file is exactly 976,422,282
+bytes and `json.load()`s cleanly before trusting it.)
+
+**Filtering funnel down to 50:**
+
+| Stage | Count |
+|---|---|
+| Total entries (all post types) | 532,421 |
+| `type == "Question"` | 106,395 |
+| Title/body matches a bacteria/virus/pathogen keyword list | 5,250 |
+| Scores as workflow-shaped (see below), top-ranked | 200 |
+| Hand-selected for the final set | **50** |
+
+The keyword filter alone was nowhere near enough — Biostars is a general
+Q&A forum, not a workflow-request board. Most hits were troubleshooting
+("Argument isn't numeric... at prokka line 259"), tool installation, or
+conceptual questions ("What does N50 mean?"), none of which describe an
+analysis to run. A heuristic scorer downranked posts containing error
+tracebacks or "what is X" phrasing and upranked posts containing
+data-description language ("I have...", "fastq", "assembly") and
+intent phrasing ("I want to...", "how do I...", "recommend a pipeline
+for..."). The top 200 by that score were then read and hand-selected down
+to 50 diverse, genuinely workflow-shaped requests spanning bacterial AMR/
+typing/assembly/annotation and viral assembly/variant-calling/SARS-CoV-2/
+metagenomics — manual judgment, not further automation, made the final cut.
+
+**Provenance kept, not discarded:** each `biostars-*.txt` file carries a
+header (`# source`, `# title`, `# date`, `# license`) linking back to its
+original post, and `interviews/BIOSTARS_SOURCES.md` indexes all 50.
+
+**What running the real router against these 50 revealed** (not just how
+the data was collected, but what it was for): a 34 adapt / 13 build / 3 use
+decision split, and one confirmed false positive — an explicitly viral
+genome request routed to a bacterial workflow at "use" confidence — that
+`scripts/generate_followup_questions.py` correctly caught via the
+unconfirmed "organism" dimension. See the commit history and
+`interviews/README.md` for details.
 
 ## Troubleshooting
 

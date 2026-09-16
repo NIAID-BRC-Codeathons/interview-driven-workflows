@@ -54,7 +54,74 @@ A plain text file, in the researcher's own words:
 
 No structured form, no dropdown of organisms — this is deliberately the
 messiest input in the pipeline, because that's what a real interview
-produces. Three examples ship in `interviews/raw/` to test with immediately.
+produces. Three synthetic examples ship in `interviews/raw/`, plus 50 real
+ones — next.
+
+---
+
+## Getting real interviews — what didn't work
+
+**Goal:** unscripted real bioinformatics questions, not text written to
+make the pipeline look good.
+
+**Tried and failed, in order:**
+
+1. **Scrape biostars.org search results directly** (`curl`) — blocked.
+   Every request returns a Cloudflare bot-challenge page, not content.
+2. **The official, documented Biostars API** — also blocked. Same
+   Cloudflare challenge, even on the documented API path.
+3. **Claude's own web-fetch tooling** — also blocked, HTTP 403.
+4. **Defeat that bot protection anyway** — considered, **declined**.
+   Cloudflare's challenge is a deliberate access control the site put up;
+   circumventing it isn't something this project does, no matter how few
+   records were needed (50, here). Not a scope negotiation.
+
+---
+
+## Getting real interviews — what actually worked
+
+A **published, openly-licensed dataset — not a scrape:**
+
+> Luna, Augustin. (2023). *BioStars Posts API Output* [Data set]. Zenodo.
+> **https://doi.org/10.5281/zenodo.7813785** — CC BY 4.0, the same license
+> Biostars uses for its own content.
+
+976 MB JSON, 532,421 entries (all post types) — a legitimate download of
+published research data, not a workaround.
+
+| Filtering stage | Count |
+|---|---|
+| Total entries (all post types) | 532,421 |
+| `type == "Question"` | 106,395 |
+| Matches a bacteria/virus/pathogen keyword | 5,250 |
+| Scores as workflow-shaped (not troubleshooting/conceptual) | 200 |
+| Hand-selected, diverse, genuinely workflow-shaped | **50** |
+
+Source-linked index: `interviews/BIOSTARS_SOURCES.md`.
+
+---
+
+## What running the router against real data revealed
+
+50 real interviews → **34 adapt / 13 build / 3 use.** Real language rarely
+crosses the confident "use" threshold — a useful, honest calibration signal
+three synthetic examples could never have given us.
+
+**One confirmed false positive, caught by the safety net:**
+
+> *"I am looking to make Hybrid assembly of a viral genome... paired-end
+> reads from Illumina and long reads from MinION..."*
+> → routed **"use"** → `bacterial-qc-contamination-post-assembly` (0.38)
+
+Wrong organism, at "use" (no-review-needed) confidence. But
+`generate_followup_questions.py` caught it anyway:
+
+> **[organism]** *This candidate assumes organism/target: bacteria. Your
+> description didn't mention a matching term — is that correct...?*
+
+Real validation that Goal 4's mechanism catches silent misroutes — not a
+constructed example. Also surfaced a genuine catalog gap: several real
+requests want generic bacterial variant calling, not yet in the catalog.
 
 ---
 
