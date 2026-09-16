@@ -10,7 +10,7 @@ is a separate script so it can be run and debugged independently, and
 | `route.py`                    | Goal 1: use / adapt / build decision                            | **working v0** (thresholds on `search_pipeline_catalog.py` confidence) |
 | `fetch_iwc_workflow.py`       | Download a real `.ga` + test file from the IWC registry         | **working** |
 | `validate_workflow.sh`        | Static validation (wraps `planemo workflow_lint`)                | **working** (real, no live Galaxy needed) |
-| `run_workflow_tests.sh`       | Executed Planemo test run                                       | **working**, but slow/heavy on first run (see below) |
+| `run_workflow_tests.sh`       | Executed Planemo test run                                       | **working, verified** — real passing run against usegalaxy.org, see `eval/results/2026-09-16-cgmlst-usegalaxy.md` |
 | `adapt_workflow.py`           | Apply a reviewed change spec + verify byte-stability            | **working v0** (no NL interpretation — see docstring) |
 | `build_workflow.py`           | Build a new workflow via an LLM, then validate it                | **working v0**, needs `ANTHROPIC_API_KEY` |
 | `run_pipeline.py`             | Orchestrates route → fetch/build → validate end-to-end          | **working** |

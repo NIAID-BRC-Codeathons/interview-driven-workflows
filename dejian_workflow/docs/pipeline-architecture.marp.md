@@ -172,15 +172,34 @@ run_workflow_tests.sh workflow.ga
 ```
 
 Runs `planemo test` — executes the workflow against real data, not just
-structural checks. Needs one of:
+structural checks.
 
-- `GALAXY_URL` + `GALAXY_USER_KEY` — an existing Galaxy instance (fastest)
-- `GALAXY_ROOT` — a local Galaxy checkout
-- neither set → `--install_galaxy`, a disposable Galaxy Planemo downloads
-  (slow, several GB, but zero setup)
+| Mode | Where it actually executes |
+|---|---|
+| `GALAXY_URL` + `GALAXY_USER_KEY` (preferred) | **Remote** — e.g. usegalaxy.org's own compute |
+| `GALAXY_ROOT` | **Local** — a Galaxy checkout on your machine |
+| neither set → `--install_galaxy` | **Local** — a disposable Galaxy Planemo downloads |
 
-Static validation (stage 3) checks the workflow is *well-formed*. Only this
-step checks it actually *does the right analysis*.
+Static validation (stage 3) only checks the workflow is *well-formed*. This
+is the step that checks it actually *does the right analysis*.
+
+---
+
+## Where does the data actually go?
+
+**This is not just a speed tradeoff — it's a data-location decision.**
+
+- **Online (`GALAXY_URL`/`GALAXY_USER_KEY`):** your machine only
+  orchestrates. The workflow and test data are **uploaded to that Galaxy
+  server**, tools run on **its compute**, and results are downloaded back.
+  Fast, zero local setup — but your data leaves your machine and is
+  processed by a third-party public service.
+- **Local (`GALAXY_ROOT` or `--install_galaxy`):** Galaxy and every tool run
+  **entirely on your machine**. Nothing is uploaded anywhere. Slower to set
+  up, but your data never leaves.
+
+**Rule of thumb:** fine for the example/test data this pipeline ships with.
+For real, sensitive, or restricted research data, use the local mode.
 
 ---
 

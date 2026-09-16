@@ -29,6 +29,10 @@ See `PROPOSAL.md` for the full project context.
   from scratch, which works with zero setup but is slow and heavy (see
   step 3). Everything else in this pipeline (routing, fetching, static
   validation) needs no account at all.
+  **Note this means your workflow and test data get uploaded to and
+  processed by that Galaxy server** (e.g. usegalaxy.org), not run on your
+  own machine — see the callout in step 3 before using this with anything
+  other than the example data.
 
 No Docker, no database, no server process — this is a set of command-line
 scripts you run directly.
@@ -91,6 +95,25 @@ use, largely because it also has to install each tool's own dependencies the
 first time. Prepare the account beforehand (see Prerequisites) rather than
 discovering this mid-test.
 
+**Important: where the analysis actually runs.** These are not just two
+speeds of the same thing — they execute in different places:
+
+- **`GALAXY_URL`/`GALAXY_USER_KEY` (the online/preferred path):** your
+  machine only orchestrates. `planemo` uploads the workflow and test data to
+  that Galaxy server over its API, the tools actually execute on **that
+  server's own compute** (e.g. usegalaxy.org's infrastructure, not yours),
+  and planemo polls for results and downloads them back down. Your data
+  leaves your machine and is processed by a third-party public service —
+  fine for the example/test data this pipeline ships with, but think twice
+  before pointing this at real, sensitive, or restricted research data.
+- **`GALAXY_ROOT` or the `--install_galaxy` fallback:** everything — Galaxy
+  itself and every tool run — executes **locally on your machine**. Nothing
+  is uploaded anywhere. This is why it's slower to set up (you're
+  installing a whole Galaxy) but keeps data local.
+
+If your data can't leave your machine, don't set `GALAXY_URL` — use
+`GALAXY_ROOT` or let it fall back to `--install_galaxy` instead.
+
 Set them for your current shell session:
 
 ```bash
@@ -128,7 +151,9 @@ To go further:
 ```bash
 # Execute the workflow against real data -- fast with GALAXY_URL/KEY set
 # (preferred), otherwise waits for a disposable Galaxy to download and
-# configure (slow, first run only):
+# configure (slow, first run only). This has been run for real against
+# usegalaxy.org and passed -- see eval/results/2026-09-16-cgmlst-usegalaxy.md
+# for the full report and a screenshot of the resulting Galaxy history.
 scripts/run_workflow_tests.sh workflows/use/<interview-id>/workflow.ga
 
 # Propose and apply a change to an adapted workflow (see the script's
