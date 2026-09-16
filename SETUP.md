@@ -135,6 +135,68 @@ scripts/adapt_workflow.py apply   workflows/adapt/<id>/workflow.ga change_spec.j
   instance, which genuinely takes several minutes the first time. This is
   expected, not a hang.
 
+## Removing / cleaning up after testing
+
+This pipeline installs nothing outside its own project directory except the
+Python virtualenv and, if you ran `run_workflow_tests.sh` without
+`GALAXY_URL`/`GALAXY_ROOT`, a Galaxy install cached by planemo. Nothing
+touches system Python, no background services are started, and no daemons
+are left running — cleanup is just deleting files.
+
+**1. Deactivate and remove the virtualenv:**
+
+```bash
+deactivate            # if it's currently active
+rm -rf .venv
+```
+
+**2. Remove pipeline-generated output** (fetched/built/adapted workflows —
+safe to delete; they're reproducible by re-running the scripts):
+
+```bash
+git clean -n workflows/ interviews/raw/   # preview what would be removed
+git clean -fd workflows/ interviews/raw/  # actually remove it
+```
+
+This leaves the tracked `.gitkeep` files and example interviews in place and
+only removes untracked output — check the preview output before running
+the `-fd` command if you've added your own interview files you want to keep.
+
+**3. Remove planemo's cached Galaxy install** (only if you used the
+`--install_galaxy` fallback in `run_workflow_tests.sh` — this is what
+actually used the "several GB" of disk mentioned above):
+
+```bash
+rm -rf ~/.planemo
+```
+
+This is planemo's own workspace/cache directory (not part of this repo) —
+removing it just means the next `--install_galaxy` run re-downloads Galaxy.
+
+**4. Unset any credentials you exported for this session:**
+
+```bash
+unset ANTHROPIC_API_KEY GALAXY_URL GALAXY_USER_KEY GITHUB_TOKEN
+```
+
+If you created a Galaxy API key or an Anthropic API key specifically for
+testing this pipeline and don't need it going forward, revoke it from that
+service's account settings (Galaxy: User → Preferences → Manage API Key;
+Anthropic: console.anthropic.com → API Keys) — this pipeline has no way to
+do that for you.
+
+**5. Remove the pipeline entirely:** if you no longer want this checkout at
+all, first check for anything you'd lose:
+
+```bash
+git status   # confirm nothing you want to keep is uncommitted
+```
+
+then delete the project directory itself (`rm -rf` on the whole checkout, or
+just delete it in Finder/Explorer). This is a plain git checkout with no
+system-level registration anywhere else, so deleting the directory is a
+complete uninstall.
+
 ## What's not deployable yet
 
 `route.py`'s use/adapt/build decision only searches a curated ~20-workflow
