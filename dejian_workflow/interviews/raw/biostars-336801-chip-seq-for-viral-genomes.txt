@@ -1,0 +1,12 @@
+# source: https://www.biostars.org/p/336801/
+# title: ChIP-Seq for viral genomes
+# date: 2018-11-07
+# license: CC-BY-4.0 (Biostars content license)
+
+ChIP-Seq for viral genomes
+
+I am trying to analyze ChIP-Seq data from a viral transcription factor. I am interested in identifying peaks in the viral genome specifically (~150 kb). I am having a hard time calling peaks from programs like MACS2 or Homer using default settings and just changing the genome size. 
+
+When I look at the alignment files in a genome browser such as IGV, I am able to see distinct peaks in the IP and not in the input control or a control where the transcription factor is not tagged. I am not sure if I need to play around with some settings or if there are specific ChIP analysis programs that cater to small genomes such as viral genomes. 
+
+While I don't get any peaks with MACS2, I do get peaks when I run HOMER and turn off all filtering or have a low fold change between control and the IP. Is it acceptable to manually curate a ChIP-Seq data? That is doable given the small genome size. Any help would be much appreciated!

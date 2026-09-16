@@ -1,0 +1,8 @@
+# source: https://www.biostars.org/p/456156/
+# title: MUMmer for structural variant call
+# date: 2021-02-16
+# license: CC-BY-4.0 (Biostars content license)
+
+MUMmer for structural variant call
+
+Hi, I want to call structural variants from bacterial genome by comparing the de novo assembly with reference genome. Do I need to fix the start point of the genome with circlator before calling SV with MUMmer? I would appreciate any suggestions. Thanks

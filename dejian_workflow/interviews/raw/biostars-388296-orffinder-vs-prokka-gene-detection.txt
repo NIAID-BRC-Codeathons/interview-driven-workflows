@@ -1,0 +1,14 @@
+# source: https://www.biostars.org/p/388296/
+# title: ORFfinder vs Prokka gene detection
+# date: 2019-10-11
+# license: CC-BY-4.0 (Biostars content license)
+
+ORFfinder vs Prokka gene detection
+
+I have some bacteria with a specific gene of interest, I've sequenced and assembled the genome then used Prokka to annotate CDS etc. 
+
+Now when I pull out the gene of interest I note it's a bit shorter than previously published examples (~18 aa), but if I look upstream of my annotated CDS the 18 aa is homologous to other examples. The gene was first identified from WGS data using NCBI ORFfinder, and has a TTG start codon, my annotated CDS has an ATG start codon. I know both are possible (although ATG more common) so I've looked for possible Shine Dalgarno regions upstream...it looks like there are possible SD upstream of both putative start codons!
+
+My question is around the annotation methods, and whether one can be assumed to be more robust than the other. Prokka uses Prodigal to detect ORFs, this takes into account possible start codon and SD sequence and picks the best matches for CDS identification; ORFfinder doesn't appear to look for SD sequences, rather a user-defined set of start and stop codons. 
+
+Has anyone seen similar or have any advice on how to get to the bottom of this (in silico or in vitro)? I've not seen any functional work on the gene/protein published so far.

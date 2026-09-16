@@ -1,0 +1,23 @@
+# source: https://www.biostars.org/p/552259/
+# title: Display fraction of mutations and variants for Amplicon Sequencing sample?
+# date: 2023-01-25
+# license: CC-BY-4.0 (Biostars content license)
+
+Display fraction of mutations and variants for Amplicon Sequencing sample?
+
+Hello,
+
+I have several Paired-End, Amplicon Sequenced data. The amplicon is 222 base-pairs and 2x250 sequencing was done so there is heavy overlap. I already aligned these sequences to the reference amplicon using BWA and created weblogos to display any regions with mutations.
+
+I would like to do more analysis including:
+
+ - Get fraction of mutated alignments versus wildtype
+ - Display all of the different variants and their fraction within the pool of reads.
+ 
+I can't find information online to tackle this issue. I would like to make an allele frequency table, listing all of the variant sequences and displaying the mutations. I am not sure if I am using the correct vocabulary and that is why I can't find the solutions that I am searching for. 
+
+I created VCF files from the bam files and am trying to investigate what I can do with these. 
+
+Any guidance would be appreciated.
+Thank You,
+Sara

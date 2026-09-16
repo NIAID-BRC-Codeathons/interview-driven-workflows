@@ -1,0 +1,9 @@
+# source: https://www.biostars.org/p/70203/
+# title: How To Identify The 16S Rrna Gene Sequence In A Genome
+# date: 2013-06-13
+# license: CC-BY-4.0 (Biostars content license)
+
+How To Identify The 16S Rrna Gene Sequence In A Genome
+
+Hi, i have a question about the identification of 16S rRNA gene. One of the common methods is to resequence the 16S rRNA gene and the other is to search the database, such as greengenes. 
+However, if i only have the genome sequence of a bacterial strain and i don't want to resequence the gene, how could i identify the 16S rRNA gene sequence of this strain quickly?

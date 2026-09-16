@@ -1,0 +1,14 @@
+# source: https://www.biostars.org/p/273428/
+# title: Using SPAdes for assembling mitochondrial and viral genomes
+# date: 2017-11-13
+# license: CC-BY-4.0 (Biostars content license)
+
+Using SPAdes for assembling mitochondrial and viral genomes
+
+Hello,
+
+I have been assembling mitochondrial genomes with SPAdes, and I have been getting good assemblies. However, someone brought to my attention that SPAdes is optimized for bacterial genomes. I have also assembled viral genomes with SPAdes.
+
+Is SPAdes optimized for bacterial genomes? If it is, how so? Is it appropriate to use it for assembling mitochondrial and viral genomes?
+
+Thanks.

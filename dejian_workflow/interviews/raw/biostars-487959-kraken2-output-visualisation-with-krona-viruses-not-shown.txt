@@ -1,0 +1,27 @@
+# source: https://www.biostars.org/p/487959/
+# title: Kraken2 output visualisation with Krona Viruses not shown
+# date: 2021-09-04
+# license: CC-BY-4.0 (Biostars content license)
+
+Kraken2 output visualisation with Krona Viruses not shown
+
+Dear all,
+I am trying to visualize my kraken2 output with Krona and the results look very doubtful. I build a metagenomic pipeline with multiple filtering steps and I should have mainly viral sequences (a brief look into my kraken2 output files confirms this). However the Krona output displays around 50% bacteria and 50% "other root". 
+I am sure this is a very silly mistake on my part somewhere but I cannot figure it out...
+I used this guide: https://genomics.sschmeier.com/ngs-taxonomic-investigation/index.html to install and run Krona and on the surface it seems to work but the output is definitely wrong. 
+Here is an example of my command when running: 
+
+ $ ktImportTaxonomy file_kraken2_output.txt
+ Loading taxonomy...
+ Importing 20398_20_S19_combined_kraken2_output_report.txt...
+ [ WARNING ] The following taxonomy IDs were not found in the local database and were set to root (if they were recently added to NCBI, use updateTaxonomy.sh to update the local
+ database): 588374 2572 990749 3 539464 36 588380 588378 169 377 26 8 15 4 130 29676 208 73 401669 12 5 135 390
+ Writing taxonomy.krona.html...<
+
+I have run "updateTaxonomy.sh" multiple times already and it does not change anything...
+
+Any help would be much appreciated!
+
+![Here is an example of the output I get][1]
+
+ [1]: /media/images/40c062e1-d006-49b0-a60d-3ac26c2d

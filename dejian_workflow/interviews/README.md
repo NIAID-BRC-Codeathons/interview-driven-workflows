@@ -10,6 +10,19 @@ analysis requests collected from codeathon participants, in their own words.
   original request, any clarifying Q&A that happened, and the organism/data
   context mentioned.
 
+Two kinds of interviews live in `raw/`, distinguished by filename:
+
+- `example-*.txt` — three synthetic interviews written to demonstrate the
+  pipeline (not from a real researcher). Good for a quick smoke test, not
+  for evaluating routing quality.
+- `biostars-*.txt` — 50 real bioinformatics questions from Biostars, a
+  public Q&A forum, obtained via a CC-BY-4.0-licensed dataset published on
+  Zenodo (not scraped) and hand-selected for being genuinely workflow-shaped
+  requests. See `BIOSTARS_SOURCES.md` for the full index with links back to
+  each original post. Each file carries its own source header. This is the
+  first real (if not codeathon-native) test of routing against actual
+  researcher language, not text written to make the pipeline look good.
+
 These feed the routing layer (`scripts/route.py`) and, once scored, become
 part of `eval/cases/` (the ~20 expert-authored evaluation set is a curated
 subset, not all raw interviews).

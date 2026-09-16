@@ -1,0 +1,18 @@
+# source: https://www.biostars.org/p/341129/
+# title: How can Investigate if a Viral genome is circular or linear? And if it is single or double stranded?
+# date: 2018-12-03
+# license: CC-BY-4.0 (Biostars content license)
+
+How can Investigate if a Viral genome is circular or linear? And if it is single or double stranded?
+
+Hi,
+I have assembled a new virus genome. So I have contigs and scaffolds fasta file. My question is:
+
+ 1. How can I understand if this new viral genome is circular or linear, starting by contigs or scaffolds file? 
+ 2. How can I understand if it's single or double stranded?
+
+Are there any tools, software or scripts that do this?
+
+Please, Help me.
+Thanks
+Giovanna

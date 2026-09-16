@@ -1,0 +1,34 @@
+# source: https://www.biostars.org/p/271480/
+# title: Comparative genomic pathway analysis - heatmap
+# date: 2017-11-02
+# license: CC-BY-4.0 (Biostars content license)
+
+Comparative genomic pathway analysis - heatmap
+
+I am analyzing the genomes of different closely related bacteria and I want to investigate the coverage of metabolic pathways based on genomic data. 
+
+I annotated the genomes with the RAST server and in R I created a matrix where the column headers are names of the bacteria and row names correspond to pathway names. In the matrix, I have the number of different genes mapped of each bacteria on each pathway. 
+
+I could now already make a heatmap but it would be quite useless because I have now absolute counts in my matrix and I can only make comparison by row but not compare the coverage of different pathways. 
+
+My question is, how can I normalize my data that it can be compared across the entire heatmap?
+
+I also found this paper [here][1] from Verma et al. who did such a similar thing in [Figure 4][2]. 
+
+My second question is what are they doing there with Pearson correlation?
+
+> Further, the coding sequences were processed for functional annotation
+> using the bi-directional best-hit (BBH) assignment method on KEGG
+> Automatic Annotation Server (KAAS) [62]. This annotation was then used
+> for biological family construction using protein family prediction on
+> MinPath [63]. The top 50 subsystems were selected based on normalized
+> values obtained by dividing with the lowest value for the genes in the
+> respective pathways. Finally, the nine Sphingobium strains and
+> enriched pathways were clustered heirarchially using Pearson
+> correlation with 0.8% minimum abundance and a heat map was constructed
+> in MeV4.9.0 [64].
+
+I know this is a long question but any help would be highly appreciated. Thank you for taking your time for my questions.
+
+ [1]: https://bmcgenomics.biomedcentral.com/articles/10.1186/1471-2164-15-1014
+ [2]: http://media.springernature.com/lw785/springer-static/image/art%3A10.1186%2F1471-2164-15-1014/MediaObjects/12864_2014_Article_6830_Fig4_HTML.jpg

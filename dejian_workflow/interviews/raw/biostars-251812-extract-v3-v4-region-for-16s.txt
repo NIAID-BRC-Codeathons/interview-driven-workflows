@@ -1,0 +1,12 @@
+# source: https://www.biostars.org/p/251812/
+# title: Extract V3-V4 region for 16S
+# date: 2017-07-06
+# license: CC-BY-4.0 (Biostars content license)
+
+Extract V3-V4 region for 16S
+
+Dear all, I would like to extract all the v3-v4 region from silva.bacteria.fastq file. After consulting to the MISEQ SOP for mothur, I have used the command line as below. But I'm not sure about the start and end position for V3-V4 region. Would 6388 and 25319 used be the right position? Can someone help to share their experience? Great appreciate for your help. 
+
+mothur "#pcr.seqs(fasta=silva.bacteria.fasta, start=6388, end=25319, keepdots=F,processors=8)"
+
+Lola

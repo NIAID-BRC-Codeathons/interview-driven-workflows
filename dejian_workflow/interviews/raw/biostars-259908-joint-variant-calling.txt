@@ -1,0 +1,14 @@
+# source: https://www.biostars.org/p/259908/
+# title: Joint variant calling
+# date: 2017-08-26
+# license: CC-BY-4.0 (Biostars content license)
+
+Joint variant calling
+
+Hi,
+
+I have 1500 bacterial clean and sorted alignment bam file and I want to call variant and produce a multisample vcf file including 1500 samples. I am going to use GATK and bcftools and then compare results. Bacteria are haploid. In the following commands, -ploidy must be set to 1 or 1500?
+
+bcftools call -m -v --ploidy 1 -O z -o variant.vcf.gz mpileup.bcf
+
+java -jar $GATK -T UnifiedGenotyper -R reference.fa -I bam.list -glm BOTH -stand_call_conf 30 -ploidy 1 -o call.vcf

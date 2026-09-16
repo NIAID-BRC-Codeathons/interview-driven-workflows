@@ -1,0 +1,8 @@
+# source: https://www.biostars.org/p/347814/
+# title: How to separate sequences of two species from Metagenomics Analysis?
+# date: 2019-01-21
+# license: CC-BY-4.0 (Biostars content license)
+
+How to separate sequences of two species from Metagenomics Analysis?
+
+I have sequenced a genomics data. This contains ecoli and naegleria fowleri, and I want to separate both of them so I could assemble naegleria fowleri genome. Any Idea how to separate them from fastq files??

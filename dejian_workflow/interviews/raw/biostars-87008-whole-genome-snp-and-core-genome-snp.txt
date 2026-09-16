@@ -1,0 +1,14 @@
+# source: https://www.biostars.org/p/87008/
+# title: Whole Genome Snp And Core Genome Snp
+# date: 2014-02-03
+# license: CC-BY-4.0 (Biostars content license)
+
+Whole Genome Snp And Core Genome Snp
+
+Hi everyone although this question posted earlier but due to not satisfactory result i am posting again as i want to do same kind of research: 
+
+ "What are different ways (tools or online resources) to find SNPs between Whole Genomes of two Bacterial Strains?" 
+
+ I have 50 ecoil whole genome sequence data. I already assembled all the sequence data and now i want to find SNP with a reference. Can anyone suggest some idea?? 
+
+ Thank you advance.

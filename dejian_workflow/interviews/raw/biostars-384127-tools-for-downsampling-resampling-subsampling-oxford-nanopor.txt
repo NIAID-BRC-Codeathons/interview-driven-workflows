@@ -1,0 +1,8 @@
+# source: https://www.biostars.org/p/384127/
+# title: Tools for downsampling/resampling/subsampling Oxford Nanopore reads
+# date: 2019-09-11
+# license: CC-BY-4.0 (Biostars content license)
+
+Tools for downsampling/resampling/subsampling Oxford Nanopore reads
+
+I have got ~40000 MinION reads derived from a virus, whose read length ranges from ~100 to ~34.9k. I would like to re-sample these reads to evaluate the minimum read number enough to detect this virus. As Oxford nanopore reads have no identical read length, I have to take the varying read length into consideration when re-sampling the reads. Are there open soure tools available for this task?

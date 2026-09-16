@@ -1,0 +1,10 @@
+# source: https://www.biostars.org/p/340535/
+# title: Gene cluster visualization
+# date: 2018-11-29
+# license: CC-BY-4.0 (Biostars content license)
+
+Gene cluster visualization
+
+I have NRPS gene clusters isolated from running various bacterial genomes through antiSMASH. I need to generate a visualization of the gene clusters with color-coded annotation of their constituent genes as in the image in the link below. I have already gone through the methods in several papers but I was unable to find a description of how the image was generated. I have also tried various online gene cluster visualization programs, but they do not seem to fit my purpose. Could someone please point me to a program/package that would take gene clusters to generate an image similar to the one in the link below?
+
+https://drive.google.com/file/d/1vP7pjst0Vz_utnLMHFsGWSwn64UfCB02/view?usp=sharing

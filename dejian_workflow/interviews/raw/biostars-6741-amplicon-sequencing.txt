@@ -1,0 +1,13 @@
+# source: https://www.biostars.org/p/6741/
+# title: Amplicon Sequencing
+# date: 2011-03-28
+# license: CC-BY-4.0 (Biostars content license)
+
+Amplicon Sequencing
+
+Hi, 
+
+ I am looking for an alignment tool that is good at aligning a lot of small amplicon sequences to small reference sequences. 
+I have tried BWA and Bowtie, (and BLAST with a makeshift Perl parser behind it) but can someone point me to another good alignment program for this kind of job? 
+
+ Kind regards,

@@ -1,0 +1,10 @@
+# source: https://www.biostars.org/p/351333/
+# title: Is there a BlastKOALA local installation?
+# date: 2019-02-11
+# license: CC-BY-4.0 (Biostars content license)
+
+Is there a BlastKOALA local installation?
+
+I would like to carry out a whole genome KO annotation of a bacterial genome using BlastKOALA but as far as I can find it is only available as a web service. Is it possible to install BlastKOALA locally or is there an alternative tool that assigns KO numbers?
+
+Thanks in advance.

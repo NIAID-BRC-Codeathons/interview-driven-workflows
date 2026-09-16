@@ -1,0 +1,59 @@
+# source: https://www.biostars.org/p/273326/
+# title: Is there any way to retrieve a list of start and end positions of tuberculosis genome genes?
+# date: 2017-11-13
+# license: CC-BY-4.0 (Biostars content license)
+
+Is there any way to retrieve a list of start and end positions of tuberculosis genome genes?
+
+Is there any way to retrieve a list of start and end positions of tuberculosis genome genes automatically?
+
+I have a list of TB drug resistance genes:
+
+ ebmB
+ embR
+ Rv3124
+ Rv3125c
+ Rv3126
+ Rv0340
+ iniA
+ iniB
+ iniC
+ rmlA2
+ rmlD
+ inhA
+ ethA
+ gyrA
+ gyrB
+ tlyA
+ thyA
+ rss
+ katG
+ kasA
+ ndh
+ oxyR
+ ahpC
+ mabA
+ inhA
+ furA
+ Rv0340
+ Rv1592c
+ Rv1772
+ srmR
+ fabD
+ accD6
+ fbpC
+ fadE24
+ efpA
+ nhoA
+ gid
+ rpsL
+ pncA
+ embC
+ embB
+ embA
+ rpoB
+ katG
+
+Want to get a respective columns of Start and End nucleotide numbers automatically
+
+Thx

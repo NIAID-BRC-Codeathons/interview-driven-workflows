@@ -1,0 +1,17 @@
+# source: https://www.biostars.org/p/401990/
+# title: How to assemble viral genomes when my data contains host DNA as well
+# date: 2020-01-24
+# license: CC-BY-4.0 (Biostars content license)
+
+How to assemble viral genomes when my data contains host DNA as well
+
+I'm currently trying to assemble a viral genome, but am unsure about how to proceed on that, as my samples contain both viral DNA and bacterial DNA (from it's host).
+
+I'm using a pipeline that we usually use for bacterial assemblies without problems, using A5 and SPADES to assemble the contigs, and then using both assemblies on GMCloser in order to try and close any gaps. We get very good results for bacteria, and we seem to have achieved good results on the viral DNA as well, managing to find 42 scaffolds, two of them with coverage over 2000.
+One of these two scaffolds matched to our host bacteria on a Blast alignment against NCBI, while the other matched to a viral genome, similar to what we expected. This viral scaffold, then, was the one with the highest overall/average coverage (cov > 2000), with a length of 40kbp, aligning to a known virus that infects the host cell we found on our samples. It seems like we managed to recover most of the genome, as the complete genome of virus it aligned to is also around 40kbp long.
+
+I'm unsure of how to check for contaminations on that scaffold, though. It appears to be of the right length, and after blasting it on NCBI I've found a few similar virus, for which I retrieved their complete genomes, and compared them with ANI (using mummer alignment), which indeed showed that 35350bp (87.79% of my genome) aligned to a reference viral genome. Using Genome Detective (https://www.genomedetective.com/app/typingtool/virus/) I've found that it aligned with 94% coverage/concordance to a specific viral genome, which seems to confirm that it had a good alignment.
+
+Is there any other steps I can use to search this scaffold for host DNA, in case some DNA was badly assembled? I've ran all scaffolds through the 'Genome Detective' tool mentioned above, and only found viral DNA on one other scaffold, on which the tool detected only 3% alignment, which leads me to thinking that scaffold is actually from the host, and that this 3% alignment would be coming from sequences shared between a virus and the host itself. I'm wondering if my 'viral scaffold' might also contain 'shared sequences' and, if that's the case, if any chimeras could have been generated on the assembly, mixing host DNA into it.
+
+Looking for some input from anyone more experience with viral assemblies.

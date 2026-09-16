@@ -1,0 +1,18 @@
+# source: https://www.biostars.org/p/446654/
+# title: Characterization of an Integron carrying antimicrobial resistance genes
+# date: 2020-12-02
+# license: CC-BY-4.0 (Biostars content license)
+
+Characterization of an Integron carrying antimicrobial resistance genes
+
+Dear all,
+
+I have detected the presence of a 49.5 Kb Genomic Island (using Islandviewer4) in my newly sequenced bacterial genome. The genomic Island possess a tRNA-Sec; Tyrosine Type Integrase / Transposase; multiple IS elements and multiple antibiotic resistance genes.
+
+I need your inputs and suggestion as to how to go forward in characterizing this as an Integron or a transposon. How to identify the presence of Repeats (DRs or IRs) or att sites (attL or attR) in the region.
+
+I'll be grateful for your insights on this.
+
+Thanks a lot
+
+Merry Christmas

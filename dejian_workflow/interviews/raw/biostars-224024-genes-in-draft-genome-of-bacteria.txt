@@ -1,0 +1,13 @@
+# source: https://www.biostars.org/p/224024/
+# title: Genes in draft genome of bacteria
+# date: 2017-01-22
+# license: CC-BY-4.0 (Biostars content license)
+
+Genes in draft genome of bacteria
+
+Hi all, I am new to bioinformatic
+Currently, i have draft genome of my isolated bacteria. My question is :
+1) how do i find which gene is related with quorum sensing?
+2) what program can i used for screening if there is plasmid presence in my draft genome?
+3) What kind of useful information can we get from just draft genome (can someone recommend me a good reading material for bacteria draft genome analysis).
+~thanks

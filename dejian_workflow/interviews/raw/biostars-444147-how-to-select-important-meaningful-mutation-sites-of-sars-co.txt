@@ -1,0 +1,8 @@
+# source: https://www.biostars.org/p/444147/
+# title: how to select important / meaningful mutation sites of SARS-CoV-2 ?
+# date: 2020-11-13
+# license: CC-BY-4.0 (Biostars content license)
+
+how to select important / meaningful mutation sites of SARS-CoV-2 ?
+
+I'd like to do a research concerning SARS-CoV-2 mutations. I was wondering, how to select important / meaningful mutations or do I need to analyse / compute mutations by sequences alignment, trimming, and computer analysis softwares? Any comments are greatly appreciated.

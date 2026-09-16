@@ -1,0 +1,10 @@
+# source: https://www.biostars.org/p/130318/
+# title: Reporting alleles sequences for Amplicon sequencing after variant calling
+# date: 2015-04-01
+# license: CC-BY-4.0 (Biostars content license)
+
+Reporting alleles sequences for Amplicon sequencing after variant calling
+
+Hello,
+
+I have amplicon sequencing data for clones whose genome has been edited. On each alleles, there might be one or two indels. I would like report the sequences of the alleles and their frequency. I have some complex cases where some clones are mixed clones. May I ask if there is an obvious tool to work out what are the amplicon sequences from a variant caller result or do I have to look at all the reads and work out which variants are combined in one sequence?

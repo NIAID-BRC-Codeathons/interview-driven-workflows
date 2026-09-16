@@ -1,0 +1,12 @@
+# source: https://www.biostars.org/p/171490/
+# title: Viral Data classification
+# date: 2016-02-29
+# license: CC-BY-4.0 (Biostars content license)
+
+Viral Data classification
+
+Hi,
+I would like to classify my viral contigs could anyone recommend me the best way to that. 
+Also if someone has created viral database for blast? 
+
+Thanks

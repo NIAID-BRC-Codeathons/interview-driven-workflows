@@ -1,0 +1,14 @@
+# source: https://www.biostars.org/p/468944/
+# title: two bacteria rna seq mapping using bowtie2 which mode is better end-to-end or local
+# date: 2021-05-06
+# license: CC-BY-4.0 (Biostars content license)
+
+two bacteria rna seq mapping using bowtie2 which mode is better end-to-end or local
+
+Dear all, 
+
+I have two bacteria rna sequenced together, after data cleaning, I used bowtie2 to map the reads against two bacteria genome seperately. I got a total 86% (35%+51%) alignment rate of the two bacteria when using --very-sensitive-local; and a total of 81% (33%+48%) alignment rate when using --very-sensitive-end-to-end.
+The reason why it doesn't ammount to 100% is that the rna was extracted together with two bacteria and one fungus in the system, after extraction, fungi rna was fished out, so the bacterial rna was left with a bit fungi rna.
+
+My questions is: which mode gives more accurate results?
+I understand that both local and end-to-end modes will give some false alignment. Is there a genernal undstanding that which one is more accurate?

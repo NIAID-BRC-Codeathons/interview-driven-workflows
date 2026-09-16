@@ -1,0 +1,9 @@
+# source: https://www.biostars.org/p/63917/
+# title: Visualization Of Sequencing Data From Bacteria (Prokaryotes)
+# date: 2013-03-26
+# license: CC-BY-4.0 (Biostars content license)
+
+Visualization Of Sequencing Data From Bacteria (Prokaryotes)
+
+I want to visulaize bam / sam files of RNAseq data of a bacteria. Is there a good easy to use tool (like IGV). I read one post - Which genome browser works best with prokaryotic genomes and data 
+but could not found something very user friendly or easy to navigate. Any suggestion?

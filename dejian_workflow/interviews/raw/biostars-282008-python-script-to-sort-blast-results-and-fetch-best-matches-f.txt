@@ -1,0 +1,42 @@
+# source: https://www.biostars.org/p/282008/
+# title: python script to sort blast results and fetch best matches from NCBI
+# date: 2018-01-05
+# license: CC-BY-4.0 (Biostars content license)
+
+python script to sort blast results and fetch best matches from NCBI
+
+Hello hive mind, 
+
+I have been trying to automate a process that I do for flu sequencing. I currently use SPAdes to do a de novo build and then blast the contigs using the ncbi command line, remotely. I get back a tab delimited csv file that has the contig, the sequence id, the ncbi acc # and the raw score. 
+
+I have working a small script to pull just flu contigs
+
+ import re
+ import csv
+ import sys
+ 
+ with open(sys.argv[1], newline="") as csv_file, open("flu_hits.csv","w") as justFlu:
+ reader = csv.reader(csv_file, delimiter="\t")
+ writer = csv.writer(justFlu, delimiter="\t")
+ for row in reader:
+ if re.match(r'influenza',row[1], re.I) != None:
+ writer.writerow(row)
+this works just fine, however now I want to take the flu file and select the best match for each contig so I can make a list of the accession numbers to later then use to pull from ncbi to make a reference.
+
+My current issue is trying to pull the highest score. I have some code (below) that is working but not the way I want. It is only returning the highest score from all the contigs not the highest score for each contig. 
+
+ with open(sys.argv[1], newline="") as csv_file, open("temp.csv","w") as subset:
+ reader = csv.reader(csv_file, delimiter="\t")
+ writer = csv.writer(subset, delimiter="\t")
+ for row in reader:
+ if row[0] in NodeList:
+ writer.writerow(row)
+ with open("temp.csv", "r") as temp:
+ subset_reader = csv.reader(temp, delimiter="\t")
+ BestHit = max(subset_reader, key=lambda column: int(column[-1].replace(',','')))
+ print(BestHit) 
+
+I do this manually now but it take a lot longer than it should, so I would really appreciate any direction with this. 
+
+Thank you in advance, 
+Sean

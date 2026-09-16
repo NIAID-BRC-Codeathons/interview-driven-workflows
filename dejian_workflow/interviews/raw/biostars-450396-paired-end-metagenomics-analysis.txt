@@ -1,0 +1,15 @@
+# source: https://www.biostars.org/p/450396/
+# title: paired end metagenomics analysis
+# date: 2021-01-05
+# license: CC-BY-4.0 (Biostars content license)
+
+paired end metagenomics analysis
+
+Hello, 
+I am Saraswati and I am new in the field of metagenomics. I have to do taxonomic classification(Archea, Bacteria, Eukaryotes and Viruses) of the shotgun sequence which is 3.5 GB in size by using tools DIAMOND and MEGAN6.
+
+I downloaded the .sra file from ncbi and splitted into two files, forward and reverse .fastq format using sra toolkit. Now I have to do blastx of the sequence using DIAMOND but I want to know if I should merge forward and reverse reads into a single file or I should do blastx with forward read only? 
+If I should merge then which tool I should use for that purpose?
+
+I want to do blastx against nr database I tried doing it with the forward end .fasta file but it is taking a long time(more than 7 days and still continuing) so how should I make it faster? 
+ Also if there are some other tools or strategy to the same for taxonomy in short time and better way then please suggest me.

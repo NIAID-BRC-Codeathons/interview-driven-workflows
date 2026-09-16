@@ -1,0 +1,20 @@
+# source: https://www.biostars.org/p/287412/
+# title: Running assemblies in parallel
+# date: 2018-02-08
+# license: CC-BY-4.0 (Biostars content license)
+
+Running assemblies in parallel
+
+Hello,
+
+I have 600+ bacterial isolates (*fastq.gz files) that I want to assemble.
+
+I have a script which uses a for loop to trim adapters and run SPAdes on each isolate, but this takes a very long time, and my computer should be powerful enough to run the script for multiple isolates at one time, which is what I want to do.
+
+I have looked at GNU parallel which seems to work well and be faster than the for loop. As an example, I do the trimming like this:
+
+ parallel 'trimmomatic PE {}R1*.f*q.gz {}R2*.f*q.gz {}pair_R1.fq.gz {}unpair_R1.fq.gz {}pair_R2.fq.gz {}unpair_R2.fq.gz ILLUMINACLIP:NexteraPE-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36' ::: $(ls *.fastq.gz | rev | cut -c 16- | rev | uniq)
+
+My question is; When running parallel in a folder containing my 600+ filepairs, will parallel try to run the program on all 600+ isolates simultaneously or will it limit the amount of files run at one time based on how much the computer can manage at one time? Or is there a way to limit how many files parallel should work on at one time, apart from specifying the specific files?
+
+Thank you!

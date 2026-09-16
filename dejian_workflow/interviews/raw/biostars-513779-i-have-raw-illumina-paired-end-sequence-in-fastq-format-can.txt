@@ -1,0 +1,8 @@
+# source: https://www.biostars.org/p/513779/
+# title: I have RAW Illumina Paired-end sequence in FASTQ format. Can someone please guide me on how to create a single FASTA file for analysis? I want to check the presence of bacterial resistance. Need help
+# date: 2022-03-08
+# license: CC-BY-4.0 (Biostars content license)
+
+I have RAW Illumina Paired-end sequence in FASTQ format. Can someone please guide me on how to create a single FASTA file for analysis? I want to check the presence of bacterial resistance. Need help
+
+I have RAW Illumina Paired-end sequence in FASTQ format. Can someone please guide me on how to create a single FASTA file for analysis? I want to check the presence of bacterial resistance. Need help in this.

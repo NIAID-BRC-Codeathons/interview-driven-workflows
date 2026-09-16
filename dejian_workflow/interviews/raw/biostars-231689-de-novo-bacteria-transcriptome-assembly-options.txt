@@ -1,0 +1,11 @@
+# source: https://www.biostars.org/p/231689/
+# title: De novo bacteria transcriptome assembly options
+# date: 2017-03-07
+# license: CC-BY-4.0 (Biostars content license)
+
+De novo bacteria transcriptome assembly options
+
+Hello,
+I am relatively new to transcriptome analysis, definitively new to de novo assembly. I wonder if anyone knows of a good option to assemble a bacterial transcriptome in the absence of a good reference genome? So far I have not been able to find a publication on this topic.
+
+Thanks!

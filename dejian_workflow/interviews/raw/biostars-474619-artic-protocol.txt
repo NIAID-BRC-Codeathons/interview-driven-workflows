@@ -1,0 +1,30 @@
+# source: https://www.biostars.org/p/474619/
+# title: Artic protocol
+# date: 2021-06-09
+# license: CC-BY-4.0 (Biostars content license)
+
+Artic protocol
+
+I am trying to apply the Artic bioinformatics protocol to a simulated SARS-Cov-2 raw sequencing dataset.
+
+The dataset was simulated from a manually edited sequence containing these variants:
+
+ #CHROM POS ID REF ALT 
+ sars3 14599 . CT CTAGATAT 
+ sars3 16842 . AG AAGATATG 
+ sars3 18215 . GT GAGATATT
+ 
+
+The simulation was obtained with this pbsim2 command:
+
+ pbsim --depth 1000 --hmm_model data/P6C4.model [raw_fastq_file]
+
+That generates a fastq file with the reads. Then I call:
+
+ artic minion ncov-2019 results/my_id --read-file results/my_id.fastq --medaka --medaka-model r941_prom_variant_g360
+
+The resulting vcf file shows a lot of unexistent SNP's & indels, and only finds the first of the really existing variants.
+
+Can I improve my test? What params are really used in the protocol that they use for SARS-COV-2? I don't get why they let params to be selected (and poorly documented) if this is a protocol. Maybe it's a problem in the simulation?
+
+EDIT: I see now that it indeed doesn't find any variant that passes the filter. It finds in merged.vcf lots of inexistent ones and one that exists, but none passes the filter. Two existing variants are not even found in merged.vcf.

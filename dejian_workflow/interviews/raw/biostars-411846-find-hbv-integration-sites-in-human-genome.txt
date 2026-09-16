@@ -1,0 +1,21 @@
+# source: https://www.biostars.org/p/411846/
+# title: Find HBV integration sites in human genome.
+# date: 2020-04-03
+# license: CC-BY-4.0 (Biostars content license)
+
+Find HBV integration sites in human genome.
+
+Hi there,
+
+I want to identify HBV (virus) integration sites in human genome.
+
+I have single end CAGE-seq (~30 nucleotide long) data on HBV patients. I mapped reads to human genome (used Bowtie2 version 2.29), and unmapped reads were mapped to HBV genome. 
+
+From the remaining unmapped reads, I want to find reads that partially align to human and partially to HBV. If the data was pair-end, it would have been slightly easier. Can you please suggest how do I systematically (logic how to do it, I can implement it) get this information to find the integration site. 
+
+I am thinking of fragmenting (keep same FASTQID) the unmapped reads and map to both human and HBV, and identify which IDs map to both human and HBV. 
+
+Any suggestion on how i could do this efficiently. Does using BWA help in this case?
+
+
+Thank you !!

@@ -1,0 +1,16 @@
+# source: https://www.biostars.org/p/446953/
+# title: Hybrid assembly to produce full genome
+# date: 2020-12-04
+# license: CC-BY-4.0 (Biostars content license)
+
+Hybrid assembly to produce full genome
+
+Hello.
+
+I am currently working on a project with the goal to obtain a full/complete genome of a bacterial isolate. DNA has been sent for MiSeq (2x250 bp) and PacBio sequencing. SPAdes assembly of the Miseq data (after trimming) yielded just over a 100 contigs. The PacBio data was assembly by the sequencing company and yielded 3 polished contigs. I also requested the the raw data for the PacBio assembly so it is available. 
+
+My experience in bioinformatics is limited and I am not entirely sure how I would go about to obtain a full (circular) genome from the above data. Closely related genomes of the isolate in question is available on NCBI, but none of them are full, i.e. all are contigated or scaffolded. I have attempted hybrid assembly with SPAdes using the MiSeq and PacBio data, but my output is about 10-15 contigs depending on using the provided PacBio assembled sequences (fasta format), or the raw PacBio reads (fastq format).
+
+Is this method correct, i.e. should I use the output from the hybrid assembly with another pipeline to complete the genome. Or should another approach be used?
+
+Any help/guidance will be greatly appreciated. Thank you in advance.

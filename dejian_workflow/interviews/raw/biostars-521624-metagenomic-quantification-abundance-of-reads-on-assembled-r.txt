@@ -1,0 +1,11 @@
+# source: https://www.biostars.org/p/521624/
+# title: Metagenomic quantification (abundance of reads on assembled reference)
+# date: 2022-05-04
+# license: CC-BY-4.0 (Biostars content license)
+
+Metagenomic quantification (abundance of reads on assembled reference)
+
+Hello,
+I need to estimate the relative abundance by viral genus or family in my samples after assembly. I have found the following reference https://github.com/edamame-course/Metagenome/blob/master/2017-08-09-counting-abundance-with-mapped-reads.md , but 1. some step is still not clear, 2. data are not available to reproduce/test the procedure. Can someone suggest me an alternative source to learn about Metagenomic Quantification? Something like a tutorial/step-by-step resource? 
+
+Thank you very much

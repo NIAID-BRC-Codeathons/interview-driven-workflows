@@ -1,0 +1,10 @@
+# source: https://www.biostars.org/p/276873/
+# title: Bam to Fasta in galaxy
+# date: 2017-11-29
+# license: CC-BY-4.0 (Biostars content license)
+
+Bam to Fasta in galaxy
+
+Hi, 
+
+I am new in the field of bioinformatics, with basic knowledge only. However, we have some bacterial whole genome in BAM, what I would like to convert to FASTA and upload in the NCBI database. I started using Galaxy, which seems quite understandable to me (so far). Though I am stuck and cannot get a proper Fasta file. Can you send me a step by step tutorial or some advise how to solve this? Thanks a lot!

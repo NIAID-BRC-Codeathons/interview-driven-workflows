@@ -1,0 +1,13 @@
+# source: https://www.biostars.org/p/501912/
+# title: How to make hybrid assembly of a viral genome
+# date: 2021-12-15
+# license: CC-BY-4.0 (Biostars content license)
+
+How to make hybrid assembly of a viral genome
+
+Hi,
+
+I am looking to make Hybrid assembly of a viral genome. I have got paired-end reads from Illumina and long reads from MinION from a viral sample. I tried Unicycler for making hybrid assembly but it is for bacterial genome assembly.
+Could anyone please suggest a pipeline for viral genome assembly. Also, please let me know a program for quality check and trimming for MinION data. I am trying LongQC, MinIONQC but I'm not sure if these are appropriate.
+
+Thank you!

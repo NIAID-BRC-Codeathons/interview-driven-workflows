@@ -1,0 +1,18 @@
+# source: https://www.biostars.org/p/518898/
+# title: Build Phylogenetic Tree from SNPs
+# date: 2022-04-13
+# license: CC-BY-4.0 (Biostars content license)
+
+Build Phylogenetic Tree from SNPs
+
+Hello,
+I am new (very new!) in the field of bioinformatics.
+I try to learn on my own, but it is sometimes difficult.
+My boss gave me a project: take 5 strains of Listeria, do all the identification work to end up by building a tree
+representing the genetic distance between them (based on nucleotide sequences).
+From fastq I did trimming > assembly de novo > annotation > scaffolding
+And now...I don't know!
+I guess I have to do an msa, but I don't know what to put in input...and then **how the result can lead me to the requested tree**
+It would be wonderful if you can offer me your help!
+
+David

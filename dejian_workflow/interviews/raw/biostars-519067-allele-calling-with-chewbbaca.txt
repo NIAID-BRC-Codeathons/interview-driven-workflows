@@ -1,0 +1,22 @@
+# source: https://www.biostars.org/p/519067/
+# title: Allele Calling with chewBBaCA
+# date: 2022-04-14
+# license: CC-BY-4.0 (Biostars content license)
+
+Allele Calling with chewBBaCA
+
+Hi dears, 
+
+I have 5 strains of listeria.
+I need to do Allele Calling and draw a tree (phylogenetics and spanning).
+for the calling, I used chewbbaca: I ran the contigs.fasta I got from spades, but the output doesn't look well.
+
+![see the results below][1]
+
+What input chewbbaca needs? Do I need to do annotation first?
+And could I generate a tree with phyloviz from the output?
+
+Thank you very much!
+
+
+ [1]: /media/images/20f0bcc5-26db-40ab-84f4-723db7a1

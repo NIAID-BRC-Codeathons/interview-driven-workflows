@@ -1,0 +1,22 @@
+# source: https://www.biostars.org/p/294367/
+# title: Annotating and predicting the genomic region of a sequenced phage
+# date: 2018-03-20
+# license: CC-BY-4.0 (Biostars content license)
+
+Annotating and predicting the genomic region of a sequenced phage
+
+Dear Friends,
+
+I have fastq files (DNA) of sequenced phage, and am trying to predict the tail proteins of the phage in the phage genome. I assembled the sequenced reads using SOPAdenovo and got contigs. Performed blast on this contigs agains the nr nucleotide database, to detect the tail proteins. However, blast result is giving me information like this:
+
+ Uncultured bacterium clone PAE-EN23_12 16S ribosomal RNA gene, partial sequence
+ 470 470 99% 4e-129 99% KC238410.1
+
+Could you please give your suggestions on:
+
+a) Since the contigs are of phage why am I getting "bacteria" hits, should not it be phage hits?
+
+b) I am thinking of doing blastx on the contigs got from assembly software and then look for proteins obtained from blastx in the PFAM phage tail family (http://pfam.xfam.org/family/PF06995#tabview=tab0) to identify the tail proteins. Will this approach be reasonable? I would really appreciate suggestions on how to predict the tail protein of the phage?
+
+Thanks much,
+DK

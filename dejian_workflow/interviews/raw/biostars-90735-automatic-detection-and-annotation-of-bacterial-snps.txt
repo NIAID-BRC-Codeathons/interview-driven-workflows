@@ -1,0 +1,33 @@
+# source: https://www.biostars.org/p/90735/
+# title: Automatic Detection And Annotation Of Bacterial Snps
+# date: 2014-03-26
+# license: CC-BY-4.0 (Biostars content license)
+
+Automatic Detection And Annotation Of Bacterial Snps
+
+Hi all, 
+
+ I am working on 10 bacterial genomes (1 reference and 9 mutant) sequenced by Illumina technology. My main aim is to find SNPs that are common in 9 genomes but absent in reference genomes. In last, I would like to do the automatic annotation of those SNPs. Until now, I have done the following steps and wondering if I am on the right path. 
+
+ First: Extracted the common SNPs in 9 mutant genomes 
+
+ vcf-isec -n +9 -f 1.vcf.gz 2.vcf.gz 3.vcf.gz 4.vcf.gz 5.vcf.gz 6.vcf.gz 7.vcf.gz 8.vcf.gz 9.vcf.gz | bgzip -c > isec1.vcf.gz 
+
+ Second: tab index 
+
+ tabix -p vcf isec1.vcf.gz 
+
+ Third: Extracted SNps that are present in isec1.vcf.gz but absent in reference strain 
+
+ vcf-isec -c -f isec1.vcf.gz reference.vcf.gz > isec2.vcf 
+
+ Four: Automatic annotation of isec2.vcf 
+
+ Used snpEFF 
+
+ java -jar snpEff.jar eff -no-downstream -no-upstream -no-utr -no-intergenic -v database isec2.vcf 
+
+ Most of the SNPs were observed in intergenic region. Should I include these intergenic SNPs or not? Any other suggestions of selecting SNPs. 
+
+ Regards
+Nitin

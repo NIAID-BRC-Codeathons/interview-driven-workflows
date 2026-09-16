@@ -1,0 +1,9 @@
+# source: https://www.biostars.org/p/288462/
+# title: SNPS finding for bacterial sequences
+# date: 2018-02-14
+# license: CC-BY-4.0 (Biostars content license)
+
+SNPS finding for bacterial sequences
+
+any software for snp calling for baterial data. I have about 300 bacterial sequences and i have done multiple sequence alignment. I want to find SNPs in them. kindly guide me about the pipeline and softwares as well.
+Regards

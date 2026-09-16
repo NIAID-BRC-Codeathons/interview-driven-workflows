@@ -1,0 +1,12 @@
+# source: https://www.biostars.org/p/477263/
+# title: How to know the positions of contigs in a reference genome
+# date: 2021-06-24
+# license: CC-BY-4.0 (Biostars content license)
+
+How to know the positions of contigs in a reference genome
+
+Hi I am quite new to Bioinformatics and this site has always helped me. I have generated contigs (FASTA file) of E coli from short read assemblers like PaKman, Minia. I want to know the positions of these contigs in the reference genome now. Is there any tool to do that?
+I have seen the earlier posts here saying that blast can give the positions but I could not get the command line to do so.
+I know quast gives you the position of the misaligned contig positions but I want to know the positions of the all the contigs that I have got from the short read assembler.
+
+Thanks for all the help.

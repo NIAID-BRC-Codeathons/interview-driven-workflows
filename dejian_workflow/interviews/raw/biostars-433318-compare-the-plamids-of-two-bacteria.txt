@@ -1,0 +1,10 @@
+# source: https://www.biostars.org/p/433318/
+# title: compare the plamids of two bacteria
+# date: 2020-08-24
+# license: CC-BY-4.0 (Biostars content license)
+
+compare the plamids of two bacteria
+
+Hi all,
+
+I got the drat genome of two isolates from WGS sequencing, and then split the contigs belonging to chromosome and plasmid separately. Now, I'd like to compare the plasmids of two isolates, get the information such as similarity, how can I do with that? Any suggestions would be appreciated greatly.

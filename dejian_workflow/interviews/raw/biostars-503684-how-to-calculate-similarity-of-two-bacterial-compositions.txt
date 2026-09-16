@@ -1,0 +1,14 @@
+# source: https://www.biostars.org/p/503684/
+# title: How to calculate similarity of two bacterial compositions?
+# date: 2021-12-30
+# license: CC-BY-4.0 (Biostars content license)
+
+How to calculate similarity of two bacterial compositions?
+
+Hello Everyone,
+
+I am new to microbiome analysis. I have cultured bacteria with different culturing methods from the same fecal sample. 
+Now I have got results for the bacterial compositions from these cultures and from the original sample as relative abundances. 
+I would like to calculate how similar the cultured bacterial compositions are to each other and also how similar each of the cultured bacterial compositions is to the original sample. Does someone know a method to do this or is there a bioinformatics pipeline or package for R that could help me solve this question?
+
+Thank you!

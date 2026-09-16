@@ -1,0 +1,8 @@
+# source: https://www.biostars.org/p/248401/
+# title: Phylogeny Analysis Data
+# date: 2017-06-13
+# license: CC-BY-4.0 (Biostars content license)
+
+Phylogeny Analysis Data
+
+I have nucleotide and amino acid sequences of 7 sorotypes of a virus (they differ into two divergent groups that are internally close related). What of these is best kind of data for inferring phylogenetic trees?

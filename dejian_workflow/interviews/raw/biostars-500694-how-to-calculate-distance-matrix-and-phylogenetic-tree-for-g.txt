@@ -1,0 +1,10 @@
+# source: https://www.biostars.org/p/500694/
+# title: How to calculate distance matrix and phylogenetic tree for genome alignment
+# date: 2021-12-07
+# license: CC-BY-4.0 (Biostars content license)
+
+How to calculate distance matrix and phylogenetic tree for genome alignment
+
+Hi, I have got some bacterial samples (total 10) and assembled using SPAdes. Now I am looking to generate phylogenetic analysis and metrics to show the percentage similarity. Please let me know if there is any way to generate metrics to show the percentage similarity. I tried Roary and RaXML for generating phylogenetic tree but I am not getting how to get metrics to show the percentage similarity among the samples.
+
+Thank you!
