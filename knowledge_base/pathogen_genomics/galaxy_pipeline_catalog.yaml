@@ -1,0 +1,360 @@
+# Bacteria/virus-relevant Galaxy workflow catalog.
+#
+# Curated from the IWC (Intergalactic Workflow Commission) registry:
+# https://github.com/galaxyproject/iwc/tree/main/workflows
+#
+# This is the local "decision surface" for the use/adapt/build routing
+# decision (PROPOSAL.md Goal 1), scoped to bacteria- and virus-relevant
+# workflows. It is a curated subset, not the full IWC registry -- a real
+# routing layer should query the live registry (or a periodically
+# refreshed mirror of it), not rely solely on this hand-curated file.
+#
+# Schema per entry:
+#   id             short unique slug
+#   name           human-readable workflow name
+#   category       IWC top-level workflow category
+#   organism       broad organism tags (bacteria | virus | pathogen-agnostic)
+#   data_type      sequencing/data shape tags
+#   analysis_type  what the workflow does
+#   tools          key tools the workflow chains together
+#   description    one/two sentence summary (from the workflow's own README)
+#   keywords       terms a free-text request might use, for keyword matching
+#   inputs         expected input data
+#   iwc_path       path within the IWC repo
+#   url            link to the workflow's directory on GitHub
+
+pipelines:
+  - id: bacterial-amr-gene-detection
+    name: AMR Gene Detection (Bacterial)
+    category: bacterial_genomics
+    organism: [bacteria]
+    data_type: [assembly, fasta]
+    analysis_type: [amr, virulence-detection]
+    tools: [StarAMR, AMRFinderPlus, ABRicate, ToolDistillator]
+    description: >
+      Detects antimicrobial resistance genes (via StarAMR against ResFinder/
+      PointFinder/PlasmidFinder, and AMRFinderPlus) and virulence genes (via
+      ABRicate/VFDB) in an assembled bacterial genome.
+    keywords: [amr, antimicrobial resistance, antibiotic resistance, virulence,
+      resfinder, pointfinder, plasmidfinder, resistance gene, bacteria, bacterial]
+    inputs: ["Assembled bacterial genome (FASTA)"]
+    iwc_path: workflows/bacterial_genomics/amr_gene_detection
+    url: https://github.com/galaxyproject/iwc/tree/main/workflows/bacterial_genomics/amr_gene_detection
+
+  - id: bacterial-qc-contamination-post-assembly
+    name: Bacterial Quality and Contamination Control (post-assembly)
+    category: bacterial_genomics
+    organism: [bacteria]
+    data_type: [illumina-pe, fastq]
+    analysis_type: [qc, contamination-check, taxonomic-assignment]
+    tools: [Quast, Checkm2, Kraken2, Bracken, ToolDistillator]
+    description: >
+      Assesses assembly quality (Quast, Checkm2) and taxonomically assigns
+      contigs (Kraken2/Bracken) from paired-end Illumina bacterial genome data.
+    keywords: [quality control, qc, contamination, completeness, assembly quality,
+      kraken, taxonomic assignment, bacteria, bacterial, illumina paired end]
+    inputs: ["Paired-end Illumina FASTQ(.gz)"]
+    iwc_path: workflows/bacterial_genomics/bacterial-quality-and-contamination-control-post-assembly
+    url: https://github.com/galaxyproject/iwc/tree/main/workflows/bacterial_genomics/bacterial-quality-and-contamination-control-post-assembly
+
+  - id: bacterial-genome-annotation
+    name: Bacterial Genome Annotation
+    category: bacterial_genomics
+    organism: [bacteria]
+    data_type: [assembly, fasta]
+    analysis_type: [annotation, mobile-elements]
+    tools: [Bakta, IntegronFinder2, Plasmidfinder, ISEScan, ToolDistillator]
+    description: >
+      Annotates CDS/small proteins (Bakta), and identifies integrons
+      (IntegronFinder2), plasmids (Plasmidfinder), and insertion sequences
+      (ISEScan) in an assembled bacterial genome.
+    keywords: [annotation, annotate, gene prediction, plasmid, integron,
+      insertion sequence, bakta, bacteria, bacterial genome]
+    inputs: ["Assembled bacterial genome (FASTA)"]
+    iwc_path: workflows/bacterial_genomics/bacterial_genome_annotation
+    url: https://github.com/galaxyproject/iwc/tree/main/workflows/bacterial_genomics/bacterial_genome_annotation
+
+  - id: bacterial-cgmlst
+    name: cgMLST of Bacterial Genome
+    category: bacterial_genomics
+    organism: [bacteria]
+    data_type: [assembly, fasta]
+    analysis_type: [typing, strain-characterization]
+    tools: [CoreProfiler, ToolDistillator]
+    description: >
+      Core genome multilocus sequence typing (cgMLST) on bacterial contigs to
+      characterize strains using curated reference schemes (pubMLST, BIGSdb,
+      Enterobase, cgMLST.org).
+    keywords: [cgmlst, mlst, strain typing, sequence typing, strain
+      characterization, bacteria, bacterial, outbreak typing]
+    inputs: ["Contigs of one assembled bacterial genome (FASTA)"]
+    iwc_path: workflows/bacterial_genomics/cgmlst-bacterial-genome
+    url: https://github.com/galaxyproject/iwc/tree/main/workflows/bacterial_genomics/cgmlst-bacterial-genome
+
+  - id: virus-generic-non-segmented-variant-calling
+    name: Generic Non-Segmented Viral Variant Calling
+    category: virology
+    organism: [virus]
+    data_type: [illumina-pe, fastq, amplicon-optional]
+    analysis_type: [variant-calling, consensus, annotation]
+    tools: [fastp, bwa-mem, lofreq, ivar, SnpEff, SnpSift, MultiQC]
+    description: >
+      Variant calling and consensus generation for batches of Illumina PE
+      sequenced viruses with simple, stable, non-segmented genomes (e.g.
+      Morbilliviruses). Handles ampliconic or non-ampliconic data.
+    keywords: [virus, viral, variant calling, consensus sequence, non-segmented,
+      morbillivirus, measles, ivar, lofreq, illumina paired end, amplicon]
+    inputs: ["Illumina PE FASTQ", "optional primer scheme"]
+    iwc_path: workflows/virology/generic-non-segmented-viral-variant-calling
+    url: https://github.com/galaxyproject/iwc/tree/main/workflows/virology/generic-non-segmented-viral-variant-calling
+
+  - id: virus-influenza-subtyping-consensus
+    name: Influenza A Isolate Subtyping and Consensus
+    category: virology
+    organism: [virus]
+    data_type: [illumina-pe, fastq]
+    analysis_type: [subtyping, consensus, phylogenetics]
+    tools: [VAPOR, fastp, bwa-mem, ivar, MAFFT, Snipit, IQ-Tree]
+    description: >
+      Subtypes (HA/NA) and generates consensus sequences for batches of
+      Illumina PE sequenced Influenza A isolates; compiles per-sample best
+      reference across all 8 segments, then aligns and visualizes the batch.
+    keywords: [influenza, flu, subtyping, ha, na, segmented virus, consensus
+      sequence, phylogenetics, illumina paired end]
+    inputs: ["Illumina PE FASTQ", "per-segment reference collection"]
+    iwc_path: workflows/virology/influenza-isolates-consensus-and-subtyping
+    url: https://github.com/galaxyproject/iwc/tree/main/workflows/virology/influenza-isolates-consensus-and-subtyping
+
+  - id: virus-pox-amplicon-half-genome
+    name: Pox Virus Illumina Amplicon (half-genome)
+    category: virology
+    organism: [virus]
+    data_type: [illumina-pe, fastq, amplicon]
+    analysis_type: [consensus]
+    tools: [BWA-MEM, iVar]
+    description: >
+      Generates consensus sequences from Illumina PE ARTIC amplicon data of
+      pox virus samples sequenced as two genome halves, resolving inverted
+      terminal repeats by merging two masked-reference read mappings.
+    keywords: [pox virus, poxvirus, monkeypox, mpox, smallpox, half genome,
+      inverted terminal repeat, itr, artic, amplicon, consensus]
+    inputs: ["Illumina PE FASTQ, two half-genome sequencing runs per sample"]
+    iwc_path: workflows/virology/pox-virus-amplicon
+    url: https://github.com/galaxyproject/iwc/tree/main/workflows/virology/pox-virus-amplicon
+
+  - id: sarscov2-consensus-from-variation
+    name: "SARS-CoV-2: Consensus Construction"
+    category: sars-cov-2-variant-calling
+    organism: [virus]
+    data_type: [vcf, bam]
+    analysis_type: [consensus]
+    tools: [custom consensus logic]
+    description: >
+      Builds reliable consensus sequences from VCFs + aligned reads produced
+      by any of the SARS-CoV-2 variant-calling workflows in this catalog.
+    keywords: [sars-cov-2, sars cov 2, covid, covid-19, coronavirus, consensus
+      sequence, vcf]
+    inputs: ["Collection of VCFs (DP/DP4)", "corresponding aligned reads"]
+    iwc_path: workflows/sars-cov-2-variant-calling/sars-cov-2-consensus-from-variation
+    url: https://github.com/galaxyproject/iwc/tree/main/workflows/sars-cov-2-variant-calling/sars-cov-2-consensus-from-variation
+
+  - id: sarscov2-ont-artic-variant-calling
+    name: "SARS-CoV-2: ONT ARTIC Variant Calling"
+    category: sars-cov-2-variant-calling
+    organism: [virus]
+    data_type: [ont, amplicon, artic]
+    analysis_type: [variant-calling]
+    tools: [minimap2, medaka, ivar]
+    description: >
+      Variant calling for ONT-sequenced ARTIC SARS-CoV-2 data, modeled on the
+      ARTIC pipeline's minion command (minimap2 mapping, medaka calling, ivar
+      primer trimming).
+    keywords: [sars-cov-2, covid, covid-19, coronavirus, nanopore, ont, oxford
+      nanopore, artic, variant calling, minimap2, medaka]
+    inputs: ["ONT FASTQ, ARTIC primer scheme"]
+    iwc_path: workflows/sars-cov-2-variant-calling/sars-cov-2-ont-artic-variant-calling
+    url: https://github.com/galaxyproject/iwc/tree/main/workflows/sars-cov-2-variant-calling/sars-cov-2-ont-artic-variant-calling
+
+  - id: sarscov2-pe-illumina-artic-ivar
+    name: "SARS-CoV-2: Illumina Amplicon PE (iVar/pangolin/nextclade)"
+    category: sars-cov-2-variant-calling
+    organism: [virus]
+    data_type: [illumina-pe, amplicon, artic]
+    analysis_type: [variant-calling, lineage-assignment]
+    tools: [ivar, pangolin, nextclade]
+    description: >
+      iVar-based analysis of Illumina amplicon PE SARS-CoV-2 data aimed at
+      rapid majority-variant calling and lineage/clade assignment (pangolin,
+      nextclade) -- similar to ncov2019-artic-nf / Theiagen Titan.
+    keywords: [sars-cov-2, covid, covid-19, coronavirus, illumina paired end,
+      amplicon, artic, ivar, pangolin, nextclade, lineage, clade]
+    inputs: ["Illumina PE FASTQ, ARTIC primer scheme"]
+    iwc_path: workflows/sars-cov-2-variant-calling/sars-cov-2-pe-illumina-artic-ivar-analysis
+    url: https://github.com/galaxyproject/iwc/tree/main/workflows/sars-cov-2-variant-calling/sars-cov-2-pe-illumina-artic-ivar-analysis
+
+  - id: sarscov2-pe-illumina-artic-lofreq
+    name: "SARS-CoV-2: Illumina Amplicon PE (lofreq, ARTIC)"
+    category: sars-cov-2-variant-calling
+    organism: [virus]
+    data_type: [illumina-pe, amplicon, artic]
+    analysis_type: [variant-calling]
+    tools: [bwa-mem, lofreq, ivar]
+    description: >
+      Illumina ampliconic variant calling building on the paired-end mapping/
+      variant-calling steps, adding ivar amplicon primer trimming and
+      exclusion of reads from primer-binding-site-mutation-affected amplicons.
+    keywords: [sars-cov-2, covid, covid-19, coronavirus, illumina paired end,
+      amplicon, artic, lofreq, allele frequency, variant calling]
+    inputs: ["Illumina PE FASTQ, ARTIC primer scheme"]
+    iwc_path: workflows/sars-cov-2-variant-calling/sars-cov-2-pe-illumina-artic-variant-calling
+    url: https://github.com/galaxyproject/iwc/tree/main/workflows/sars-cov-2-variant-calling/sars-cov-2-pe-illumina-artic-variant-calling
+
+  - id: sarscov2-pe-illumina-wgs
+    name: "SARS-CoV-2: WGS PE Variant Calling"
+    category: sars-cov-2-variant-calling
+    organism: [virus]
+    data_type: [illumina-pe, wgs]
+    analysis_type: [variant-calling, annotation]
+    tools: [bwa-mem, lofreq, snpEff]
+    description: >
+      Paired-end WGS (non-amplicon) read mapping with bwa-mem, sensitive
+      variant calling across a wide AF range with lofreq, and annotation with
+      snpEff 4.5covid19.
+    keywords: [sars-cov-2, covid, covid-19, coronavirus, illumina paired end,
+      whole genome sequencing, wgs, lofreq, variant calling, non-amplicon]
+    inputs: ["Illumina PE WGS FASTQ"]
+    iwc_path: workflows/sars-cov-2-variant-calling/sars-cov-2-pe-illumina-wgs-variant-calling
+    url: https://github.com/galaxyproject/iwc/tree/main/workflows/sars-cov-2-variant-calling/sars-cov-2-pe-illumina-wgs-variant-calling
+
+  - id: sarscov2-se-illumina-wgs
+    name: "SARS-CoV-2: WGS SE Variant Calling"
+    category: sars-cov-2-variant-calling
+    organism: [virus]
+    data_type: [illumina-se, wgs]
+    analysis_type: [variant-calling, annotation]
+    tools: [bowtie2, lofreq, snpEff]
+    description: >
+      Single-end WGS read mapping with bowtie2, sensitive variant calling
+      with lofreq, and annotation with snpEff 4.5covid19.
+    keywords: [sars-cov-2, covid, covid-19, coronavirus, illumina single end,
+      whole genome sequencing, wgs, bowtie2, lofreq, variant calling]
+    inputs: ["Illumina SE WGS FASTQ"]
+    iwc_path: workflows/sars-cov-2-variant-calling/sars-cov-2-se-illumina-wgs-variant-calling
+    url: https://github.com/galaxyproject/iwc/tree/main/workflows/sars-cov-2-variant-calling/sars-cov-2-se-illumina-wgs-variant-calling
+
+  - id: sarscov2-variation-reporting
+    name: "SARS-CoV-2: Variation Reporting"
+    category: sars-cov-2-variant-calling
+    organism: [virus]
+    data_type: [vcf]
+    analysis_type: [reporting, visualization]
+    tools: [custom reporting logic]
+    description: >
+      Generates tabular by-sample and by-variant reports plus an overview
+      allele-frequency plot from VCFs produced by any SARS-CoV-2
+      variant-calling workflow in this catalog.
+    keywords: [sars-cov-2, covid, covid-19, coronavirus, reporting, report,
+      allele frequency plot, vcf]
+    inputs: ["Collection of VCFs from a SARS-CoV-2 variant-calling workflow"]
+    iwc_path: workflows/sars-cov-2-variant-calling/sars-cov-2-variation-reporting
+    url: https://github.com/galaxyproject/iwc/tree/main/workflows/sars-cov-2-variant-calling/sars-cov-2-variation-reporting
+
+  - id: pathogen-id-nanopore-preprocessing
+    name: Nanopore Preprocessing (Pathogen ID)
+    category: microbiome/pathogen-identification
+    organism: [bacteria, virus, pathogen-agnostic]
+    data_type: [ont, fastq]
+    analysis_type: [qc, host-removal]
+    tools: [not specified in README excerpt]
+    description: >
+      QC, trimming/filtering, and host-sequence removal for Nanopore reads
+      ahead of pathogen identification, so only likely-pathogen sequence
+      remains.
+    keywords: [nanopore, ont, preprocessing, host removal, host depletion,
+      quality control, clinical sample, unknown pathogen]
+    inputs: ["Nanopore FASTQ"]
+    iwc_path: workflows/microbiome/pathogen-identification/nanopore-pre-processing
+    url: https://github.com/galaxyproject/iwc/tree/main/workflows/microbiome/pathogen-identification/nanopore-pre-processing
+
+  - id: pathogen-id-allele-based
+    name: Allele-based Pathogen Identification
+    category: microbiome/pathogen-identification
+    organism: [bacteria, virus, pathogen-agnostic]
+    data_type: [ont, fastq]
+    analysis_type: [snp-calling, strain-tracking]
+    tools: [not specified in README excerpt]
+    description: >
+      Identifies pathogens via an allelic/SNP approach to track emerging
+      variants and novel strains relative to a reference genome.
+    keywords: [allele, snp calling, strain tracking, emerging variant, novel
+      strain, pathogen identification, reference genome]
+    inputs: ["Pre-processed reads (from Nanopore Preprocessing)", "reference genome"]
+    iwc_path: workflows/microbiome/pathogen-identification/allele-based-pathogen-identification
+    url: https://github.com/galaxyproject/iwc/tree/main/workflows/microbiome/pathogen-identification/allele-based-pathogen-identification
+
+  - id: pathogen-id-gene-based
+    name: Gene-based Pathogen Identification
+    category: microbiome/pathogen-identification
+    organism: [bacteria, virus, pathogen-agnostic]
+    data_type: [ont, fastq]
+    analysis_type: [virulence-detection, amr]
+    tools: [not specified in README excerpt]
+    description: >
+      Determines pathogenicity by screening for virulence factor genes and
+      antimicrobial resistance genes.
+    keywords: [virulence factor, pathogenicity, amr, antimicrobial resistance,
+      gene based, pathogen identification]
+    inputs: ["Pre-processed reads (from Nanopore Preprocessing)"]
+    iwc_path: workflows/microbiome/pathogen-identification/gene-based-pathogen-identification
+    url: https://github.com/galaxyproject/iwc/tree/main/workflows/microbiome/pathogen-identification/gene-based-pathogen-identification
+
+  - id: pathogen-id-pathogfair-aggregation
+    name: "PathoGFAIR: Samples Aggregation and Visualisation"
+    category: microbiome/pathogen-identification
+    organism: [bacteria, virus, pathogen-agnostic]
+    data_type: [aggregated-results]
+    analysis_type: [reporting, visualization, phylogenetics]
+    tools: [not specified in README excerpt]
+    description: >
+      Aggregates results from the Nanopore Preprocessing, Gene-based, and
+      Allele-based pathogen-ID workflows into presence/absence heatmaps,
+      phylogenetic trees, and QC/coverage/SNP plots across samples.
+    keywords: [pathogfair, aggregation, visualisation, heatmap, phylogenetic
+      tree, sample tracking, outbreak]
+    inputs: ["Outputs of the other pathogen-identification workflows"]
+    iwc_path: workflows/microbiome/pathogen-identification/pathogen-detection-pathogfair-samples-aggregation-and-visualisation
+    url: https://github.com/galaxyproject/iwc/tree/main/workflows/microbiome/pathogen-identification/pathogen-detection-pathogfair-samples-aggregation-and-visualisation
+
+  - id: pathogen-id-taxonomy-krona
+    name: Taxonomy Profiling and Visualization with Krona
+    category: microbiome/pathogen-identification
+    organism: [bacteria, virus, pathogen-agnostic]
+    data_type: [fastq]
+    analysis_type: [taxonomy-profiling, visualization]
+    tools: [Kraken2, Krona]
+    description: >
+      Assigns taxonomy (kingdom to species) to reads with Kraken2 and
+      visualizes composition, e.g. with a Krona pie chart, to identify
+      candidate pathogen species and co-infections.
+    keywords: [taxonomy, taxonomic profiling, kraken2, krona, species
+      identification, co-infection, unknown organism, metagenomics]
+    inputs: ["FASTQ reads"]
+    iwc_path: workflows/microbiome/pathogen-identification/taxonomy-profiling-and-visualization-with-krona
+    url: https://github.com/galaxyproject/iwc/tree/main/workflows/microbiome/pathogen-identification/taxonomy-profiling-and-visualization-with-krona
+
+  - id: metagenomic-raw-reads-amr
+    name: Raw Read AMR Analysis from Metagenomic Data
+    category: microbiome
+    organism: [bacteria, pathogen-agnostic]
+    data_type: [metagenomic, short-read, fastq]
+    analysis_type: [taxonomy-profiling, amr]
+    tools: [Sylph, Sylph-tax, Groot, deepARG, argNorm]
+    description: >
+      Taxonomic profiling (Sylph) and Antibiotic Resistance Gene prediction
+      (Groot, deepARG, normalized to ARO via argNorm) directly from
+      quality-filtered, host-depleted metagenomic short reads.
+    keywords: [metagenomics, metagenomic, amr, antibiotic resistance, arg,
+      taxonomic profiling, short read, microbiome, sylph, groot, deeparg]
+    inputs: ["QC'd, host-depleted paired short reads (fastqsanger.gz)"]
+    iwc_path: workflows/microbiome/metagenomic-raw-reads-amr-analysis
+    url: https://github.com/galaxyproject/iwc/tree/main/workflows/microbiome/metagenomic-raw-reads-amr-analysis

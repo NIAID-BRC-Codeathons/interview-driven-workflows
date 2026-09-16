@@ -1,0 +1,2 @@
+I have Illumina paired-end amplicon sequencing of SARS-CoV-2 samples and want
+variant calls and lineage assignment with pangolin.

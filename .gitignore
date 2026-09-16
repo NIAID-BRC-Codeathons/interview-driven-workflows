@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Secrets / local config
+.env
+mcp/*.local.yaml
+
+# Planemo / Galaxy job artifacts
+.planemo/
+tool_test_output*
+
+# OS
+.DS_Store

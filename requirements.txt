@@ -1,0 +1,7 @@
+planemo
+pyyaml
+anthropic  # scripts/build_workflow.py's LLM-driven build path
+
+# TODO: add the MCP client SDK and the Foundry package once their exact
+# package names/versions are confirmed (galaxyproject/foundry, MCP Python
+# SDK, and whatever client the Loom/Orbit runtime requires).

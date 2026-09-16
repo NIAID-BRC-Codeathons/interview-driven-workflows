@@ -1,0 +1,18 @@
+# MCP server connections used to ground the interview.
+# Fill in real endpoints/credentials via environment variables — do not
+# commit secrets. See mcp/README.md.
+
+servers:
+  brc_analytics:
+    description: >
+      BRC Analytics catalog — assemblies, annotations, priority pathogens.
+      Used to ground interview questions in real data holdings (Goal 2).
+    url: "${BRC_ANALYTICS_MCP_URL}"
+    auth_token_env: "BRC_ANALYTICS_MCP_TOKEN"
+
+  # Second resource center, for the portability run (Goal 3).
+  # Uncomment and fill in once a partner participant is confirmed.
+  # second_resource_center:
+  #   description: "Portability test target — a second BRC's MCP server."
+  #   url: "${SECOND_RC_MCP_URL}"
+  #   auth_token_env: "SECOND_RC_MCP_TOKEN"
