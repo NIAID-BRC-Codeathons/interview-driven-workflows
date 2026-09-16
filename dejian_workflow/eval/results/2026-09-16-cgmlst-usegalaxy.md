@@ -52,6 +52,24 @@ History"), showing all 7 datasets produced by the 3 completed jobs:
 
 ![usegalaxy.org history showing the completed cgMLST workflow run](2026-09-16-cgmlst-usegalaxy-screenshot.png)
 
+## Independent confirmation via the Galaxy API
+
+Cross-checked directly against usegalaxy.org's API (not just planemo's own
+report or the screenshot above) for the same invocation:
+
+```
+GET /api/invocations/c6302f905da21fcc
+  state: scheduled
+  steps: 5/5 scheduled (2 inputs, 3 tools)
+
+GET /api/invocations/c6302f905da21fcc/jobs_summary
+  {"states": {"ok": 3}, "populated_state": "ok"}
+```
+
+Three independent sources — planemo's exit code/report, the Galaxy web UI
+screenshot, and the raw Galaxy API — all agree: all 3 jobs completed with
+status `ok`.
+
 ## What this confirms
 
 This is the first real, end-to-end confirmation that
