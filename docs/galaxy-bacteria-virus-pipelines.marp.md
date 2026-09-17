@@ -116,7 +116,9 @@ Approach (v0, intentionally simple and auditable):
 3. Score each workflow by keyword-token overlap
 4. Return ranked candidates **with the matched terms shown** — no black box
 
-This is a keyword router, not semantic search — it's the honest v0 to build the MCP/embedding-based version against.
+This is a keyword router, not semantic search — the honest v0 this catalog
+matcher still is, even now that a real MCP-grounded live-registry check
+exists alongside it (see "Where this plugs into the pipeline").
 
 ---
 
@@ -163,12 +165,15 @@ nothing matches is the correct, honest behavior.
 - **No organism-name specificity:** a request naming an organism not in
   any keyword list (most named bacteria/pathogens) won't match even where
   a genus-agnostic workflow (e.g. AMR detection) would actually apply
-- **Curated subset, not the live registry:** only ~20 of the full IWC
-  catalog's workflows are represented here
+- **This catalog itself is a curated ~20-workflow subset** — but no longer
+  the whole story: `route.py` now also checks the **full, live IWC
+  registry** via a real MCP client (`scripts/galaxy_mcp_client.py` →
+  [galaxy-mcp](https://github.com/galaxyproject/galaxy-mcp)) whenever this
+  catalog finds nothing. That gap is closed — see the next slide.
 
-**Next step:** swap keyword overlap for embedding similarity or an
-MCP-grounded LLM call against the live IWC registry (Goal 2/3), while
-keeping the same "show matched evidence, or say no match" contract.
+**Still genuinely open:** the matching itself, at both layers, is keyword-
+based (IDF-weighted overlap here, BM25 live) — synonym/paraphrase-blindness
+remains until embedding-based semantic search replaces either one.
 
 ---
 
@@ -180,11 +185,17 @@ interview (free-text) → search_pipeline_catalog.py → route.py
                     ranked candidates + matched terms
                               │
               use / adapt / build decision (Goal 1)
+                              │
+                    (if "build") check the live IWC
+                    registry via galaxy_mcp_client.py
+                    → galaxy-mcp — surfaced for review,
+                      never auto-upgrades the decision
 ```
 
 - **Confident top match** → propose **use** or **adapt**
-- **No match, or all low-confidence** → **build**, and log it for the
-  Goal 7 pass-rate/failure taxonomy
+- **No match, or all low-confidence** → check the live registry first;
+  **still nothing** → **build**, and log it for the Goal 7 pass-rate/
+  failure taxonomy
 
 Files: `knowledge_base/pathogen_genomics/galaxy_pipeline_catalog.yaml` ·
-`scripts/search_pipeline_catalog.py`
+`scripts/search_pipeline_catalog.py` · `scripts/galaxy_mcp_client.py`
