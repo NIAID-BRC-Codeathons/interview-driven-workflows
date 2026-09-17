@@ -360,6 +360,54 @@ from it.
 
 ---
 
+## What if nothing matches at all?
+
+Very possible with real free text — 34 of 50 real interviews only reached
+"adapt," not "use." Nothing here ever silently fabricates a "done" result:
+
+```
+local catalog confidence < 0.15 (or no match)
+        │
+        ▼
+   decision: build
+        │
+        ▼
+  check the live IWC registry (galaxy_mcp_client.py → galaxy-mcp)
+        │
+   ┌────┴──────────────────┐
+   ▼                        ▼
+candidates found      nothing found, or the
+   │                  check itself failed
+   ▼                        │
+STOP — surface for          ▼
+human review           build_workflow.py
+(--force-build              │
+ overrides this)            ▼
+                       LLM generates a .ga → validate_workflow.sh
+                       (same real Tool Shed check as use/adapt)
+```
+
+Either branch ends in a human decision or a mechanically-checked result —
+never a guess presented as an answer.
+
+---
+
+## The build path never silently succeeds
+
+`build_workflow.py`'s failure modes are explicit, not swallowed:
+
+| What can go wrong | What happens |
+|---|---|
+| No `ANTHROPIC_API_KEY` | Exits immediately, no attempt made |
+| Model output isn't valid JSON | Exits, flagged as the "confident fabrication" failure mode — no blind retry |
+| Model invents a plausible but nonexistent tool id | `validate_workflow.sh` fails it — reported as **VALIDATION FAILED**, non-zero exit |
+| Validation passes | Still only proves structural soundness — flagged as needing a real test run before it's trusted |
+
+No code path in this pipeline produces output that looks finished but
+wasn't actually checked.
+
+---
+
 ## Stage 4 — Test execution (separate step)
 
 ```
