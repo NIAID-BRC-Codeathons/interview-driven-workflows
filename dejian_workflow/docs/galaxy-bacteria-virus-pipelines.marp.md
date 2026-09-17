@@ -5,6 +5,16 @@ paginate: true
 size: 16:9
 ---
 
+<style>
+section { font-size: 22px; padding: 40px 60px; }
+section h2 { margin-top: 0; margin-bottom: 0.4em; }
+section p, section ul, section ol { margin: 0.4em 0; }
+section li { margin: 0.12em 0; }
+section pre { margin: 0.4em 0; line-height: 1.3; font-size: 0.8em; }
+section table { font-size: 0.85em; }
+section table th, section table td { padding: 6px 10px; }
+</style>
+
 # Galaxy Pipelines for Bacteria & Virus Analysis
 
 Catalog + a first pass at description-to-pipeline mapping
