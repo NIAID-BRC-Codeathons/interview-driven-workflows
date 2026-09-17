@@ -235,6 +235,42 @@ to 50 diverse, genuinely workflow-shaped requests spanning bacterial AMR/
 typing/assembly/annotation and viral assembly/variant-calling/SARS-CoV-2/
 metagenomics — manual judgment, not further automation, made the final cut.
 
+**What the full 5,250 actually look like.** Before picking the 50, we
+classified the entire bacteria/virus/pathogen-matched set — not to filter
+further, but to see the real distribution of how people ask:
+
+| Category | Count | % |
+|---|---|---|
+| Analysis request (data + a goal) | 2,869 | 54.6% |
+| Other / unclear | 1,714 | 32.6% |
+| Tool recommendation (no own data described) | 272 | 5.2% |
+| Troubleshooting / error | 206 | 3.9% |
+| Conceptual / definitional | 107 | 2.0% |
+| Data retrieval | 54 | 1.0% |
+| Installation / setup | 28 | 0.5% |
+
+Better than expected: over half are analysis-request-shaped. But a third
+land in "other/unclear" — real questions blend categories more than any
+clean taxonomy admits. Three examples spanning the spectrum:
+
+- **Clean analysis request** (majority shape, what the pipeline is built
+  for): *"I am working on 10 bacterial genomes (1 reference and 9 mutant)
+  sequenced by Illumina technology. My main aim is to find SNPs that are
+  common in 9 genomes but absent in reference genomes..."*
+  ([Biostars #96189](https://www.biostars.org/p/96189/))
+- **Vague, needs clarification** (tool recommendation, 5.2% — exactly what
+  `generate_followup_questions.py` should catch, not guess): *"I would
+  like to classify my viral contigs, could anyone recommend me the best
+  way to that? Also if someone has created viral database for blast?"*
+  ([Biostars #179095](https://www.biostars.org/p/179095/))
+- **Troubleshooting — out of pipeline scope entirely** (3.9%): *"I am
+  getting the following error message when trying to execute AMR
+  prediction... `Traceback (most recent call last):` ...
+  `OSError: [Errno 2] No such file or directory`"* — ironically an
+  AMR/TB request, but debugging a broken run, not describing a new
+  analysis; no routing decision should apply here.
+  ([Biostars #214374](https://www.biostars.org/p/214374/))
+
 **Provenance kept, not discarded:** each `biostars-*.txt` file carries a
 header (`# source`, `# title`, `# date`, `# license`) linking back to its
 original post, and `interviews/BIOSTARS_SOURCES.md` indexes all 50.

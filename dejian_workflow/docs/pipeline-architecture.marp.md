@@ -125,6 +125,46 @@ requests want generic bacterial variant calling, not yet in the catalog.
 
 ---
 
+## Classifying all 5,250 real questions
+
+Before picking the 50, we classified the *entire* bacteria/virus/pathogen-
+matched set — not to filter further, but to see the real distribution of
+how people actually ask.
+
+| Category | Count | % |
+|---|---|---|
+| **Analysis request** (data + a goal) | 2,869 | 54.6% |
+| Other / unclear | 1,714 | 32.6% |
+| Tool recommendation (no own data) | 272 | 5.2% |
+| Troubleshooting / error | 206 | 3.9% |
+| Conceptual / definitional | 107 | 2.0% |
+| Data retrieval | 54 | 1.0% |
+| Installation / setup | 28 | 0.5% |
+
+Better than expected: **over half are analysis-request-shaped.** But a third
+land in "other/unclear" — real questions blend categories more than any
+clean taxonomy admits.
+
+---
+
+## Three shapes, three implications
+
+**1. Clean analysis request** (54.6% — what the pipeline is built for)
+> *"I am working on 10 bacterial genomes (1 reference, 9 mutant), Illumina.
+> My aim is to find SNPs common in 9 genomes but absent in the reference..."*
+
+**2. Vague, needs clarification** (tool recommendation, 5.2%)
+> *"I would like to classify my viral contigs, could anyone recommend the
+> best way? Also, has anyone made a viral database for blast?"*
+— exactly what `generate_followup_questions.py` should catch, not guess.
+
+**3. Troubleshooting — out of pipeline scope entirely** (3.9%)
+> *"Error running AMR prediction... `Traceback...` `OSError: No such file
+> or directory`"* — ironically an AMR/TB request, but debugging a broken
+> run, not describing a new analysis. No routing decision should apply here.
+
+---
+
 ## Stage 2 — Route (`route.py`)
 
 ```
