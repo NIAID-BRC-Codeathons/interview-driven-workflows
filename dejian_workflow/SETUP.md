@@ -51,6 +51,27 @@ commands below assume you're `cd`'d into that subdirectory, not the repo
 root. (If you're reading this from an existing checkout, just `cd` into
 `dejian_workflow/`.)
 
+### Updating an existing checkout
+
+If you already installed this before and just want the latest version,
+`git pull` alone isn't enough — dependencies change too (for example,
+`galaxy-mcp`/`fastmcp` were added after some earlier installs), and a stale
+venv won't have them:
+
+```bash
+cd interview-driven-workflows          # repo root, not dejian_workflow
+git status                             # confirm no local changes you'd lose
+git pull origin main
+
+cd dejian_workflow
+source .venv/bin/activate
+pip install -r requirements.txt        # picks up any new/changed dependencies
+```
+
+If `git status` shows local changes before pulling, `git stash -u` them
+first rather than pulling over them. Then re-run the verify command in
+step 2 below to confirm the venv actually picked up the update.
+
 ## 2. Install dependencies
 
 Use a virtual environment so this doesn't pollute your system Python:
