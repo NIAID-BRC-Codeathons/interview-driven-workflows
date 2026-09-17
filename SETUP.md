@@ -43,13 +43,10 @@ If you don't already have it:
 
 ```bash
 git clone https://github.com/NIAID-BRC-Codeathons/interview-driven-workflows.git
-cd interview-driven-workflows/dejian_workflow
+cd interview-driven-workflows
 ```
 
-This pipeline lives under `dejian_workflow/` in the shared repo — all
-commands below assume you're `cd`'d into that subdirectory, not the repo
-root. (If you're reading this from an existing checkout, just `cd` into
-`dejian_workflow/`.)
+All commands below assume you're `cd`'d into the repo root.
 
 ### Updating an existing checkout
 
@@ -59,11 +56,10 @@ If you already installed this before and just want the latest version,
 venv won't have them:
 
 ```bash
-cd interview-driven-workflows          # repo root, not dejian_workflow
+cd interview-driven-workflows          # repo root
 git status                             # confirm no local changes you'd lose
 git pull origin main
 
-cd dejian_workflow
 source .venv/bin/activate
 pip install -r requirements.txt        # picks up any new/changed dependencies
 ```
@@ -392,10 +388,11 @@ git status   # confirm nothing you want to keep is uncommitted
 ```
 
 then delete the top-level `interview-driven-workflows/` directory (`rm -rf`
-on the whole checkout, or just delete it in Finder/Explorer) — deleting
-`dejian_workflow/` alone would remove it from the shared repo for the whole
-team on your next push, which is a very different, much bigger action; don't
-do that without team agreement. A plain local deletion has no system-level
+on the whole checkout, or just delete it in Finder/Explorer). This is a
+purely local deletion with no effect on the shared repo — it only removes
+files from the shared repo for the whole team if you `git rm` and push a
+deletion, which is a very different, much bigger action; don't do that
+without team agreement. A plain local deletion has no system-level
 registration anywhere else, so it's a complete local uninstall.
 
 ## What's not deployable yet

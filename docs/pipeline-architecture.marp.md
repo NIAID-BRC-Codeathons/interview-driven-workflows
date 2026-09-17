@@ -18,7 +18,7 @@ section table { font-size: 0.9em; }
 
 Interview → Route → Fetch / Build / Adapt → Validate
 
-**Talk to Galaxy** · `dejian_workflow/` · NIAID-BRCs AI Codeathon 2.0
+**Talk to Galaxy** · NIAID-BRCs AI Codeathon 2.0
 
 ---
 
@@ -465,7 +465,6 @@ own docstring and `SETUP.md` for the honest gaps.
 ## Try it
 
 ```bash
-cd dejian_workflow
 pip install -r requirements.txt
 python3 scripts/run_pipeline.py interviews/raw/example-sarscov2-amplicon.txt
 python3 scripts/run_pipeline.py interviews/raw/example-ecoli-outbreak-cgmlst.txt
