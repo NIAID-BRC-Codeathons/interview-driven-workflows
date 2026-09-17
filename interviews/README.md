@@ -36,7 +36,7 @@ These were filtered (bacteria/virus/pathogen keyword match → classified as
 `analysis_request` → length/quality filter → randomly sampled) and then
 spot-checked at the sample level, not individually vetted. Zero overlap
 with the 50 in `raw/` or the 10 shown in
-`docs/analysis-request-examples.marp.md`.
+`docs/interview-data.marp.md`.
 
 Purpose: illustrative bulk material — "what do 100 real analysis requests
 actually look like" — for research and presentation, not a second curated

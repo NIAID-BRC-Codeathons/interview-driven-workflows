@@ -9,7 +9,10 @@ size: 16:9
 section { font-size: 22px; padding: 40px 60px; }
 section h2 { margin-top: 0; margin-bottom: 0.4em; }
 section p, section ul, section ol { margin: 0.4em 0; }
+section li { margin: 0.15em 0; }
 section pre { margin: 0.4em 0; line-height: 1.3; font-size: 0.8em; }
+section table { font-size: 0.85em; }
+section table th, section table td { padding: 6px 10px; }
 section blockquote {
   margin: 0.5em 0; padding: 0 1em; border-left: 4px solid #ccc;
   color: #333; font-style: normal;
@@ -17,16 +20,103 @@ section blockquote {
 .meta { color: #666; font-size: 0.85em; }
 </style>
 
-# Real Analysis Requests
+# Real Interview Data
 
-What the majority of real bacteria/virus questions actually look like
+How we collected it, what the full distribution looks like, and ten real
+requests in full — not text written to make the pipeline look good.
 
-**54.6%** of 5,250 real Biostars questions (bacteria/virus/pathogen-related)
-are "analysis request" shaped — data described, a goal stated. Here are
-ten of them, in full, unedited.
-
+**Talk to Galaxy** · NIAID-BRCs AI Codeathon 2.0
 Source: Luna, A. (2023). *BioStars Posts API Output*. Zenodo.
 https://doi.org/10.5281/zenodo.7813785 — CC BY 4.0
+
+---
+
+## Getting real interviews — what didn't work
+
+**Goal:** unscripted real bioinformatics questions, not text written to
+make the pipeline look good.
+
+**Tried and failed, in order:**
+
+1. **Scrape biostars.org search results directly** (`curl`) — blocked.
+   Every request returns a Cloudflare bot-challenge page, not content.
+2. **The official, documented Biostars API** — also blocked. Same
+   Cloudflare challenge, even on the documented API path.
+3. **Claude's own web-fetch tooling** — also blocked, HTTP 403.
+4. **Defeat that bot protection anyway** — considered, **declined**.
+   Cloudflare's challenge is a deliberate access control the site put up;
+   circumventing it isn't something this project does, no matter how few
+   records were needed (50, here). Not a scope negotiation.
+
+---
+
+## Getting real interviews — what actually worked
+
+A **published, openly-licensed dataset — not a scrape:**
+
+> Luna, Augustin. (2023). *BioStars Posts API Output* [Data set]. Zenodo.
+> **https://doi.org/10.5281/zenodo.7813785** — CC BY 4.0, the same license
+> Biostars uses for its own content.
+
+976 MB JSON, 532,421 entries (all post types) — a legitimate download of
+published research data, not a workaround.
+
+| Filtering stage | Count |
+|---|---|
+| Total entries (all post types) | 532,421 |
+| `type == "Question"` | 106,395 |
+| Matches a bacteria/virus/pathogen keyword | 5,250 |
+| Scores as workflow-shaped (not troubleshooting/conceptual) | 200 |
+| Hand-selected, diverse, genuinely workflow-shaped | **50** |
+
+Source-linked index: `interviews/BIOSTARS_SOURCES.md`.
+
+---
+
+## Classifying all 5,250 real questions
+
+Before picking the 50, we classified the *entire* bacteria/virus/pathogen-
+matched set — not to filter further, but to see the real distribution of
+how people actually ask.
+
+| Category | Count | % |
+|---|---|---|
+| **Analysis request** (data + a goal) | 2,869 | 54.6% |
+| Other / unclear | 1,714 | 32.6% |
+| Tool recommendation (no own data) | 272 | 5.2% |
+| Troubleshooting / error | 206 | 3.9% |
+| Conceptual / definitional | 107 | 2.0% |
+| Data retrieval | 54 | 1.0% |
+| Installation / setup | 28 | 0.5% |
+
+Better than expected: **over half are analysis-request-shaped.** But a third
+land in "other/unclear" — real questions blend categories more than any
+clean taxonomy admits.
+
+---
+
+## Three shapes, three implications
+
+**1. Clean analysis request** (54.6% — what the pipeline is built for)
+> *"I am working on 10 bacterial genomes (1 reference, 9 mutant), Illumina.
+> My aim is to find SNPs common in 9 genomes but absent in the reference..."*
+
+**2. Vague, needs clarification** (tool recommendation, 5.2%)
+> *"I would like to classify my viral contigs, could anyone recommend the
+> best way? Also, has anyone made a viral database for blast?"*
+— exactly what `generate_followup_questions.py` should catch, not guess.
+
+**3. Troubleshooting — out of pipeline scope entirely** (3.9%)
+> *"Error running AMR prediction... `Traceback...` `OSError: No such file
+> or directory`"* — ironically an AMR/TB request, but debugging a broken
+> run, not describing a new analysis. No routing decision should apply here.
+
+---
+
+## Ten full examples of the majority shape
+
+54.6% of the 5,250 look like the ten that follow: a concrete data
+description and a stated goal. Here they are, in full, unedited.
 
 ---
 
@@ -257,3 +347,7 @@ epigenetics, viral variants).
 That's the shape 54.6% of real bacteria/virus questions take, and it's
 exactly the shape `route.py` and the rest of this pipeline are built to
 consume — not a hypothetical input format, a documented empirical pattern.
+
+100 more real examples (bulk, not individually curated): see
+`interviews/analysis_request_examples_100/`. How the pipeline turns this
+data into a workflow: `docs/pipeline-architecture.marp.md`.

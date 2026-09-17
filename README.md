@@ -74,7 +74,7 @@ python3 scripts/run_pipeline.py interviews/raw/example-sarscov2-amplicon.txt
 | `knowledge_base/` | The curated ~20-workflow bacteria/virus catalog the local router matches against. See `knowledge_base/README.md`. |
 | `workflows/` | Output of the routing decision (`use`/`adapt`/`build`), one subdirectory per interview. See `workflows/README.md`. |
 | `eval/` | Pass-rate reports, the failure taxonomy, and expert-authored evaluation cases. See `eval/README.md`. |
-| `docs/` | Presentation decks: how the pipeline works, what running it against real data found, and the bacteria/virus pipeline survey. |
+| `docs/` | Presentation decks: what real interview data looks like (`interview-data.marp.md`), what Galaxy pipelines exist (`galaxy-bacteria-virus-pipelines.marp.md`), and how they're bridged together (`pipeline-architecture.marp.md`). |
 | `mcp/` | Config scaffold for grounding against the BRC Analytics MCP server (Goals 2–3) — **not yet wired into any script**, distinct from `scripts/galaxy_mcp_client.py`'s real, working integration with `galaxy-mcp`'s live IWC registry search. |
 | `PROPOSAL.md` | The full project proposal this implementation is measured against. |
 | `SETUP.md` | Install, credentials, testing, updating, and cleanup instructions. |

@@ -6,7 +6,7 @@ dataset: Luna, A. (2023). BioStars Posts API Output. Zenodo.
 https://doi.org/10.5281/zenodo.7813785
 
 Distinct from the 50 in the main repo's interviews/raw/ and the 10 in
-docs/analysis-request-examples.marp.md -- no overlap.
+docs/interview-data.marp.md -- no overlap.
 
 | # | File | Title | Date | Source |
 |---|---|---|---|---|

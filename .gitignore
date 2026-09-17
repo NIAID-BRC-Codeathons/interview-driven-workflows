@@ -14,3 +14,8 @@ tool_test_output*
 
 # OS
 .DS_Store
+
+# Locally-generated slide PDFs, not tracked -- regenerate with
+# `npx @marp-team/marp-cli docs/<name>.marp.md -o docs/<name>.pdf`
+docs/interview-data.pdf
+docs/pipeline-architecture.pdf

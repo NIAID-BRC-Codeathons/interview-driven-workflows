@@ -55,49 +55,19 @@ A plain text file, in the researcher's own words:
 No structured form, no dropdown of organisms — this is deliberately the
 messiest input in the pipeline, because that's what a real interview
 produces. Three synthetic examples ship in `interviews/raw/`, plus 50 real
-ones — next.
+ones — see how they were collected and what they look like next.
 
 ---
 
-## Getting real interviews — what didn't work
+## Real interview data — full story in a separate deck
 
-**Goal:** unscripted real bioinformatics questions, not text written to
-make the pipeline look good.
+50 real bioinformatics questions (Biostars, CC-BY-4.0 via Zenodo — not
+scraped, no bot-protection bypass) plus 100 more bulk examples ship in
+`interviews/`. How they were collected, the full 5,250-question
+distribution, and ten real requests in full: **`docs/interview-data.marp.md`**.
 
-**Tried and failed, in order:**
-
-1. **Scrape biostars.org search results directly** (`curl`) — blocked.
-   Every request returns a Cloudflare bot-challenge page, not content.
-2. **The official, documented Biostars API** — also blocked. Same
-   Cloudflare challenge, even on the documented API path.
-3. **Claude's own web-fetch tooling** — also blocked, HTTP 403.
-4. **Defeat that bot protection anyway** — considered, **declined**.
-   Cloudflare's challenge is a deliberate access control the site put up;
-   circumventing it isn't something this project does, no matter how few
-   records were needed (50, here). Not a scope negotiation.
-
----
-
-## Getting real interviews — what actually worked
-
-A **published, openly-licensed dataset — not a scrape:**
-
-> Luna, Augustin. (2023). *BioStars Posts API Output* [Data set]. Zenodo.
-> **https://doi.org/10.5281/zenodo.7813785** — CC BY 4.0, the same license
-> Biostars uses for its own content.
-
-976 MB JSON, 532,421 entries (all post types) — a legitimate download of
-published research data, not a workaround.
-
-| Filtering stage | Count |
-|---|---|
-| Total entries (all post types) | 532,421 |
-| `type == "Question"` | 106,395 |
-| Matches a bacteria/virus/pathogen keyword | 5,250 |
-| Scores as workflow-shaped (not troubleshooting/conceptual) | 200 |
-| Hand-selected, diverse, genuinely workflow-shaped | **50** |
-
-Source-linked index: `interviews/BIOSTARS_SOURCES.md`.
+Next: what happened when the router below was actually pointed at those
+50 real interviews.
 
 ---
 
@@ -122,46 +92,6 @@ Wrong organism, at "use" (no-review-needed) confidence. But
 Real validation that Goal 4's mechanism catches silent misroutes — not a
 constructed example. Also surfaced a genuine catalog gap: several real
 requests want generic bacterial variant calling, not yet in the catalog.
-
----
-
-## Classifying all 5,250 real questions
-
-Before picking the 50, we classified the *entire* bacteria/virus/pathogen-
-matched set — not to filter further, but to see the real distribution of
-how people actually ask.
-
-| Category | Count | % |
-|---|---|---|
-| **Analysis request** (data + a goal) | 2,869 | 54.6% |
-| Other / unclear | 1,714 | 32.6% |
-| Tool recommendation (no own data) | 272 | 5.2% |
-| Troubleshooting / error | 206 | 3.9% |
-| Conceptual / definitional | 107 | 2.0% |
-| Data retrieval | 54 | 1.0% |
-| Installation / setup | 28 | 0.5% |
-
-Better than expected: **over half are analysis-request-shaped.** But a third
-land in "other/unclear" — real questions blend categories more than any
-clean taxonomy admits.
-
----
-
-## Three shapes, three implications
-
-**1. Clean analysis request** (54.6% — what the pipeline is built for)
-> *"I am working on 10 bacterial genomes (1 reference, 9 mutant), Illumina.
-> My aim is to find SNPs common in 9 genomes but absent in the reference..."*
-
-**2. Vague, needs clarification** (tool recommendation, 5.2%)
-> *"I would like to classify my viral contigs, could anyone recommend the
-> best way? Also, has anyone made a viral database for blast?"*
-— exactly what `generate_followup_questions.py` should catch, not guess.
-
-**3. Troubleshooting — out of pipeline scope entirely** (3.9%)
-> *"Error running AMR prediction... `Traceback...` `OSError: No such file
-> or directory`"* — ironically an AMR/TB request, but debugging a broken
-> run, not describing a new analysis. No routing decision should apply here.
 
 ---
 
