@@ -322,6 +322,12 @@ deactivate            # if it's currently active
 rm -rf .venv
 ```
 
+This also fully removes `galaxy-mcp`/`fastmcp` (`scripts/galaxy_mcp_client.py`'s
+real MCP client/server pair) — confirmed they leave no cache or state
+anywhere outside the virtualenv (checked `~/.cache`, `~/.config`,
+`~/.local/share`: nothing), unlike planemo's disposable-Galaxy cache in
+step 3 below. There's nothing extra to clean up for them.
+
 **2. Remove pipeline-generated output** (fetched/built/adapted workflows —
 safe to delete; they're reproducible by re-running the scripts):
 
@@ -373,8 +379,13 @@ registration anywhere else, so it's a complete local uninstall.
 
 ## What's not deployable yet
 
-`route.py`'s use/adapt/build decision only searches a curated ~20-workflow
-catalog (`knowledge_base/pathogen_genomics/galaxy_pipeline_catalog.yaml`),
-not the live IWC registry, and there's no MCP/BRC-Analytics grounding or
-Galaxy Workflow Foundry integration wired up — see `PROPOSAL.md` Goals 1–3
-and `scripts/README.md` for what's real today versus what's still a stub.
+`route.py`'s use/adapt/build decision searches a curated ~20-workflow catalog
+(`knowledge_base/pathogen_genomics/galaxy_pipeline_catalog.yaml`) first, and
+now also checks the real, live IWC registry via a genuine MCP client/server
+pair (`scripts/galaxy_mcp_client.py`, talking to
+[galaxyproject/galaxy-mcp](https://github.com/galaxyproject/galaxy-mcp)) when
+the local catalog finds nothing — see `scripts/README.md` for what that
+integration actually catches and where it's known to misfire. What's still
+missing: BRC Analytics grounding, and a Galaxy Workflow Foundry integration
+for intent-to-workflow-steps generation (`build_workflow.py` still uses a
+plain LLM call instead) — see `PROPOSAL.md` Goals 1–3 for the full picture.

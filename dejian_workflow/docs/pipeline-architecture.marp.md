@@ -186,6 +186,34 @@ route.py
 | 0.15 – 0.35 | **adapt** — plausible but partial match |
 | < 0.15 / no match | **build** — nothing close enough in the catalog |
 
+When this lands on **build**, one more check happens before generating
+anything from scratch — see next slide.
+
+---
+
+## Stage 2 (extended) — checking the live registry
+
+```
+route.py: local decision == "build"
+    └─► galaxy_mcp_client.py  (real MCP client)
+          └─► galaxyproject/galaxy-mcp  (subprocess, stdio transport)
+                └─► the full, live IWC registry — real BM25 search
+```
+
+Real MCP protocol, not a reimplementation. Verified honestly — a genuine
+win **and** a genuine miss:
+
+- **Win:** "differential expression analysis of mouse RNA-seq data" — 0
+  local catalog hits, but 3 real matches live (top: *RNA-Seq Differential
+  Expression Analysis with Visualization*, BM25 score 18.37)
+- **Miss:** a real viral-assembly request top-matches *Single-Cell Mixture
+  Analysis: baredSC* at a **higher** score (98.47) — BM25 scores aren't
+  confidence-calibrated across queries, unlike the local catalog's IDF ratio
+
+So it only **surfaces** candidates for a human to review — never
+auto-upgrades the decision (`run_pipeline.py`'s `--force-build` overrides
+this deliberately, not silently).
+
 ---
 
 ## Why IDF weighting, not raw keyword counts?
@@ -339,10 +367,11 @@ For real, sensitive, or restricted research data, use the local mode.
 | Piece | Status |
 |---|---|
 | Catalog, routing, fetch, static validation, byte-stable adapt | **Real**, tested against live GitHub + Galaxy Tool Shed |
+| Live IWC registry check (build path) | **Real MCP integration** (galaxy-mcp) — surfaces candidates, doesn't auto-decide |
 | Follow-up questions | Real, deterministic — surfaces gaps, but no answer-collection loop yet |
 | Build path | Real LLM call + real validation, but no live Galaxy Workflow Foundry integration |
 | Adapt path's "what to change" | Needs a human/LLM-authored change spec — no NL interpretation yet |
-| Catalog coverage | ~20 curated workflows, not the full IWC registry |
+| Catalog coverage | ~20 curated locally, plus the full live IWC registry as a fallback check |
 
 None of this is faked to look more finished than it is — see each script's
 own docstring and `SETUP.md` for the honest gaps.
