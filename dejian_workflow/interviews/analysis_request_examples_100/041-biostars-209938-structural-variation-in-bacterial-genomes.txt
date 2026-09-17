@@ -1,0 +1,22 @@
+# source: https://www.biostars.org/p/218483/
+# title: Structural variation in bacterial genomes
+# date: 2016-10-24
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Structural variation in bacterial genomes
+
+Hello everybody, 
+
+I want to investigate genomic rea for example inversions, deletions, insertions and duplications in the leprosy genome. I have access to raw sequences from the sequencer and to reads that where already mapped to the Mycobacterium eprae genome (NC_002677.1). All methods and programs that I found like LUMPY and Breseq are based on Split Read and Read Pair approaches. But since I am in the ancient DNA field there are several problems with the raw data. 
+
+1. We have no defined insert size since the DNA is already highly fragmented 
+
+2. There are different read sizes ranging form 25bp to 101bp. 
+
+3. Our normal post processing step is to clip and merge. Forward and reverse reads with an overlap of 10 bp will be merged to get a longer sequence. after this step there will be a mixed file of merged and paired end reads. 
+
+I recently asked a colleague of mine and she suggested looking in the IGV for rearrangements. Means doing a de novo assembly, map the reads back to the assembly and look how the coverage differs between mapping against the contigs and against the reference. But at first this is a very time consuming step and at second it seems to be very subjective. 
+
+It there any other approach with the data that I have access to? 
+Best and thanks in advance :)

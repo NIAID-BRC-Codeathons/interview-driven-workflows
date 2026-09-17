@@ -1,0 +1,15 @@
+# source: https://www.biostars.org/p/200990/
+# title: Comparative Bacterial genome alignments
+# date: 2016-07-11
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Comparative Bacterial genome alignments
+
+Hello friends, I have some bacterial draft genomes and they belong to different ecological niches. I want to do a comparative study, from which I can predict if there are any functions which are similar in all of them even after coming from different ecological backgrounds. And which genes or compounds are responsible for the functions. Can you help in constructing a pipeline for this doing this work? Till now, I am thinking of;
+
+ 1) predicting the common orthologus groups with **OrthoMCL**
+ 2) predicting the common SNP's
+ 3) determing the COG's
+ 4) genome visualization by CIRCOS
+ 5) phylogeny analysis

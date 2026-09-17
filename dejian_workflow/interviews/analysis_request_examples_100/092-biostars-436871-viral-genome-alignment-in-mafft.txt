@@ -1,0 +1,16 @@
+# source: https://www.biostars.org/p/462016/
+# title: Viral Genome Alignment in MAFFT
+# date: 2020-09-18
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Viral Genome Alignment in MAFFT
+
+Hi! 
+I want to do an alignment for 743 viral genomes (27-30 kb approximately) in MAFFT.
+All genomes are complete and downloaded from NCBI virus.
+I want to do the best alignment and have already performed 5 test alignments, but I need your suggestions and experience to get the best possible result.
+
+
+What parameter do you suggest to use for a case like this?
+Thank you!

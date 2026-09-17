@@ -1,0 +1,9 @@
+# source: https://www.biostars.org/p/431461/
+# title: How to deal with the error for "Per Sequence GC Content" in FastQC tool?
+# date: 2020-04-08
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+How to deal with the error for "Per Sequence GC Content" in FastQC tool?
+
+I am working on the genomic data of E. Coli. My sequence reads are of high quality, and I already removed the adaptors and overrepresented sequences. However, for all of my samples, I received a warning for "Per Sequence GC Content" in the FastQC tool, and for a few of my samples (around 2% of my samples), I received an error in this field. How should I deal with that? Should I remove the samples which have an error for "Per Sequence GC Content in FastQC"?

@@ -1,0 +1,9 @@
+# source: https://www.biostars.org/p/9477510/
+# title: Software recommendations for synteny analysis
+# date: 2021-06-26
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Software recommendations for synteny analysis
+
+I'm trying to check the synteny of my genome assembly with the reference genome (same species) to see if there's sequence missing due to gaps in my assembled genome. Any recommendations on which software to use?

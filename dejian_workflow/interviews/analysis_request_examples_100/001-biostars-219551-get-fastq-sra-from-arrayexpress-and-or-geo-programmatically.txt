@@ -1,0 +1,30 @@
+# source: https://www.biostars.org/p/228324/
+# title: Get fastq/sra from ArrayExpress and/or GEO programmatically for specific organism/experiment type
+# date: 2016-12-21
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Get fastq/sra from ArrayExpress and/or GEO programmatically for specific organism/experiment type
+
+Hello, 
+
+I would like to get all the sequencing data for a specific organism and/or experiment type from ArrayExpress. I looked into REST queries [here][1], and built the following request:
+
+ https://www.ebi.ac.uk/arrayexpress/xml/v2/experiments?query="Escherichia+coli+K-12"AND"ChIP-seq"
+
+If I get the accession number from each experiment, I can get a table summarizing the samples:
+
+ http://www.ebi.ac.uk/arrayexpress/files/ / .sdrf.txt
+
+However, the fields don't have fixed names. I need to get either the SRR and SRX identifiers, or the ERR one, in order to reach the SRA files or fastq files:
+
+ ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByExp/sra/SRX/SRX189/SRX189776/SRR576936/SRR576936.sra
+ ftp.sra.ebi.ac.uk/vol1/fastq/SRR576/SRR576936/SRR576936.fastq.gz
+
+
+I would also like to do it from GEO, but then I need the GSE & GSM identifiers from the experiments, and I can't find them reliably either. [This page][2] seems useful but it doesn't say how to construct a query from scratch. 
+
+Overall, I'm completely lost by all the different types of identifiers and their connections...
+
+ [1]: https://www.ebi.ac.uk/arrayexpress/help/programmatic_access.html
+ [2]: https://www.ncbi.nlm.nih.gov/geo/info/geo_paccess.html#Programs

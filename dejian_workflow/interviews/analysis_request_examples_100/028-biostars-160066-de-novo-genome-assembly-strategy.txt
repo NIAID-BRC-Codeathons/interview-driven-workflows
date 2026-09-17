@@ -1,0 +1,20 @@
+# source: https://www.biostars.org/p/167346/
+# title: De novo genome assembly strategy
+# date: 2015-11-25
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+De novo genome assembly strategy
+
+Assembling a genome de novo. I have:
+
+ - 10X coverage with PAC-BIO reads
+ - 100X coverage with Illumina short reads (150 bp paired-end reads)
+ - 20X coverage with long MiSeq reads (max length 800 bp)
+
+Given what I have to work with, what would be the best strategy to assemble the genome and why?
+
+Thank you, 
+Joe
+
+edit - genome size ~ 1Gb

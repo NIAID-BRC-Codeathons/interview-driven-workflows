@@ -1,0 +1,16 @@
+# source: https://www.biostars.org/p/9472988/
+# title: Assembly oxford nanopore data
+# date: 2021-05-31
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Assembly oxford nanopore data
+
+Hi,
+
+I have raw data collected from Oxford Nanopore sequencing of a bacterial genome. These data consist of multiple fastq files.
+What easy to use tool would you recommend to assemble these raw reads?
+
+Thank you for your help!
+
+Audrey

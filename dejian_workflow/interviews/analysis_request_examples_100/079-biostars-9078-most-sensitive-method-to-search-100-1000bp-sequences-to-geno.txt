@@ -1,0 +1,12 @@
+# source: https://www.biostars.org/p/9249/
+# title: Most Sensitive Method To Search 100-1000Bp Sequences To Genome At Human-Mouse Genetic Distances
+# date: 2011-06-16
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Most Sensitive Method To Search 100-1000Bp Sequences To Genome At Human-Mouse Genetic Distances
+
+Following up on this question: http://biostar.stackexchange.com/questions/8010/searching-200-400bp-matches-against-mammalian-genome-human-mouse-distance 
+I would like to know what is the most sensitive method to search sequences ranging from 100bp to 1000bp against a whole genome assembly of another species, for genetic distances similar to human-mouse. 
+As an example, if I have human sequences ranging from 100-1000bps, what is the most sensitive tool and parameter options to find hits in the mouse genome? 
+I've been recommended to look at blast and blast+, but it would be great to hear about specific parameter settings or different options.

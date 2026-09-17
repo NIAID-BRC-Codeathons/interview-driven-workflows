@@ -1,0 +1,16 @@
+# source: https://www.biostars.org/p/9481915/
+# title: How do I detect deletions?
+# date: 2021-07-24
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+How do I detect deletions?
+
+Hi there, I have been working on this project with DNA-seq samples from E.coli data. I am trying to see if there are any indels or deletions on a small contig in the .fa file and I viewed one of my BAM files in IGV. Below is a screenshot. 
+
+![enter image description here][1]
+
+
+ [1]: /media/images/cefa70ff-a4ea-4a92-bff0-0687878f
+
+In the IGV manual, it says the red pairs are deletions. I have tried to use bcftools mpileup and bcftools call to identify these deletions but am having no success. I have also tried freebayes and HaplotypeCaller and still have no success. Any help is appreciated.

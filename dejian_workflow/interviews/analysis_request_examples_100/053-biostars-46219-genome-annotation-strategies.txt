@@ -1,0 +1,15 @@
+# source: https://www.biostars.org/p/47337/
+# title: Genome Annotation Strategies
+# date: 2012-06-19
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Genome Annotation Strategies
+
+I would like to discuss the type of strategies you use for whole genome annotation. I am not restricting the question to the organisms I am currently working on, but I have been working on herpesviruses, which have quite small genes (from 100bp to 10,000bp) and only a few contain introns. Fortunately, contrary to small RNA viruses, in herpesviruses (dsDNA), few genes are overlapping. 
+
+ I have been using a home-made procedure based on Cdd domain detection in all 6 frames which I find quite effective. And have also been looking at annotation softwares such as Augustus or GeneMark . 
+
+ What is your experience in genome annotation and what are the tools/strategies you would favor? 
+
+ Thanks in advance for the discussion.

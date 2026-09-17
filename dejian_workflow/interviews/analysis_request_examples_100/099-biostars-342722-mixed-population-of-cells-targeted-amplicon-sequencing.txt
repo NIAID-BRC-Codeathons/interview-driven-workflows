@@ -1,0 +1,16 @@
+# source: https://www.biostars.org/p/354192/
+# title: Mixed population of cells - Targeted / Amplicon Sequencing?
+# date: 2018-12-13
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Mixed population of cells - Targeted / Amplicon Sequencing?
+
+I have the following:
+
+ - SAMPLE 1: a culture of normal unmodified HEK293 cells (a pure population where all cells are the same)
+ - SAMPLE 2: a culture of HEK293 cells on which I did a custom gene knock in via CRISPR and homology directed repair. (after a 90%+ transfection rate, only about 3% of cells sustained a stable knock-in as indicated by the GFP sequence i stuck on the end of my gene (which was designed to be knocked-in along with the gene))
+
+I was told I could submit both samples to be sequenced and that NGS targeted sequencing / amplicon sequencing would be able to confirm whether or not my donor gene was inserted at my desired target sites. Is this correct?
+
+(considering that sample 2 is a mixed population and only about 3% exhibit what appears to be a stable knock-in)

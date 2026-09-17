@@ -1,0 +1,9 @@
+# source: https://www.biostars.org/p/77765/
+# title: How To Assemble Genome Generated With Bac Clones?
+# date: 2013-07-30
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+How To Assemble Genome Generated With Bac Clones?
+
+I have 2 fastq files from illimina with reads length 250b. Sequences from one file obtained by sequencing from "right" and from "left" in another. This is paired end sequencing. As it is whole genome shotgun technique, both fastq files comprise vector sequence, target sequnce in BAC, ecoli DNA and maybe plasmids DNA. So how i can assemble just my target DNA from BAC? What tools or assemblers i must use?

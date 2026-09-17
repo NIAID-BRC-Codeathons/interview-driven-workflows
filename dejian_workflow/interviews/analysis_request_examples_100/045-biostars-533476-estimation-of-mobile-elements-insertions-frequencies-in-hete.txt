@@ -1,0 +1,19 @@
+# source: https://www.biostars.org/p/9533476/
+# title: Estimation of mobile elements insertions frequencies in heterogeneous samples
+# date: 2022-08-03
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Estimation of mobile elements insertions frequencies in heterogeneous samples
+
+Hello!
+
+I need to estimate frequency of mobile elements rearrangements in heterogenous sample (Illumina PE150). Specifically: bacterial sample went through experimental evolution process and the sample was sequenced. Therefore it represents a mixture of different subpopulations. I need a tool that will say that there is a mobile element inserted in some locus in X% of population (e.g. 20%). Or a tool that will show that there is an insertion and output a DNA sequence that later I would be able to identify as mobile element.
+
+It sounds like a somatic variant calling in cancer genomics where you need to estimate what is going on in the heterogenous tumor. And it seems that it is an important task that should be solved. But I can't find tools for this task. 
+
+Does anyone use such tools?
+
+P.S. I know about [breseq](https://barricklab.org/twiki/bin/view/Lab/ToolsBacterialGenomeResequencing) - but it is not suitable for my samples for some reasons. Also I developed my tool [iJump](https://github.com/sleyn/ijump) but I would like to see if there is anything else available.
+
+Thanks!

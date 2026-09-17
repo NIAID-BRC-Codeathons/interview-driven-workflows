@@ -1,0 +1,25 @@
+# source: https://www.biostars.org/p/401498/
+# title: How to find three consecutive orthologous genes in 800 bacterial genomes?
+# date: 2019-10-04
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+How to find three consecutive orthologous genes in 800 bacterial genomes?
+
+Dear all,
+I am afraid this particular question has been asked several times,
+but I failed to find any of the previous posts.
+I have 800 bacterial genomes.
+I know that some of these genomes may have
+the group of three consecutive genes with any probable insertions 
+of some foreign genes. Sometimes one or two genes from such a group are lost –
+it does not matter, I need the rest left.
+What is the easiest way to find any orthologs of these
+genes in 800 bacterial genomes? I am not sure three simple alignments 
+of a single gene sequence with all 800 genomes will help.
+(I read such a discussion some time ago, I have not found it.)
+And I am not sure I know a good soft to do it.
+I hope there is a better way I have forgotten about.
+Thank you very much!
+Sincerely,
+Natasha

@@ -1,0 +1,15 @@
+# source: https://www.biostars.org/p/9522091/
+# title: Get reference genome from Kraken2 taxID
+# date: 2022-05-06
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Get reference genome from Kraken2 taxID
+
+I have a ~10Gb ONT metagenome from citrus psyllid that I am trying to extract bacterial contigs from to assemble. My current thought for a pipeline is broadly as follows:
+
+ 1. Tentative ID of each contig with Kraken2, then QC to only take assignments made with high confidence (there's no reference genome for citrus psyllid, so most of the assignments are erroneous).
+ 2. Assemble list of high confidence IDs, and search genbank for matching reference genomes.
+ 3. Minimap the metagenome to each reference, and assemble all contigs from each minimap.
+
+Tentatively, the first and third steps work well--I can assemble individual bacterial genomes that look pretty good when I minimap to a target, and my QC method seems both reasonable and robust. However, because each Kraken2 taxID matches to many genbank IDs, I don't know of a good way to pull a genbank ID that represents a full reference genome. Is there a way to reliably get a reference genome from a Kraken2 taxID?

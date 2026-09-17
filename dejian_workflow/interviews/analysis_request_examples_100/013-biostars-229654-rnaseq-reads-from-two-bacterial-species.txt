@@ -1,0 +1,23 @@
+# source: https://www.biostars.org/p/238650/
+# title: RNASeq reads from two bacterial species
+# date: 2017-02-24
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+RNASeq reads from two bacterial species
+
+Dear All 
+
+I am trying to analyze co-transcriptome data from two enteric pathogens. These are new clinical isolates (X and Y). I have RNASeq reads from each species grown individually (X or Y) and from the co-growing culture (X+Y). The pattern of growth observed in in vitro cultures is that X suppresses growth rate of Y and we are trying to have a mechanistic explanation for this pattern. 
+
+For this, I used trinity for de novo transcriptome assembly and then RSEM (as an example of alignment based) or Kallisto (as an example of alignment-free). I then ran DESeq2 on the read counts from both RSEM and Kallisto and compared the differentially expressed genes from each case. 
+
+I get contradicting results when using both methods:
+using RSEM: > 2000 genes are sig up regulated in co-growth X+Y culture relative to individually grown X and 1500 gene are sig down regulated in co-growth X+Y culture relative to individually grown X and ~300 are up regulated. 
+
+Also the skew in the number of DEG towards being up/down regulated is a bit suspicious. 
+
+My question is which method should I follow in this case ? What is a good approach for analyzing RNASeq from such an experimental setup ? 
+
+Any insights or help will be highly appreciated
+Thanks

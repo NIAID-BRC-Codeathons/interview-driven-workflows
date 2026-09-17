@@ -1,0 +1,12 @@
+# source: https://www.biostars.org/p/250084/
+# title: DE analysis rna_seq data & GTF file for plasmid
+# date: 2017-04-29
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+DE analysis rna_seq data & GTF file for plasmid
+
+Hi guys
+I want to do DE analysis for my bacteria rna_seq data. it has genome and plasmid. Do I need to analyze both genome for DEG?
+I need GTF file for plasmid but I don’t find it in Ensembl Bacteria and UCSC Microbial Genome Browser and ncbi. In ncbi, there is a table of plasmids gene but this isn’t GTF. Where can I find GTF file for plasmid?
+ thanks.

@@ -1,0 +1,13 @@
+# source: https://www.biostars.org/p/436384/
+# title: Amplicon sequencing and unwanted amplicons
+# date: 2020-05-05
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Amplicon sequencing and unwanted amplicons
+
+Hi,
+
+I have sequenced amplicons of genes on different chromosomes in order to call variants. I noticed, that many sequences were mapped to another region in the genome –– on a chromosome that should contain only one amplicon, but I get variants for two genes that overlapped different regions of this chromosome. How is it possible? Is it a problem with my pipeline or is it be caused during sequencing?
+
+I mapped amplicon reads against the whole reference genome using bwa-mem. I called variants using GATK.

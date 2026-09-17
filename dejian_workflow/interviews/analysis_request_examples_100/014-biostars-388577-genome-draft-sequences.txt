@@ -1,0 +1,17 @@
+# source: https://www.biostars.org/p/402910/
+# title: Genome draft sequences
+# date: 2019-10-14
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Genome draft sequences
+
+Hi dears, 
+
+I want to align bacterial genome draft to its paired - end reads .. Which tool? how to do it ?
+
+one more question , what is the guideline for genome draft validation ?
+
+
+Best Regards
+Maytham Abbas Alzuhairi

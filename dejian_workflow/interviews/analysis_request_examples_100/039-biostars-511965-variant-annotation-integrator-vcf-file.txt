@@ -1,0 +1,12 @@
+# source: https://www.biostars.org/p/9511965/
+# title: Variant Annotation Integrator VCF File
+# date: 2022-02-22
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Variant Annotation Integrator VCF File
+
+Hello everyone,
+I am trying to use the UCSC Variant Annotation Integrator tool. I have a vcf file generated from the SARS-CoV2 reference genome. 
+Is it possible to directly upload the VCF file on the website or do I have to modify the file? 
+Thanks in advance

@@ -1,0 +1,17 @@
+# source: https://www.biostars.org/p/60632/
+# title: Calling Snp From Sample Containing Quasispecies
+# date: 2013-01-11
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Calling Snp From Sample Containing Quasispecies
+
+Hi all, 
+
+ I have sequenced a virus genome using Illumina. As viruses are evolving rapidly, I suspect that there is more than one genotype in my "pure" sample - one dominant and many satellite genotypes. When I sequenced a batch of viruses I have a crazy coverage of more than 10,000X for some of them. So, I am wondering if it is possible to look at the alignment of the reads to the assemblies to find possible Hot Spots that accumulate mutations. 
+
+ Which program/algorithm should I use to address this question ? 
+
+ Any comments/suggestions are welcome. 
+
+ Thank you

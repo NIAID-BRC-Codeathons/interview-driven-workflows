@@ -1,0 +1,13 @@
+# source: https://www.biostars.org/p/251043/
+# title: Proteome-genome cross reference
+# date: 2017-05-04
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Proteome-genome cross reference
+
+Hello there 
+
+I wonder if anyone can help me. I need to check the gene sequence of all proteins from a bacteria's proteome,I need to compare the first few codons. Are there any tools out there that can help me with this?
+
+Thanks in advance.

@@ -1,0 +1,19 @@
+# source: https://www.biostars.org/p/299087/
+# title: Insert size on PE 2*250
+# date: 2018-02-15
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Insert size on PE 2*250
+
+Hi,
+I´m sequencing the DNA of a bacterial genome with illumina (2x250 PE).
+
+I have cleanup reads and mapped them back to a reference genome for that bacterial that is close at 99%. 
+
+! [Qualimap insert size distribution][1]
+
+I have an expected size distrubution around 300, i was expecting higher insert size , around 350 ?? Do you think it´s ok ?
+
+
+ [1]: http://ibb.co/myuJmS

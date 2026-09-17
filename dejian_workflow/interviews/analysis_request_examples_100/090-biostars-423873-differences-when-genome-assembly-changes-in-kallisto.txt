@@ -1,0 +1,12 @@
+# source: https://www.biostars.org/p/445030/
+# title: Differences when genome assembly changes in Kallisto
+# date: 2020-06-21
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Differences when genome assembly changes in Kallisto
+
+Hello everyone,
+I am running an experiment and trying to figure out why, when performing an RNA-seq experiment on an index made from two different versions of a mouse genome assembly, results are *slightly* different, in kallisto? In my specific case, for the same experiment I have 30 more genes differentially expressed with an older index compared to the newer one. I guess the newer versions are more curated then previous ones and this may resolve in more accurate (pseudo-)counts?
+
+Thanks,

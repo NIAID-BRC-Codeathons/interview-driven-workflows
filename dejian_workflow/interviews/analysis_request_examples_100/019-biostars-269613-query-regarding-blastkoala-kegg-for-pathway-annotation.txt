@@ -1,0 +1,14 @@
+# source: https://www.biostars.org/p/279446/
+# title: Query regarding BLASTKOALA (KEGG) for pathway annotation
+# date: 2017-10-24
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Query regarding BLASTKOALA (KEGG) for pathway annotation
+
+Dear all
+I have 3652 gene's ids as well as corresponding protein ids of a bacterial genome. I need to annotate these sequences in terms of their pathway. I have used BLASTKOALA , KASS, DAVID and geneSCF for tis purpose, but the problem is only 50% sequences are annotated using KASS and BLASTKOALA. As the 50% annotation is of no use, is there any other tool by which I can annotate my protein sequences for their pathway analysis. 
+
+Why BLASTKOALA assigns KO numbers to few genes? is there any parameters we need to set?Did I do any mistake ? 
+Is there any parameters we need to set while implementing BLASTKOALA?
+I can not go ahead with the 50% pathway annotation. kindly tell me other methods or tool for this purpose.

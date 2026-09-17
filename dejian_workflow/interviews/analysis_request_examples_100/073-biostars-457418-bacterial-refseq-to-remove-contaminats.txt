@@ -1,0 +1,12 @@
+# source: https://www.biostars.org/p/493030/
+# title: Bacterial refseq to remove contaminats
+# date: 2021-02-24
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Bacterial refseq to remove contaminats
+
+Hi, community. 
+I have been working in a transcriptome for my species of interest which has an available genome. To increase my transcriptomic database, I decided, after assembling a genome-guided transcriptome, to assemble a de novo genome using the reads that did not map (around 10%~ of my data). However, I suspected that I had contamination. Indeed I mapped my dataset of non-aligning reads to several sequences (from human, Fungi, viral and bacterial), and for the Bacterial genome (E.coli) around 30% of the reads that did not map to my genome mapped to this bacterial genome. Since now I know my source of contamination is probably bacterial, I was wondering if there is any database I can use to map and remove the contaminants reads 
+
+Thank you in advance

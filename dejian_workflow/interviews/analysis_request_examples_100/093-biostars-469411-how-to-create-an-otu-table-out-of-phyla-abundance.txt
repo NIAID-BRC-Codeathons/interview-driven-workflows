@@ -1,0 +1,26 @@
+# source: https://www.biostars.org/p/9469411/
+# title: How to create an OTU table out of phyla abundance?
+# date: 2021-05-10
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+How to create an OTU table out of phyla abundance?
+
+Dear community,
+
+I have a very special problem. I've got data only about the abundance of specific phyla in a patient cohort. That means that I know how many of each Phyla a patient has, like:
+
+Patient 1: 10 of phyla 1, 21 of phyla 2, 300 of phyla 3, ... etc.
+
+Patient 2: 15 of pyhla 1, 26 of phyla 2, 365 of phyla 3, .... etc.
+
+...
+
+However I want to go on with microbiome analysis but therefore I need OTUs. However, OTUs are used to classify bacteria at the genus level, but now I have the data on phyla level and I have no 16S sequencing data. How can I create an OTU only by having the phyla abundance? Is is possible?
+
+Do I really need OTUs? Can I analyse alpha-/beta-diversity without OTUs?
+
+I would be really glad about any help!
+
+Kind regards,
+Hashirama

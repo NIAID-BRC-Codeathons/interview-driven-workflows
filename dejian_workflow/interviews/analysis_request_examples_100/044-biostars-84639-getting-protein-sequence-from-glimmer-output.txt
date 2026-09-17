@@ -1,0 +1,15 @@
+# source: https://www.biostars.org/p/89748/
+# title: Getting Protein Sequence From Glimmer Output
+# date: 2013-12-30
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Getting Protein Sequence From Glimmer Output
+
+Hello All, 
+
+ I am trying to use glimmer 3.2 for predicting genes in bacterial genome. I want to include glimmer into an automated analysis pipeline. After running glimmer I found that the program only predicts and output the gene coordinates but do not produce any fasta file containing gene or protein sequence. Although I can extract gene from genome based on coordinate information by writing a script. I was thinking if there is any module in perl which is built for doing this work. I know there is a module for parsing glimmer output in bioperl but not sure if its used for extracting gene or proteins as well. Please suggest me if there are any module already built for this work or any other easy way. 
+
+ Thank you very much 
+
+ Shalabh

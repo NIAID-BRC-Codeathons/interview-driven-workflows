@@ -1,0 +1,19 @@
+# source: https://www.biostars.org/p/276255/
+# title: How to perform functional gene clustering?
+# date: 2017-10-04
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+How to perform functional gene clustering?
+
+Let's say I have a gene "A" and I want to know what is a genomic context around it in different bacterial genomes. So, I have looked around "A" in bacterial genome X, Y, Z etc. and I have pulled out a few genes that are in vicinity (both upstream and downstream) of "A" for each one of these X-Y-Z genomes. 
+
+Now, I have a list containing all these genes with their locus_tag and functional description. Based on these (and I have a lot of them), I would like to see if any specific functions are enriched around gene "A", i.e. look for clusters of orthologs (COGs) in these genes surrounding "A".
+
+How this can be done? Initially, I wanted to use [DAVID][1] but it seems that it's main function is to look for enrichment in differentially expressed genes following RNA-seq or similar experiment. Also, my list of genes is coming from a number of various organisms.
+
+Thank you,
+TP
+
+
+ [1]: https://david.ncifcrf.gov/

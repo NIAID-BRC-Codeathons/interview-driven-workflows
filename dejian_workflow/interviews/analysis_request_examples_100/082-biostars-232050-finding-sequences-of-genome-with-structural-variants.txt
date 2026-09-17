@@ -1,0 +1,15 @@
+# source: https://www.biostars.org/p/241083/
+# title: Finding sequences of genome with structural variants.
+# date: 2017-03-09
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Finding sequences of genome with structural variants.
+
+Hello, 
+
+I have a bacterial reference genome and short sequencing reads from an organism belonging to the same species. I have already detected several structural variants in my sequenced sample and have a csv file for them (but not vcf). How do I get the exact sequence of the genome of this sequenced sample including the SV other than through de novo assembly? Is further sequencing required? If de novo is the best option, what tool should I use? 
+
+I have CLC at my disposal.
+
+Any thoughts would be appreciated. Thanks!

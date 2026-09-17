@@ -1,0 +1,15 @@
+# source: https://www.biostars.org/p/160935/
+# title: FASTQC and PacBio reads
+# date: 2015-10-07
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+FASTQC and PacBio reads
+
+I'm working with a group that did some PacBio sequencing to aid in the assembly of some bacterial genomes.
+
+The first priority for this group is to assess the quality of the read data. One of the formats that the read data were returned in was of fastq. We already have a pipeline for fastqc, so I first tried running the read files through our fastqc pipeline. However, fastqc keeps crashing due to java out of memory/heap space error. I have two questions:
+
+One, how do I increase the java memory allocation for fastqc?
+
+Two, even though the PacBio reads are in the form of fastq files, should I even be using fastqc? Is there a better program? This is my first time handling PacBio data, so I'm sorry if these are very basic questions.

@@ -1,0 +1,20 @@
+# source: https://www.biostars.org/p/146715/
+# title: DiscoSNP++ results analysis
+# date: 2015-06-16
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+DiscoSNP++ results analysis
+
+Hi all,
+
+I have just started using the DiscoSNP++ tool. I have been facing some problems after I generate the data.I have sequence of a bacteria which was obtained by denovo assembly on Ion torrent platform. I have to use this data as a reference for calling SNP's across 6 samples. I have come across DiscoSNP++ tool which seems good. My questions are:
+
+1. Can I use this tool for calling SNP's from data generated from Iontorrent platform?
+2. Should I call SNP's from one sample and then compare it with others or all the sample's data can be combined and called for SNP's?
+3. I get a format when I use a single sample file and a different profile if I using more datasets of different samples?
+4. How do I infer the generated data? I mean the interpretation.
+
+Thanks in advance
+
+Ramya

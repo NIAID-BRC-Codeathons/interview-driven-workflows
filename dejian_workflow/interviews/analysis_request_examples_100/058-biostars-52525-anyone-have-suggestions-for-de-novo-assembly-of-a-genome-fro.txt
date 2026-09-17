@@ -1,0 +1,22 @@
+# source: https://www.biostars.org/p/54483/
+# title: Anyone Have Suggestions For De Novo Assembly Of A Genome From Miseq 250 Pe Data?
+# date: 2012-10-08
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Anyone Have Suggestions For De Novo Assembly Of A Genome From Miseq 250 Pe Data?
+
+I have some MiSeq data from a prokaryotic specimen. The data are paired-end with read lengths of 250 and an average library size of 440. I ran these data through Velvet using the following parameters: 
+
+ velveth:
+hash_length of 31
+shortPaired read type
+
+velvetg:
+-exp_cov auto (automatically infer unique region coverage)
+-ins_length 200
+ 
+
+ The contigs came out looking pretty nonsensical. They were shorter than expected and there were lots of repeated sequences. After browsing the literature, it seems like Velvet is more for shorter reads coming from older technology like 454 and Solexa. 
+
+ Does anyone have any advice for how to assemble a genome from the data I have now? I'm pretty new to genome assembly, so please forgive me if I've left out relevant info. I'll be happy to provide it if asked.

@@ -1,0 +1,19 @@
+# source: https://www.biostars.org/p/396383/
+# title: how to identify gene expression and genes responsible for virulence
+# date: 2019-08-29
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+how to identify gene expression and genes responsible for virulence
+
+Hi, 
+I have clinical urine samples from which i need to identify the gene expression changes in the pathogen after treatment. (i know the bacteria present in urine through urine culture test)
+
+Q1. **Should I do 16s DNA sequencing to identify the strain of the bacteria? How do I know the genes present in the DNA? Can I do annotation of the data and identify the genes to see which genes are virulent or responsible for biofilm formation?**
+
+**Q2. I will be doing Rna-Seq to identify the expression of the genes. Do i need to provide the reference genome as the one sequenced above?** 
+
+Do I need to do DNA sequencing and rna expression profiling to make my data look validated? What exactly is the right route to go to conclude my result.
+ 
+
+Totally confused, I am new to this and this is my first bioinformatics clubbed project.

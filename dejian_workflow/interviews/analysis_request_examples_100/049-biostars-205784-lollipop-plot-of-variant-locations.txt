@@ -1,0 +1,13 @@
+# source: https://www.biostars.org/p/214246/
+# title: Lollipop Plot of Variant Locations
+# date: 2016-09-29
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Lollipop Plot of Variant Locations
+
+I am doing amplicon sequencing, so i'm only probing particular regions of the human genome 150bp at a time. I would like to know and display where my variants are coming from within my amplicons.
+
+So for instance if my first amplicon spans chr1:100-200 is there a good way to plot this region out and display where each variant in my vcf files are located along this 100bp segment?
+
+I have seen lollipop plots in the past that essentially do this but I'm not sure how to implement this in R.

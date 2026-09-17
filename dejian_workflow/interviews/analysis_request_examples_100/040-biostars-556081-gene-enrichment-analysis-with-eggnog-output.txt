@@ -1,0 +1,17 @@
+# source: https://www.biostars.org/p/9556081/
+# title: Gene Enrichment analysis with EggNog output
+# date: 2023-03-01
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Gene Enrichment analysis with EggNog output
+
+Hi everyone!
+
+I want to perform a gene set enrichment analysis of differently expressed host genes during virus infection. I performed Gene Ontology (GO) annotation with eggnog for the whole host genome and got one .tsv file, an excel file, and two .orthologs files. I've been trying to find literature on how to continue and how to use those files as input for the next tool (can someone recommend a good R package that is compatible with eggnog?), but without success. 
+
+I'm very new to this, is there anyone who could give me a hint on how to continue or maybe a protocol/paper that describes the downstream processes after the eggnog annotation?
+
+Please let me know if you need more specific information, any help is highly appreciated!
+
+Thank you!

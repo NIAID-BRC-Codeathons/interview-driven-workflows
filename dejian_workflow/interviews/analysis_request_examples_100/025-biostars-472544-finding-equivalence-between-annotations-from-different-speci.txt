@@ -1,0 +1,13 @@
+# source: https://www.biostars.org/p/9472544/
+# title: Finding equivalence between annotations from different species
+# date: 2021-05-28
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Finding equivalence between annotations from different species
+
+I have used Hisat2 to map some RNAseq reads against a brand-new genome assembly from the same species. In the literature the same reads were mapped against the reference genome of a different species of the same genus (because, despite the differences, this reference genome is more complete and better annotated). As expected, the alignment rates were around 10-15% higher when mapped to the same species. However, since this genome is brand new there is no annotation available yet, so I used StringTie to make myself a basic annotation for gene count and Differential Expression Analysis. 
+
+Is there any way to know which gene ids between both reference and self-made annotations match to the same RNA reads, and then identify gene ids that are present in one but not the other?
+
+Thanks

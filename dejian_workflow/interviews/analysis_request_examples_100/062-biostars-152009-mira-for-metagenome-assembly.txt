@@ -1,0 +1,35 @@
+# source: https://www.biostars.org/p/159116/
+# title: MIRA for metagenome assembly
+# date: 2015-09-24
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+MIRA for metagenome assembly
+
+Hi all,
+
+I am working on a *de novo* metagenome assembly project. In this data I am expecting several species of bacteria. The sequencing data I have received have been sequenced with Illumina 100-300 bp inserts with a read length of around 150 bps. I was giving a try to MIRA genome assembler, however there are around 150+ parameters to tune a assembly. I will be very thankful if anyone can share his/her experience with MIRA for metagenome assembly and how to optimize it for several closely related bacterial species within the sample.
+
+Here is how my manifest file looks like:
+
+```
+project = MyFirstAssembly
+job = genome,denovo,accurate
+parameters = -GE:not=4
+
+readgroup = SomePairedEndIlluminaReadsIGotFromTheLab
+
+data = datape*.fastq
+technology = solexa
+template_size = 100 300 autorefine
+segment_placement = ---> <---
+segment_naming = solexa
+```
+
+I would like to know if anyone have tested MIRA with some specific parameter for metagenomic data, where diversity is high and chances missing out is also high.
+It would be very great if anyone can share an example manifest file. 
+
+Many thanks in advance! 
+
+Best regards, 
+Rahul

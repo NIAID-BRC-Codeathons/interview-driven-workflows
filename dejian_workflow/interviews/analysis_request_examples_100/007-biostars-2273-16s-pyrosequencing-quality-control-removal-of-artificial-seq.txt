@@ -1,0 +1,9 @@
+# source: https://www.biostars.org/p/2306/
+# title: 16S Pyrosequencing Quality Control: Removal Of Artificial Sequences
+# date: 2010-09-01
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+16S Pyrosequencing Quality Control: Removal Of Artificial Sequences
+
+I am playing around with various ways of filtering my bacterial 16S sequences prior to clustering and analysis. It makes me a little bit nervous because I get different results depending on what filtering algorithm / program I use. I have tried PyroNoise and V-Xtractor as well as some trivial Python filtering but I have a hard time evaluating the output as to what makes sense and what does not. How do you filter your 16S sequences?

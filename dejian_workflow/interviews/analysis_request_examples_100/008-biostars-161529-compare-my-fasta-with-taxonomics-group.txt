@@ -1,0 +1,19 @@
+# source: https://www.biostars.org/p/168828/
+# title: Compare my FASTA with Taxonomics group
+# date: 2015-12-08
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Compare my FASTA with Taxonomics group
+
+Dear all,
+
+I would like to compare my FASTA assembly with taxonomic groups. I have taxonomic ID for viruses (10239), fungi (4751), bacteria (2) and mammalian (40674). Is there any way to find any percentage similarity via my command line using blast tools?
+
+Something lie this:
+
+ blastp -db tax ID1, ID2, ID3... -query my.fasta -out similarity_result
+
+Thank for any comment and help!
+
+Paul

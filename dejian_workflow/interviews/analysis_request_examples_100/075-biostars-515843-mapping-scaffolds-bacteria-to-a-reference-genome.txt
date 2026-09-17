@@ -1,0 +1,10 @@
+# source: https://www.biostars.org/p/9515843/
+# title: mapping scaffolds(bacteria) to a reference genome
+# date: 2022-03-22
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+mapping scaffolds(bacteria) to a reference genome
+
+Hi,
+I am new to the world of bioinformatics. I have a bacterial genome in scaffolds. The bacterial genome is assembled into long scaffolds. I would like to map this to a reference genome of closely related bacteria. How should I do this? What software I can use?

@@ -1,0 +1,11 @@
+# source: https://www.biostars.org/p/9555502/
+# title: Comparing 2 groups of bacterial genomes
+# date: 2023-02-24
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Comparing 2 groups of bacterial genomes
+
+Hi there,
+I have pacbio sequencing data for 4 bacterial genomes, these can be split into 2 groups of 2 based on their phenotype. I have annotated the genome and now have a list of genes present in each genome. I now want to compare these lists and identify genes that are present in one group of 2 but not in the other. I use R primarily along with some browser-based tools but I would greatly appreciate any suggestions.
+Thank you

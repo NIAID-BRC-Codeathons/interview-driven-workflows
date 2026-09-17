@@ -1,0 +1,9 @@
+# source: https://www.biostars.org/p/485464/
+# title: Principle component analysis using VCF file as input.
+# date: 2021-01-20
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Principle component analysis using VCF file as input.
+
+I have virus sequences from different geography for that I have perform Population structure analysis using STRUCTURE software. It give me Kopt at K=3. Now I want to perform PCA for these using Eigensoft but I have only vcf files. i have no case control data. how should i use VCF as input data.

@@ -1,0 +1,9 @@
+# source: https://www.biostars.org/p/452157/
+# title: How to remove poor quality sequences from a fasta file?
+# date: 2020-07-29
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+How to remove poor quality sequences from a fasta file?
+
+I have a fasta file, which consist of thousands of viral genomes. I need to remove poor quality genomes which contain more than 30% `NNNNNNN`. Therefore, kindly help me to do the same.

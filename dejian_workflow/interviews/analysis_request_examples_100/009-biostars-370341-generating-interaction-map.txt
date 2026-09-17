@@ -1,0 +1,29 @@
+# source: https://www.biostars.org/p/383466/
+# title: Generating Interaction map
+# date: 2019-06-06
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Generating Interaction map
+
+I want to bridge 2 protein interaction networks from 2 different papers.
+
+The first dataset consists of protein-protein interactions in the human genome in the format:
+
+ Bait_A - Pray_1
+ Bait_A - Pray_2
+ Bait_A - Pray_3
+ Bait_B - Pray_1
+ Bait_B - Pray_4
+
+The second dataset consist of viral proteins which have been shown to interact with the Prays of the first dataset, but not the Bait. So integrating them together we get:
+
+ Bait_A - Pray_1 (vProt_1, vProt_2)
+ Bait_A - Pray_2 (vProt_4)
+ Bait_A - Pray_3 (vProt_4)
+ Bait_B - Pray_1 (vProt_1, vProt_2)
+ Bait_B - Pray_4 (vProt_1, vProt_3)
+
+Because one of these papers is fairly recent (PMID 30833792), I am not sure these are present in any databases.
+
+What are some ways I could represent this, either in R or Cytoscape?

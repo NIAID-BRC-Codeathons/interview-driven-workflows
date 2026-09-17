@@ -1,0 +1,23 @@
+# source: https://www.biostars.org/p/302864/
+# title: Sorting reads from host-pathogen interaction
+# date: 2018-03-08
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Sorting reads from host-pathogen interaction
+
+I am working on rna-seq data for a host-pathogen interaction between a grass species and its fungal parasite. The ultimate goal is to do differential expression analysis and functional enrichment to see what genes and pathways are involved in parasitism.
+
+I have:
+
+ 1. Draft genome of the fungus
+ 2. RNA-seq reads from non-infected grass
+ 3. RNA-seq reads from infected grass (contains grass and fungal
+ transcripts)
+ 4. RNA-seq reads from the fungus growing in culture
+
+I built the transcriptome of the fungus using just the reads from the culture grown fungus, and I also built the grass transcriptome with only the non-infected reads. Now im thinking it would be useful to rebuild those trascriptomes to include reads from the infected tissue to capture transcripts that are unique to the host-pathogen interaction.
+
+Is there a way to filter the infected reads into grass and fungal groups using the resources I currently have?
+
+Perhaps I could align the infected grass reads (#3) to the fungal transcriptome, and use only the un-mapped reads to rebuild the grass transcriptome? Maybe I can use BLAST, BBduk, or some other tool on the unmapped reads to further filter out fungal reads before using them to build the grass transcriptome.

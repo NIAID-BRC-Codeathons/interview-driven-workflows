@@ -1,0 +1,11 @@
+# source: https://www.biostars.org/p/9511759/
+# title: QIAseq 16S/ITS Screening Panel Primers?
+# date: 2022-02-21
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+QIAseq 16S/ITS Screening Panel Primers?
+
+Hello! I'm trying to analyze some metagenomic samples that are a mixture of bacteria and fungi. I used the QIAseq 16S/ITS Screening Panel Kit for library prep, and now I'm looking for the sequence of the 16S and ITS primers from that kit and can't find anything. Does anyone else know where to find that information?
+
+Thank you!

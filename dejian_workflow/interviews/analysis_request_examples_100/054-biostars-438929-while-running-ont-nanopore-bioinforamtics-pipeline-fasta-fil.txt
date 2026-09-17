@@ -1,0 +1,23 @@
+# source: https://www.biostars.org/p/464928/
+# title: while running ONT(nanopore) bioinforamtics pipeline, fasta files are not generating.
+# date: 2020-10-02
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+while running ONT(nanopore) bioinforamtics pipeline, fasta files are not generating.
+
+Hello, 
+I am trying to run the ONT pipeline for generating fasta for covid and working on the HPC server.
+while running a test set on my system, I was able to generate fasta files along with vcf and bam files using the minion protocol.
+however, while running a larger set on HPC, I am only getting the vcf and bam files but no fasta files are generating.
+I have tried to re-install the artic-ncov2019 environment in Anaconda. 
+When my base-called files are run on a DGX server, fasta files and all other files are formed.
+
+However, in the HPC server, we have a GPU node but running minion on that doesn't generate fasta.
+
+I am utterly confused as it's my first time working on the server. But so far as I know the type of server doesn't matter for generating fasta. 
+
+Can anyone suggest what I can do? 
+
+
+Thanks

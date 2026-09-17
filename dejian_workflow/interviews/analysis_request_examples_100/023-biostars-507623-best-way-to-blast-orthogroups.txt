@@ -1,0 +1,21 @@
+# source: https://www.biostars.org/p/9507623/
+# title: Best way to BLAST orthogroups?
+# date: 2022-01-26
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Best way to BLAST orthogroups?
+
+Hi! 
+
+I have thousands of orthogroup txt files. Each file contains a number of protein sequences from multiple bacterial species. I want to find the best protein match to each orthogroup.
+
+What is the best way to do this? 
+
+I thought about generating a profile hidden Markov model (pHMM) for each orthogroup, and BLAST the pHMM. Would this is a reasonable approach? Is there a better way to do this?
+
+Another problem I can think of is that, if I download the prokaryotic genome database from NCBI and BLAST my sequence(s) against it, the best match would likely correspond to the bacterial species/protein sequence being blasted.
+
+How can I find the closest match that isn't that exact sequence?
+
+Thanks in advance for any help!

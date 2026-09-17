@@ -1,0 +1,15 @@
+# source: https://www.biostars.org/p/127628/
+# title: Should I remove host RNA from host-pathogen metatranscriptomic data
+# date: 2015-01-21
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Should I remove host RNA from host-pathogen metatranscriptomic data
+
+Does removing host RNA before mapping reads to pathogen genome adds any benefits?
+
+I'm worried about the false positive host RNA could give.
+
+I'm working with pig and bacterial data.
+
+Thanks!

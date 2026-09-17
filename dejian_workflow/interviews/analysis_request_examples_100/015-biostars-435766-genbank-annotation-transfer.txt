@@ -1,0 +1,11 @@
+# source: https://www.biostars.org/p/460438/
+# title: Genbank annotation transfer.
+# date: 2020-09-09
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Genbank annotation transfer.
+
+As the Title implies, I am looking for a set of tools (Linux command line only - I don't have a GUI) that can do a whole genome alignment as follows:
+
+I have the NC_045512 reference genbank file for SARS-CoV-2, and I want to align a complete sequence (call it "Seq_A") with it. The output contains either a genbank file of Seq_A, or a gff of the annotations from the reference genbank file. Any suggestions?

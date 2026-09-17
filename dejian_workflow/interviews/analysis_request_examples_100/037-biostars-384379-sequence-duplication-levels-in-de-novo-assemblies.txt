@@ -1,0 +1,14 @@
+# source: https://www.biostars.org/p/398433/
+# title: Sequence duplication levels in de-novo assemblies
+# date: 2019-09-12
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Sequence duplication levels in de-novo assemblies
+
+Hi all!
+Is such a result ( https://imgur.com/DGxsFN7 ) concerning if the overall goal is to do de-novo genome assembly? 
+
+I continued with the data as is, assembled and predicted proteins and I did find that some proteins were duplicated (not sure if this is caused by what we see above?) anyways I then used a software for assembling heterozygous genomes and saw some improvement in # of duplicated proteins, but im unsure if this is the proper solution for this failed fastqc module. Any insight is greatly appreciated.
+
+Additional info: I have 200bp paired reads and high coverage (~1000X)

@@ -1,0 +1,9 @@
+# source: https://www.biostars.org/p/67932/
+# title: How To Find Proteins Related To Patogenicity Of A Bacteria ?
+# date: 2013-04-02
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+How To Find Proteins Related To Patogenicity Of A Bacteria ?
+
+i have a complete genome of a strain of Streptococcus pneumoniae. now i have to find out the proteins related with pathogenicity or virulence ?

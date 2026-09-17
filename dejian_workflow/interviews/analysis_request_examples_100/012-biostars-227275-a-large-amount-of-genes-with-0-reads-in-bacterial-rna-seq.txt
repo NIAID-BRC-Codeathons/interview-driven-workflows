@@ -1,0 +1,26 @@
+# source: https://www.biostars.org/p/236229/
+# title: A large amount of genes with 0 reads in bacterial RNA seq
+# date: 2017-02-12
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+A large amount of genes with 0 reads in bacterial RNA seq
+
+Hi Community,
+
+I am new to RNA seq analysis. I have a RNA seq data set from Deinococcus radiodurans. We came across a large of 0 reads in the 12 libraries. 
+
+
+for the whole data set, 12 libraries having 0 reads account for about 26% of the data (3224 genes)
+> mean(rowSums(full == 0) == 12)
+[1] 0.2583747
+
+Extracted those low counts( 1060 genes) and 12 libraries having 0 reads account for about 79% of the data
+> mean(rowSums(lowRead == 0) == 12)
+[1] 0.7858491
+
+What does this tell us? And how to extract more information from this data?
+
+Thank you for your help.
+
+Xp

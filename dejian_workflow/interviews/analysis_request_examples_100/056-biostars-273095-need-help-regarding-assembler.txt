@@ -1,0 +1,17 @@
+# source: https://www.biostars.org/p/282998/
+# title: Need help regarding assembler
+# date: 2017-11-11
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Need help regarding assembler
+
+Hi all,
+
+I am very new to genome assembly. I have got 4 data for a genome of size 50M. Data what i have are, illumina short insert lib (200-500), long insert lib (300-600), mate pair (3-5kb) and nanopore (yet to receive). Kindly suggest which assemblers to use?? which data to use what stage (assembly, scaffolding or gapclosure)?? how do i get best kmer apart from kmergenie? Any other kmer identifier?
+
+Detailed input is much appreciated. 
+ 
+Right now i am thinking of spades and idba_ud for assembly using both short and long insert together. Further need some assistance.
+
+Thank you

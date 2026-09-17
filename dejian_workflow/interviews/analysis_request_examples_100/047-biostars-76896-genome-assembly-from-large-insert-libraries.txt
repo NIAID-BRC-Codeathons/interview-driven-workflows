@@ -1,0 +1,21 @@
+# source: https://www.biostars.org/p/81537/
+# title: Genome Assembly From Large Insert Libraries
+# date: 2013-09-19
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Genome Assembly From Large Insert Libraries
+
+Dear all, 
+
+ I am trying to assemble a genome of size around 80Mb. I have four Illumina libraries of insert sizes 300bps, 1kb, 8kb and 12kb. Read lengths are 76-100bps. I generated assemblies using both Velvet and ALLPATHS_LG assemblers. I could generate the nice N50 more than 2MBs in case of velvet (K-mer=55) and ALLPATHS-LG generated N50 of around 1MB. Assembly parameters are looking nice. But I am having around 20% of Ns in the assembled scaffolds in case of velvet and around 16% in case of ALLPATHS-LG assembled scaffolds. My questions would be: 
+
+ (a) Is this usual with such a long insert libraries? 
+(b) Should I turn off the scaffolding of these assemblers and try scaffolding by other stand-alone scaffolders like BAMBUS2, SSPACE or GRASS (Please suggest more)?
+(c) Dose these assemblers also mask repeat elements while scaffolding/assembly process, which have been masked in the genome and I am getting high percentage of Ns? 
+
+ I would really appreciate the suggestions. 
+
+ Kind regards and wishes, 
+
+ Rahul Sharma

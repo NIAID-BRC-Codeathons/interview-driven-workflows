@@ -1,0 +1,14 @@
+# source: https://www.biostars.org/p/424333/
+# title: coverage profile comparison
+# date: 2020-02-26
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+coverage profile comparison
+
+I am working with virus sequences, looking to see if there are unexpected differences in virus genome covverage between samples. 
+in 2 samples, overall expression profiles resemble each other. if there is an area of high coverage from nt 15 to 30, it will be high in both samples, but on a different (y-axis) scale. it may be 500 in sample1, 50 in sample2, with a factor 10. a low cover area at location 50 to 80 nt might be 100 in sample 1 and if the factor stays the same, sample2 would be 10. instead sample2 has a coverage of 20, a lot higher than expected. 
+so I am looking for areas that are over- or under represented. 
+i have what are essentially BED files, but in excel, for each sample. 6 samples represent a susceptible cultivar of plant, 6 a resistant cultivar. The resistant cultivar has far lower coverage, but it does have coverage. trying to see if there areas over or under represented, which might affect virus function.
+can't use log transform because of zero cover locations. Tools for differential expression analysis are geared towards individual genes and don't work for this.
+Any thoughts from anyone?

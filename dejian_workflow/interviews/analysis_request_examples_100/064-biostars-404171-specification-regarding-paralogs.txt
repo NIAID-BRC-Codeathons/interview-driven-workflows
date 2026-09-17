@@ -1,0 +1,46 @@
+# source: https://www.biostars.org/p/421167/
+# title: Specification regarding paralogs
+# date: 2020-02-09
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Specification regarding paralogs
+
+Hi I am trying to get deep into some definitions in bioinformatics. Now I'm counting the paralogs in a viral genome. I found this [page][1]. What I did is that I did a blast search of those viral orfs against themselves. (blastp -query viralorfs -db viralorfs). So I need a specification regarding my results.
+
+After blast I got: 
+
+1)gene1 - gene1 100% sim
+
+2)gene1 - gene61 88% sim
+
+3)gene2 - gene2 100% sim
+
+4)gene2 - gene5 60% sim
+
+5)gene2 - gene11 78% sim
+
+6)gene3 - gene3 100% sim
+
+7)gene3 - gene37 45% sim
+
+8)gene3 - gene34 38% sim
+
+I excluded from my final results of 100% similarity between the same genes, but in some cases, I had more than 2 hits
+
+2)gene1 - gene61 88% sim 
+
+4)gene2 - gene5 60% sim 
+
+5)gene2 - gene11 78%sim
+
+ 7)gene3 - gene37 45% sim 
+
+8)gene3 - gene34 38% sim
+
+
+My question is: In this case, the number of paralogs is 3 or 5? 
+Thank you in advance
+
+
+ [1]: https://sciencing.com/difference-between-orthologous-paralogous-genes-18612.html

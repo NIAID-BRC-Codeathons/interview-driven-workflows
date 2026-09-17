@@ -1,0 +1,15 @@
+# source: https://www.biostars.org/p/310525/
+# title: Get sequences for KEGG by EC and taxa
+# date: 2018-04-21
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Get sequences for KEGG by EC and taxa
+
+Hi everyone
+
+I need to download all gene sequences for an enzyme, but I need only retrieves for bacteria, archaea and fungi. ¿There is a way to obtain this data from KEGG?
+
+Actually I'm doing this through ncbi from entrez direct command line application, but for the purposes of my work KEGG seems to be a more useful database.
+
+Thanks for your help!

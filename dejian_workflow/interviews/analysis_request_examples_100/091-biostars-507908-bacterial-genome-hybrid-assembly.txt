@@ -1,0 +1,16 @@
+# source: https://www.biostars.org/p/9507908/
+# title: Bacterial genome hybrid assembly
+# date: 2022-01-28
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Bacterial genome hybrid assembly
+
+Hi all,
+
+I have a bacterial genome that I know has an approximate size of 7.3m. I have both short-reads (Illumina) and long-reads (Pacbio). Sequencing showed good coverage.
+I tried to assemble these data using SPAdes, Flye or Canu but I can not obtain a circular chromosome contig. I know there is plasmid contigs in this genome but the best assembly I got was with Flye (and rounds of Pilon) with a total of 8 contigs.
+
+Do you know another assembler tool that I can use? Do you have any advices on how should I perform this assembly?
+
+Thank you very much for your help,

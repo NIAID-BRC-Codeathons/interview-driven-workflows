@@ -1,0 +1,15 @@
+# source: https://www.biostars.org/p/191855/
+# title: Removing gaps from a multiple sequence alignment in order to analyse SNPs
+# date: 2016-05-16
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Removing gaps from a multiple sequence alignment in order to analyse SNPs
+
+Hi
+
+I have aligned ~50 bacterial whole genomes with the intention of analysing SNPs to construct their phylogeny. 
+
+My alignment has both '-' and 'N' present. I was intending on using trimAL to delete any gaps (e.g. '-') from my alignment before undertaking SNP analysis. I just want to check that this is a good idea? Also as I also have 'N's present, will this affect my SNP analysis and if so what should I do?
+
+Thanks!

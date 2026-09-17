@@ -1,0 +1,13 @@
+# source: https://www.biostars.org/p/9512883/
+# title: How to convert genome sequencing of SARS-CoV-2 raw fastq file to consensus fasta file?
+# date: 2022-03-01
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+How to convert genome sequencing of SARS-CoV-2 raw fastq file to consensus fasta file?
+
+Hi
+I am trying to generate a high-quality consensus fasta file from sequencing data of SARS-CoV-2. First, we used the vcfutils vcf2fq command line. but we can not get high-quality data due to a large number of variations in this virus. after searching about this matter, I found that we can use samtools/bcftools consensus fasta file. BUT, I think generated consensus fasta file is abnormally cleared and filtered after using cat command!!
+Parallelly, I use the Genome Detective tool to get the fasta file. The final lineage reports of Genome Detective and samtools/bcftools (that resulted from Pango Lineage) are totally different!
+would you please help me solve this problem? Is my idea about cat command correct? Is there any alternative command line to get the consensus fasta file?
+Thanks

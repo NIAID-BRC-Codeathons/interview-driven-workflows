@@ -1,0 +1,13 @@
+# source: https://www.biostars.org/p/264054/
+# title: Are the UCSC genome assemblies non-redundant? How do I get a non-redundant genome fasta?
+# date: 2017-07-22
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Are the UCSC genome assemblies non-redundant? How do I get a non-redundant genome fasta?
+
+I'm looking to have a single FASTA sequence for each chromosome in an organism, but if I check the sequences in panTro5.fa (chimp) that I've downloaded from UCSC I get a ton of ids like: chr10_NW_015973889v1_random, chr10_NW_015973890v1_random, etc.
+
+What are these and how do I get rid of them? I don't have them in my hg38.fa (human) file because you can download all the chromosomes individually and then assemble them into one fasta, but I don't think you get that option with other genomes.
+
+I need to use the genomes to find hits for viral LTR sequences and the number of hits is important so I don't want to get the same hit in the same region of the genome twice or more.

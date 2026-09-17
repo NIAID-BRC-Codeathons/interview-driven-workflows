@@ -1,0 +1,16 @@
+# source: https://www.biostars.org/p/359457/
+# title: How to generate a family level phylogeny?
+# date: 2019-01-20
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+How to generate a family level phylogeny?
+
+Hi all,
+
+I want to generate a 16S family level phylogenetic tree of a bacteria family, and include on the sequence I have to see where it falls within the family.
+I know the SILVA database has a lot of 16S sequences, that I downloaded. But making a tree out of all those sequences requires much space, that my laptop doesn't have. Also I don't need thousands of sequences. Just enough to have representative sequences to cover the whole family.
+
+So how should I go about this?
+
+Thanks in advance :)

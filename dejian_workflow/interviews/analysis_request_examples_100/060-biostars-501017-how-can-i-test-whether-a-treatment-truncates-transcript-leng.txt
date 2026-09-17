@@ -1,0 +1,33 @@
+# source: https://www.biostars.org/p/9501017/
+# title: How can I test whether a treatment truncates transcript length using transcriptomics?
+# date: 2021-12-09
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+How can I test whether a treatment truncates transcript length using transcriptomics?
+
+I am testing whether a treatment gives shorter transcripts than a solvent in E. coli using transcriptomics:
+I have the following dataset: 
+* (A) treatment condition and a (B) solvent condition
+* 3 concentrations (1X, 2X, and 3X)
+* 4 timepoints (t=0, t=30, t=60, and t=120 minutes)
+
+I have triplicates for each condition group (e.g., SOLVENT/2X/t=30 there are 3 samples)
+
+**How can I test whether the transcripts in the treatment condition are shorter than the solvent condition using these transcriptomes?**
+
+There are 2 approaches I've considered: 
+
+1) An unsupervised approach where I do de novo transcriptome assembly and then compare the assembly stats. 
+
+ Pros: I can get an unbiased view of how long the transcripts are in each sample
+
+ Cons: I can't directly compare transcripts between the condition and solvent b/c each transcript is unique to a sample. I could cluster these sequences but not sure this is the best approach. 
+
+2) A supervised approach where I map the reads directly to the genes for E. coli
+
+ Pros: I can have direct comparisons of genes between conditions
+
+ Cons: I have a POSITION dimension and a COVERAGE dimension to factor in since reads span different regions.
+
+I'm not sure how read depth can effect either of these approaches

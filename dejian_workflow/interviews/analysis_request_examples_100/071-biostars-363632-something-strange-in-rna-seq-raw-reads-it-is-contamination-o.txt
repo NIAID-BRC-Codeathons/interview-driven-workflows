@@ -1,0 +1,27 @@
+# source: https://www.biostars.org/p/376302/
+# title: Something strange in RNA-seq raw reads, It is contamination or not?
+# date: 2019-04-23
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Something strange in RNA-seq raw reads, It is contamination or not?
+
+Hi all,
+
+I'm a beginner for RNA-seq and bioinformatics. I found something strange in my RNA-seq raw read from an insect. I have 4 samples; A1, A2, B1, B2. Sample A1 - A2, and B1 - B2 are biological replicates.
+
+After I ran FastQC to qualify the quality of the raw reads. I got the warning from 'overrepresented sequences' from sample B2. Then, I randomly picked 50,000 reads from each sample and ran blastn. The result shows that
+
+No. of reads which are matched with my model in the database; A1: 90%, A2: 93%, B1: 86%, B2: 47% 
+
+No. of 'No hit'; A1: 9%, A2 : 4%, B1 : 12%, B2 : 51%
+
+The rest are matched with something else.
+
+From the result, sample B2 has some problem. I checked 100 reads which have 'No hit' status and I found that some part of these reads (20 - 70 bp from 101 bp) are matched 80-90% to bacteria, virus, or fungus sequences.
+
+I understand that it might be endosymbiont but why these bacteria, virus, or fungus sequences are inserted in the middle of my reads and why its replicate (B1) doesn't have this character?
+
+Can someone explain what happens with my sample B2? Is there contamination? or What should I do?
+
+Thank you in advance for your kind help,

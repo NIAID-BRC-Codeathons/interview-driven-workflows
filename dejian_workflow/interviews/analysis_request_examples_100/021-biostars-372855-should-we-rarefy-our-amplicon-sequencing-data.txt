@@ -1,0 +1,16 @@
+# source: https://www.biostars.org/p/386156/
+# title: Should we rarefy our amplicon sequencing data?
+# date: 2019-06-24
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Should we rarefy our amplicon sequencing data?
+
+On Waste Not, Want Not: Why Rarefying Microbiome Data Is Inadmissible's figure 1: 
+https://journals.plos.org/ploscompbiol/article/comment?id=10.1371/annotation/043bcfb2-1583-41a8-9497-807232f001f4
+
+Am I the only one to think that Fig 1 actually shows the oppsite conclusion?
+
+The stat is significant due to larger sampling effect on sample B. After adjusting the sampling effect, we no longer have the false positive.
+
+On the other word, if random sampling is inadmissible, what if I sequenced sample B twice. One time I got 50, 50, and the other time I got 5000, 5000. How should I interpret the totally differnt stat outcome if random sampling is not applied?

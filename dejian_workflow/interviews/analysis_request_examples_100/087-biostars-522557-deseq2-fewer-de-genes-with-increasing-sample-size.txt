@@ -1,0 +1,15 @@
+# source: https://www.biostars.org/p/9522557/
+# title: DESeq2 - Fewer DE genes with increasing sample size
+# date: 2022-05-10
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+DESeq2 - Fewer DE genes with increasing sample size
+
+Hello all,
+
+I am using DESeq2 to analyze a barcoded library and have noticed fewer differentially expressed genes as the sample size is increased. For background, this is a bacterial library with barcoded strains. The read counts for each strain under different conditions are used to determine the fitness advantage of the strain.
+
+When I do the analysis on the full dataset (6 unselected library vs. 17 treatment condition), I get 19 differentially expressed genes (actually strains with different counts, but I would think the principle is similar) using padj 0.05 I have reason to believe are false negatives, because I observed those genes in an independent replicate of the experiment. However, if I only use 3 treatment samples, I get 158 DE genes, with the number of genes decreasing as the number of treatment samples increases. I would think that more samples gives greater power to detect changes in counts, so this behavior seems unintuitive to me. Does anyone have an idea what might be going on? I tried removing the outlier replacement/Cook's cutoff settings which increases the genes detected but the trend of more samples --> fewer genes remains.
+
+Any help would be much appreciated.

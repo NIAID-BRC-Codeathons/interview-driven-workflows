@@ -1,0 +1,30 @@
+# source: https://www.biostars.org/p/301063/
+# title: Spades vs Velvelt_why do I get much more contigs with SPADEs?
+# date: 2018-02-27
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Spades vs Velvelt_why do I get much more contigs with SPADEs?
+
+Hi all, 
+
+I am running SPADEs assembly for Illumina reads on several bacterial genomes. 
+I used this script: 
+
+ spades.py -1 ...R1.fastq -2 ...R2.fastq --careful -t 3 -m 30 -o 
+
+The same genomes were previously assembled with Velvet (exactly same raw data). 
+
+When I looked at the results, I have much more contigs with Spades!! Any idea why? Is there something I can do after running spades to improve the assembly quality of my genomes? 
+Here an example of the differences I get with the 2 assemblers (after running "seqkit stats"): 
+ 
+ scaffolds.fasta  FASTA   DNA        877  2,223,301       56  2,535.1  116,526  111  216    297       17  24,875 SPADES
+ Velvet.fa       FASTA   DNA        313  2,108,423      197  6,736.2  116,024  240  414  7,858        0  24,461 VELVET
+ 
+ file             format  type  num_seqs    sum_len  min_len  avg_len  max_len   Q1   Q2     Q3  sum_gap     N50 
+ scaffolds.fasta  FASTA   DNA      1,234  2,319,934       56    1,880  132,700  168  223    295       18  25,849 SPADES
+ Velvet.fa       FASTA   DNA        332  2,122,470      193    6,393  132,734  234  344  6,301        0  26,473 VELVET
+ 
+
+thanks for any possible help!
+Anna

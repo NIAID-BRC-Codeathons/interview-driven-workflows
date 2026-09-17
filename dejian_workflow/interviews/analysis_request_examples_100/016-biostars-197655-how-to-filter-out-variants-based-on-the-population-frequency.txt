@@ -1,0 +1,13 @@
+# source: https://www.biostars.org/p/205911/
+# title: How to filter out variants based on the population frequency
+# date: 2016-08-08
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+How to filter out variants based on the population frequency
+
+Hi All,
+
+I have been asked to filter out variants based on the population frequency. In order to do this, should I use "AF-Allele Frequency" of my sample? 
+
+What is the significance of annotating VCF file with the allele frequency of ASN, AMR, AFR and EUR?

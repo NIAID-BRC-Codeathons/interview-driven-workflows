@@ -1,0 +1,9 @@
+# source: https://www.biostars.org/p/9507886/
+# title: How is genome coverage / depth is determined?
+# date: 2022-01-28
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+How is genome coverage / depth is determined?
+
+I have the raw R1 and R2 files of a bacterial genome sequence that have been assembled into contigs using spades. How can I calculate the genome coverage / depth? Thanks.

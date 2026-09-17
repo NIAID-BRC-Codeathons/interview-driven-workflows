@@ -1,0 +1,17 @@
+# source: https://www.biostars.org/p/398298/
+# title: Blast an organism against a downloaded database
+# date: 2019-09-11
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Blast an organism against a downloaded database
+
+Hi, Biostar community!
+
+I am trying to do a blastn with my genome assembled on Linux against an organism that only has one public assembled genome. The latter genome comes from the same organism but a different strand. When I ran Mummer, my genome assembly and the one that is on NCBI are quite different. My main goal is to find contaminants in my genome assembly (if there are). The only database that fits me is other_genomic.gz (ftp://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/), but when I try to gunzip it, I have got this: 
+
+ gzip: other_genomic.gz: unexpected end of file 
+
+What does this mean? I should be able to decompress other_genomic.gz.
+I hope you could help me out. 
+Thank you in advance!

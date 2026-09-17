@@ -1,0 +1,11 @@
+# source: https://www.biostars.org/p/9532734/
+# title: how to annotate bacterial genome which are annotated in reference with different name
+# date: 2022-07-29
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+how to annotate bacterial genome which are annotated in reference with different name
+
+Hi, I am having around 300 genome and the protein (50 in number) in which i am interested they are annotated by different name in reference genome as well as other faa file of other genome, which is result of prokka so my question is i want to annotate my 50 protein of interest with their real name? How can i do that ? please help me if anyone know anything about it? 
+
+Thank you!

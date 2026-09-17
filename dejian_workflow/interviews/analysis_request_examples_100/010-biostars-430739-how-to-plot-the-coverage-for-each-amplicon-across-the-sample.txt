@@ -1,0 +1,11 @@
+# source: https://www.biostars.org/p/453854/
+# title: How to plot the coverage for each amplicon across the samples?
+# date: 2020-08-06
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+How to plot the coverage for each amplicon across the samples?
+
+Hi everybody,
+I have sequenced a virus using the amplicon approach (similar to the ARTIC for SARS-CoV-2) using 28 pairs of primers. I would like to plot the coverage for each amplicon across the samples in order to understand which amplicon is not amplified. What should I do? Do you have any tools you may suggest me to obtain the tables for the plot? I would like to obtain a figure similar to the one in this pre-print (Fig 3) https://www.biorxiv.org/content/10.1101/2020.06.16.154286v1.full.
+All the best

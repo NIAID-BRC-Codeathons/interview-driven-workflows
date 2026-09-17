@@ -1,0 +1,13 @@
+# source: https://www.biostars.org/p/9504334/
+# title: How to assemble viral genome using MIRA assembler
+# date: 2022-01-04
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+How to assemble viral genome using MIRA assembler
+
+Hi,
+I am looking to make hybrid assembly of a viral genome. I have got (R1 and R2) and a merged file fastq.gz, generated from Nanopore. I used SPAdes but it makes fragmented assembly. Please let me know if MIRA assembler [enter link description here][1] works for hybrid assembly with Nanopore sequencer. 
+
+
+ [1]: http://mira-assembler.sourceforge.net/docs/DefinitiveGuideToMIRA.html

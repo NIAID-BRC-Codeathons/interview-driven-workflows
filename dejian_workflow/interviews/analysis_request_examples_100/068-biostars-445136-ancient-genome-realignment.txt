@@ -1,0 +1,9 @@
+# source: https://www.biostars.org/p/474443/
+# title: Ancient genome realignment?
+# date: 2020-11-20
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Ancient genome realignment?
+
+I'm a little new to bioinformatics and am not sure if what I'm thinking makes sense. I am looking for a particular SNP in a gene on chromosome 4 that I believe may influence resistance to disease. I want to know if this was inherited from ancient hominins and looked it up at the ancient genome browser from the Max Plank institute. I didn't find the SNP there but the genome assembly they have is GRCh37 and my SNP is annotated in GRCh38 (rs111670008). Is it worth it to realign their raw data to the GRCh38 genome? I know this will be computer and time intensive so dont want to embark on it if I will get more or less the same answer. Thank you for any suggestions.

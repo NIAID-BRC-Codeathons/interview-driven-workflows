@@ -1,0 +1,14 @@
+# source: https://www.biostars.org/p/256799/
+# title: feature count strand explained
+# date: 2017-06-08
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+feature count strand explained
+
+Hello,
+I am very new to rna-seq. I have got the RNA-seq data for bacteria (Hiseq 150*2). From lab it was told that its a directional library (NEB ultra directional kit). Now i assume the data is from Sense/Forward strand.
+
+I have used featureCount with -s 1 and only 1% of the reads were assigned to feature. Then i tried with -s 2 (reverse strand) and >96% of reads were assigned. Could someone explain strand concept in feature count.
+
+Thanks

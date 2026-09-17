@@ -1,0 +1,10 @@
+# source: https://www.biostars.org/p/9514639/
+# title: how to downolad genbank file from islandviewer
+# date: 2022-03-14
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+how to downolad genbank file from islandviewer
+
+Dear All,
+am working on a salmonella st313 genome which i uploaded on islandViewer to try and get genomic islands, i want to download a genbank file i can use to visualize the islands on artemis but i cant seem to find the optoin for it. thank you for your assistance in advance.

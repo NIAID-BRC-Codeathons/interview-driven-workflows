@@ -1,0 +1,10 @@
+# source: https://www.biostars.org/p/197850/
+# title: Bowtie2 End-to-End or Local alignment mode, Which one i should choose for downstream bacteria SNPs and Indels calling
+# date: 2016-06-21
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Bowtie2 End-to-End or Local alignment mode, Which one i should choose for downstream bacteria SNPs and Indels calling
+
+I have used bowtie2 for both end-to-end and local alignment (sensitive mode) using raw data (Preprocessed) from illumina Miseq. the read length are in the range of 36 to 150. 
+The results shows that Local alignment gives around 92% alignment rates but end-to-end alignment gives around 64%. Which one i should choose for bacteria SNPs and Indels calling?

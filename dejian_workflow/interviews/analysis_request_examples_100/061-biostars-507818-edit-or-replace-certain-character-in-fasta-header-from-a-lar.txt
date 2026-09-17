@@ -1,0 +1,14 @@
+# source: https://www.biostars.org/p/9507818/
+# title: Edit or replace certain character in fasta header from a large fasta sequence file
+# date: 2022-01-27
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Edit or replace certain character in fasta header from a large fasta sequence file
+
+Hi all,
+I have 2.5 million covid-19 sequence file and i want to edit or replace certain character in fasta header for those sequences.
+
+can anyone please give some type of algorithm to do so?
+
+Thank You

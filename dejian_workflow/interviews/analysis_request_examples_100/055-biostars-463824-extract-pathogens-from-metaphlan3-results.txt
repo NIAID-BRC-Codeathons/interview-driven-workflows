@@ -1,0 +1,14 @@
+# source: https://www.biostars.org/p/9463824/
+# title: extract pathogens from metaphlan3 results
+# date: 2021-04-07
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+extract pathogens from metaphlan3 results
+
+Hi Guys!
+I am trying to analyze my metagenome data using the MetaPhlAn3 tool, I created a spreadsheet of all the species that were present in each sample. Now my goal is to find out the pathogens from that list. So, is there any tool that can do it for me or any database which can take the list of the species that I have? Or do I have to run a whole pipeline again for that matter?
+Guys, please suggest options as I am new to metagenome analysis.
+
+Thanks in Advance
+Saraswati

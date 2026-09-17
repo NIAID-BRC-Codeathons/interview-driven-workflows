@@ -1,0 +1,11 @@
+# source: https://www.biostars.org/p/101429/
+# title: software for constructing contigs and scaffold
+# date: 2014-05-22
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+software for constructing contigs and scaffold
+
+Hi, 
+
+ I don't have any experience in assembling bacterial genome before. I have analyzed some Nextgen sequencing data before but I was looking at the gene expression. At the moment, I'm working on assembling bacterial genome from ion torrent reads. I have assembled my reads using Newbler (gsAssembly) . What I'm supposed to do next is to try to put the contigs and scaffold together in order to view how the genome is positioned/orientated across chromosomal and plasmids and also to determine how many plasmids are present in the species. My supervisor suggested me to do this manually (as in check the alignment by eye) . Is there any software that can perform contigs/scaffold construction without a reference genome ? Ive read about contiguator and scaffolder but they require reference genome.

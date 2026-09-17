@@ -1,0 +1,11 @@
+# source: https://www.biostars.org/p/68195/
+# title: Have Anyone Done Bacterial Transcriptomics Using Miseq?
+# date: 2013-04-04
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Have Anyone Done Bacterial Transcriptomics Using Miseq?
+
+Hi everyone, I am thinking on running some RNA-seq on MiSeq, it is currently the only machine I have available, but I am afraid of not getting enough reads. Have anyone here tried it? 
+
+ Thanks.

@@ -1,0 +1,11 @@
+# source: https://www.biostars.org/p/180840/
+# title: Detecting structural variants when comparing assembled genome and reference
+# date: 2016-03-09
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Detecting structural variants when comparing assembled genome and reference
+
+I have a bacterial genome which has been assembled de novo from nanopore reads. I wish to compare this with a reference to detect all structural variants (this is an exploratory study, we do not currently have specific variations in mind).
+
+Is there a single pipeline / tool to achieve what I am looking for?

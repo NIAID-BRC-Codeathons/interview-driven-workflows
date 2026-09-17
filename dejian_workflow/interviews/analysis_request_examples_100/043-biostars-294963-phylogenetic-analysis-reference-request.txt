@@ -1,0 +1,22 @@
+# source: https://www.biostars.org/p/305287/
+# title: Phylogenetic Analysis Reference request
+# date: 2018-03-22
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Phylogenetic Analysis Reference request
+
+Hello Hive Mind!
+
+I'm trying to understand phylogenetic analysis better; I know how to read a tree and what the bootstrapping numbers imply. I'm more interested in how to pick the correct model to use for the analysis. Last night I was googling trying to find a resource that would explain why and when you would choose maximum likelihood over neighbor joining over UPGMA without much luck. 
+
+For example, I do a lot of animal viral pathogen analysis (IBV and Flu are my heavy work right now) and the work we do is essentially small epidemiological/outbreak studies so I look for those references and they all use different joining methods. I'm not sure why they chose the ones that they do, the papers never really say, and they are almost exclusively run with the default parameters. 
+
+I have tried the normal "do it and see which one looks best" method and haven't really seen a discernible difference in the topology of the trees made (at least with our data sets) everything still groups with its friends.
+
+So now that I have rambled on here long enough I'm starting to wonder if I'm overthinking this, so back to the point. 
+
+Does anyone have a good reference for this type of analysis?
+
+Thank you,
+Sean

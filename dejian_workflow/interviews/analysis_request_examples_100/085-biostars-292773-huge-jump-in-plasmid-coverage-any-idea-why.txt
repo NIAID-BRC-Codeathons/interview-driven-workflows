@@ -1,0 +1,18 @@
+# source: https://www.biostars.org/p/303067/
+# title: Huge jump in plasmid coverage - any idea why?
+# date: 2018-03-10
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Huge jump in plasmid coverage - any idea why?
+
+Hello all, 
+
+I am working on some bacterial genome assemblies that have been assembled using Pacbio reads only. I realized that I can make minor improvements to them (on the order of several SNPs and indels) by aligning Illumina data from the same strain to Pacbio assembly, and polishing it with Pilon. While doing this, I discovered a very interesting phenomenon. Assembled plasmid has a huge jump in coverage right in the middle of it. The size of the region is ~ 100 bp in what seems like 85 kbp plasmid. The coverage of the plasmid is ~ 400x, while the region displayed has about 7-8000x coverage. 
+
+Any ideas about what could be causing this are greatly appreciated. 
+
+![Coverage bump in the middle of the plasmid][1]
+
+
+ [1]: https://image.ibb.co/hcq0nn/plasmid_bump.png

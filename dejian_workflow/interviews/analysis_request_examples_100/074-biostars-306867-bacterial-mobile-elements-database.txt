@@ -1,0 +1,13 @@
+# source: https://www.biostars.org/p/317484/
+# title: Bacterial mobile elements database
+# date: 2018-05-29
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Bacterial mobile elements database
+
+Hello!
+
+I've been looking for a database of known bacterial mobile elements excluding (pro)phages: plasmids, transposons and IS's. And I couldn't find any. ISfinder's database is only available on web.
+
+I want to detect known bacterial transposons and IS's in metagenomic samples. Does anyone know if there's a simple way of doing that? I'm not sure it can be done by looking at repeats as I need to find lots of TE's automatically.

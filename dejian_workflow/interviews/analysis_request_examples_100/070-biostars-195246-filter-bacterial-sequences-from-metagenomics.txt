@@ -1,0 +1,15 @@
+# source: https://www.biostars.org/p/203426/
+# title: Filter Bacterial sequences from Metagenomics
+# date: 2016-07-26
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Filter Bacterial sequences from Metagenomics
+
+I have a large metagenomic RNA-seq dataset that I am trying to assemble to find viral sequences but it is too large for my hardware (52gb RAM). I can see that there is a lot of bacterial contamination from many different species when I BLAST reads. I want to filter out all bacterial reads so that I can assemble. Ideas?
+
+1. Download all bacterial genomes from Refseq and try to bowtie to that (will take a long time). As well, since when has the compressed Refseq bacterial fna files reached 72gb (when combined)?!? The last all.bacteria.gz file in Refseq archive from 2015 is 2.7gb...
+
+2. Somehow condense all bacterial genomes into non-redundant, then align?
+
+3. Other ideas?

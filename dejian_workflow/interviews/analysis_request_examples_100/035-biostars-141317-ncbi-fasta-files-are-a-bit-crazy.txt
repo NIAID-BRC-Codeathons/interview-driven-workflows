@@ -1,0 +1,17 @@
+# source: https://www.biostars.org/p/148045/
+# title: NCBI FASTA files are a bit crazy
+# date: 2015-06-25
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+NCBI FASTA files are a bit crazy
+
+Hello everyone. I am new to bioinformatics, although i have been around these forums for a while. 
+
+ As for my question, I am working with protein sequences from completed genomes of a bacteria, but I have noticed that something weird (or interesting) happens to the downloaded proteomes and genomes that I dowload from the NCBI site. 
+
+ After the downloads are completed, for [Ref_Seq] sequences, two things happen: either an error message appear at the end of the sequence as “Resource temporarily unavailable (4).”, or every file I download has a different amount of lines, gene amounts and data size. 
+
+ Is this normal?. Maybe is not statistically significant in the analysis? Is there any way to improve this? 
+
+ Thank you. And apologies for my grammar

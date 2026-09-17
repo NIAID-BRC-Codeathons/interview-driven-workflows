@@ -1,0 +1,20 @@
+# source: https://www.biostars.org/p/9485452/
+# title: from genome position to protein position
+# date: 2021-08-18
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+from genome position to protein position
+
+Hello, 
+
+Does anyone know a tool to go from genomic positions to protein and to see whether SNPs are (non)synonymous in bacteria?
+
+
+Doing it manually in IGV would take too much time... 
+
+
+I have experience with Python, R and bash. 
+
+
+Thanks in advance,

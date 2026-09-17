@@ -26,3 +26,22 @@ Two kinds of interviews live in `raw/`, distinguished by filename:
 These feed the routing layer (`scripts/route.py`) and, once scored, become
 part of `eval/cases/` (the ~20 expert-authored evaluation set is a curated
 subset, not all raw interviews).
+
+## `analysis_request_examples_100/`
+
+A separate, larger reference collection — 100 more real Biostars questions
+in the same "analysis request" category as the 50 above (data described,
+a goal stated), but **not hand-curated one-by-one** the way the 50 were.
+These were filtered (bacteria/virus/pathogen keyword match → classified as
+`analysis_request` → length/quality filter → randomly sampled) and then
+spot-checked at the sample level, not individually vetted. Zero overlap
+with the 50 in `raw/` or the 10 shown in
+`docs/analysis-request-examples.marp.md`.
+
+Purpose: illustrative bulk material — "what do 100 real analysis requests
+actually look like" — for research and presentation, not a second curated
+interview set. If you want to run one through the pipeline, it works fine
+as input (same plain-text format, same source-header convention), but
+these weren't selected with pipeline-testing rigor the way `raw/biostars-*`
+were. `INDEX.md` in that directory lists all 100 with links to the
+original posts.

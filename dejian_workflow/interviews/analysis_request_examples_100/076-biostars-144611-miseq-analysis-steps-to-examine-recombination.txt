@@ -1,0 +1,11 @@
+# source: https://www.biostars.org/p/151559/
+# title: MiSeq Analysis Steps to Examine Recombination
+# date: 2015-07-21
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+MiSeq Analysis Steps to Examine Recombination
+
+Hello,
+
+I have paired end MiSeq data (2x250) from several evolved bacteriophages. I'm looking to align them to 2 different reference genomes (Lambda and Phi80) in order to see which genes in the evolved phages are from which ancestral phage- looking at the recombination between the 2 phages. I've figured out how to QC and trim the .fastq files and used Bowtie2 (in Galaxy) to align them to each reference genome separately. I'm not sure what I should be doing next though. I think I need to process the BAM alignment files now? And look at the summary stats, but I'm not sure what constitutes a good alignment/how to tell how much mapped correctly. I think I also need to remove duplicates, correct? But after this I'm not sure what I should do in order to visualize or determine what aligned to each of the 2 reference genomes. Any suggestions would be greatly appreciated! Thank you.

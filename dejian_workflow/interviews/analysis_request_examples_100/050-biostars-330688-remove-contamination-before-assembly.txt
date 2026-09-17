@@ -1,0 +1,20 @@
+# source: https://www.biostars.org/p/341851/
+# title: Remove contamination before assembly
+# date: 2018-10-07
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+Remove contamination before assembly
+
+Hello everyone,
+
+I am trying to draft a fungal genome, but the raw sequence R1 and R2 contain contamination, so before doing assembly I mapped Raw reads using bowtie2 against refseq Bacterial db and mitochondrial db, then exact unmapped reads using samtools {the unmapped reads are contamination free } then did assembly using MaSuRCA and get final.genome.sacffolds.fasta file.
+But again I did ncbi online blast against NR db with assembled fasta file, they show approx. 93% similarity with bacteria.
+
+So, please guide why assembled fasta show similarity with bacteria after removing these(bacteria) in the previous mapping step using refseq db.
+
+Is there any other way to remove contamination from Raw reads before assembly.
+Please guide me.
+
+Thank you 
+Divya

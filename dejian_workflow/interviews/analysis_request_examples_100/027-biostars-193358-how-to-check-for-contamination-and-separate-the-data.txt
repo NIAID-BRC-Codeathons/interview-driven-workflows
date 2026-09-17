@@ -1,0 +1,13 @@
+# source: https://www.biostars.org/p/201471/
+# title: How to check for contamination and separate the data?
+# date: 2016-07-13
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+How to check for contamination and separate the data?
+
+Hello,
+
+I have Illumina paired end data (phage/bacteria+phage) which I have assembled using CLC genomics workbench. I did a blastn of the resulting scaffolds and found hits for both the bacteria and the phage. Now I am doubtful if Blast is a true test that my data contains sequences from both the bacteria in question and it's phage.
+
+What other method can I use to check the same and how can remove reads belonging to the phage from that belonging to bacteria?

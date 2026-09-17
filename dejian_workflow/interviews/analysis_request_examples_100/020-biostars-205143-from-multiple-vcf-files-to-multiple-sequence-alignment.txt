@@ -1,0 +1,14 @@
+# source: https://www.biostars.org/p/213586/
+# title: From multiple VCF files to multiple sequence alignment?
+# date: 2016-09-26
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+From multiple VCF files to multiple sequence alignment?
+
+Hi there
+
+I have multiple VCF files generated from variant calling on sequenced bacteria (*M. tuberculosis*). I would like to create a multiple sequence alignment file (as a step towards computing a phylogeny of the samples) by combining the reference genome with the VCFs. Before I put time and effort into creating a script to do this, is there an existing solution? I see that workflows such as [SNPhylo](http://chibba.pgml.uga.edu/snphylo/) compute an alignment with MUSCLE before doing tree construction - I'm trying to avoid that step.
+
+Thanks,
+Peter

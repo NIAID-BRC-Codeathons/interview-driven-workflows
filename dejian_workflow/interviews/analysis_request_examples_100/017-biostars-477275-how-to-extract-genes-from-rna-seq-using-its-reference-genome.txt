@@ -1,0 +1,10 @@
+# source: https://www.biostars.org/p/9477275/
+# title: How to extract genes from RNA-seq using its reference genome?
+# date: 2021-06-24
+# license: CC-BY-4.0 (Biostars content license)
+# category: analysis_request (data + a goal)
+
+How to extract genes from RNA-seq using its reference genome?
+
+Hi,
+I am fairly new to Bioinformatics. I have been working on a way to extract genes from RNA-seq using its reference genome, E.coli K-12. I have managed to align the two using HISAT-2 but now I am stuck. How do I go about getting a list of genes from the RNA-seq data?
