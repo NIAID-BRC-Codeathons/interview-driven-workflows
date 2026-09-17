@@ -235,6 +235,42 @@ lists, not just a raw count.
 
 ---
 
+## Where this sits in the landscape
+
+**What we use — both real, standard IR techniques, not invented for this
+project:**
+- **Local catalog:** IDF-weighted keyword overlap — the "IDF" half of
+  TF-IDF, a classic technique since Spärck Jones (1972)
+- **Live IWC registry:** BM25 (via `galaxy-mcp`) — the industry-standard
+  ranking function behind Elasticsearch, Solr, and Lucene
+
+Neither is LLM-based — both are exact-token keyword techniques, chosen for
+this v0 because they're auditable, deterministic, and free to run: every
+match comes with an explicit "matched on: cgmlst, pangolin" trail, not a
+black-box score.
+
+The cost of that choice: exactly the paraphrase-blindness the
+biostars-134625 miss demonstrated — a description can't match a workflow
+whose keywords it never literally uses.
+
+---
+
+## Other ways to match text ↔ workflow
+
+| Alternative | Gains | Cost |
+|---|---|---|
+| TF-IDF cosine similarity | More textbook than our ratio | Same synonym-blindness |
+| Fuzzy string matching | Catches typos/misspellings | Not synonyms or paraphrase |
+| Dense embeddings | Fixes "flu" vs. "influenza" — semantic, not literal | Needs an embedding model/API call |
+| Hybrid sparse + dense | Best of both — current RAG standard | More moving parts |
+| LLM-based classification | Handles paraphrase/reasoning | Non-deterministic, costs a call, harder to audit |
+| Structured field extraction | Precise organism/data-type matching | Needs a taxonomy + reliable extractor |
+
+Embeddings are the natural next step if paraphrase-blindness turns out to
+matter more than auditability — nothing here rules that out later.
+
+---
+
 ## Stage 2b — Follow-up questions (Goal 4)
 
 ```
