@@ -66,12 +66,17 @@ This installs:
   server required for validation)
 - `pyyaml` — reads the pipeline catalog
 - `anthropic` — only needed for the "build a new workflow" path
+- `galaxy-mcp` + `fastmcp` — a real MCP client/server pair
+  (`scripts/galaxy_mcp_client.py`) that lets `route.py` search the full,
+  live IWC workflow registry, not just this repo's curated ~20-workflow
+  catalog. No credentials needed for this — it's a public, read-only
+  search.
 
 Verify it worked:
 
 ```bash
 planemo --version
-python3 -c "import yaml, anthropic; print('ok')"
+python3 -c "import yaml, anthropic, galaxy_mcp, fastmcp; print('ok')"
 ```
 
 ## 3. Set credentials (only if you need those specific features)

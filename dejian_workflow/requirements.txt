@@ -1,7 +1,10 @@
 planemo
 pyyaml
 anthropic  # scripts/build_workflow.py's LLM-driven build path
+galaxy-mcp  # real MCP server: github.com/galaxyproject/galaxy-mcp
+fastmcp     # MCP client used by scripts/galaxy_mcp_client.py to talk to it
 
-# TODO: add the MCP client SDK and the Foundry package once their exact
-# package names/versions are confirmed (galaxyproject/foundry, MCP Python
-# SDK, and whatever client the Loom/Orbit runtime requires).
+# TODO: the Galaxy Workflow Foundry package once its exact name/version is
+# confirmed (galaxyproject/foundry) -- still not wired up; galaxy-mcp above
+# covers live IWC registry search/import, not intent-to-workflow-steps
+# generation.

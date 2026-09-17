@@ -7,8 +7,13 @@ real catalog/fetch/validate/build pieces in this directory.
 
 Decision handling:
   - "use":   fetch the real matched IWC workflow as-is, then validate it.
-  - "build": hand off to build_workflow.py, which generates via an LLM and
-             validates before reporting success (needs ANTHROPIC_API_KEY).
+  - "build": if route.py's live IWC registry check (via the real galaxy-mcp
+             MCP server) found candidates the local curated catalog missed,
+             STOP and report them instead of spending an LLM call to
+             fabricate something from scratch when a real workflow may
+             already exist. Only hands off to build_workflow.py (LLM
+             generation, needs ANTHROPIC_API_KEY) when the live registry
+             also came up empty or couldn't be checked.
   - "adapt": fetch the real matched IWC workflow as the base, then STOP and
              print next steps. Actually deciding *what* to change from a
              free-text request needs a human or an LLM to author a change
@@ -39,6 +44,11 @@ from generate_followup_questions import generate_questions  # noqa: E402
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("interview", type=Path, help="Path to an interview file in interviews/raw/")
+    parser.add_argument(
+        "--force-build",
+        action="store_true",
+        help="Build via LLM even if the live IWC registry found candidates the local catalog missed",
+    )
     args = parser.parse_args()
 
     result = route_interview_file(args.interview)
@@ -60,6 +70,20 @@ def main() -> None:
     output_dir = Path("workflows") / ("build" if decision == "build" else "adapt" if decision == "adapt" else "use") / args.interview.stem
 
     if decision == "build":
+        live = result.get("live_registry_candidates")
+        if live:
+            print(f"Local catalog found nothing, but the live IWC registry has {len(live)} candidate(s)")
+            print("(via the real galaxy-mcp MCP server, not our curated catalog) -- reviewing")
+            print("these before spending an LLM call to build from scratch:\n")
+            for i, c in enumerate(live, 1):
+                print(f"  {i}. {c['name']}  (BM25 score {c['match_score']})")
+                print(f"     {c['trsID']}")
+            print("\nNot auto-building. Review these first, e.g.:")
+            print(f"  scripts/galaxy_mcp_client.py details '{live[0]['trsID']}'")
+            print("If none actually fit, re-run with --force-build to fall back to LLM generation.")
+            if not args.force_build:
+                return
+            print("\n--force-build set, proceeding to LLM generation anyway.\n")
         subprocess.run([sys.executable, "scripts/build_workflow.py", str(args.interview), "--output-dir", str(output_dir)], check=True)
         return
 
