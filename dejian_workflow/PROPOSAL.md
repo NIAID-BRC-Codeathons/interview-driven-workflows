@@ -55,7 +55,7 @@ possible with other centers' people in the room.
 | Marius van den Beek | *(fill in)*                         | Workflow generation, knowledge authoring |
 | Dannon Baker        | Johns Hopkins University / BRC Analytics | BRC catalog integration, agentic runtime |
 | *(open)*            | Another resource center, ideally    | Second MCP server integration            |
-| *(open)*            |                                      | Bioinformatician — interview collection  |
+| Dejian Zhao         | Yale School of Medicine             | Bioinformatician — interview collection  |
 | *(open)*            |                                      | Bioinformatician — failure triage        |
 | *(open)*            |                                      | Developer — evaluation harness           |
 
