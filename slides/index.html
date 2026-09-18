@@ -627,54 +627,56 @@
       <div class="eyebrow">Case Study 1 · INTERVIEW → GALAXY Pipeline Pass <span class="timing-pill">4:40 - 5:50</span></div>
       <h2 class="accent-heading">Ebola Virus Host RNA-seq: Verified Execution</h2>
 
-      <div class="stat-grid">
-        <div class="stat-box">
+      <div class="stat-grid" style="margin: 8px 0;">
+        <div class="stat-box" style="padding: 6px 4px;">
           <div class="stat-num green">12 / 12</div>
           <div class="stat-label">Phases Completed</div>
         </div>
-        <div class="stat-box">
+        <div class="stat-box" style="padding: 6px 4px;">
           <div class="stat-num">100%</div>
           <div class="stat-label">Planemo Pass Rate</div>
         </div>
-        <div class="stat-box">
+        <div class="stat-box" style="padding: 6px 4px;">
           <div class="stat-num gold">5 / 5</div>
           <div class="stat-label">Jobs Green in Docker</div>
         </div>
-        <div class="stat-box">
+        <div class="stat-box" style="padding: 6px 4px;">
           <div class="stat-num">0 Manual</div>
           <div class="stat-label">Human Interventions</div>
         </div>
       </div>
 
-      <div class="split">
+      <div class="split" style="gap: 14px;">
         <div>
-          <div class="card">
+          <div class="card" style="padding: 10px 12px; margin-bottom: 8px;">
             <div class="card-eyebrow">Experimental Setup</div>
-            <div class="card-body" style="font-size: 0.42em; line-height: 1.4;">
-              <strong>Biology:</strong> Human lung cells (A549 WT vs. PTPN13-KO) infected with Ebola virus vs. Mock (24h and 48h). Factorial design.<br>
+            <div class="card-body" style="font-size: 0.40em; line-height: 1.35;">
+              <strong>Biology:</strong> Human lung cells (A549 WT vs. PTPN13-KO) infected with Ebola virus vs. Mock (24h/48h).<br>
               <strong>Inputs:</strong> Paired-end Illumina sequencing in a <code>list:paired</code> collection.<br>
-              <strong>Architecture:</strong> Salmon quantification (per-sample map-over) feeding DESeq2 multi-factor contrast (collective reduction).
+              <strong>Pipeline:</strong> Salmon quantification (map-over) feeding DESeq2 contrast (reduction).
             </div>
           </div>
 
-          <div class="callout callout-navy" style="font-size: 0.45em; margin-top: 10px;">
-            <strong>Closed-Loop Autonomous Repair:</strong> An initial two-sample test failed DESeq2 dispersion fitting due to insufficient degrees of freedom. The triage Mold diagnosed the failure from stderr, generated a four-sample fixture, and re-executed to a clean pass.
+          <div class="callout callout-navy" style="font-size: 0.39em; line-height: 1.35; padding: 8px 12px; margin: 0;">
+            <strong>Autonomous Repair:</strong> A 2-sample test failed DESeq2 dispersion fitting. The triage Mold diagnosed the degrees-of-freedom deficit from stderr, generated a 4-sample fixture, and re-executed to a green pass.
           </div>
         </div>
 
         <div>
-          <pre class="code-snippet"><code><span style="color:#64748b;"># Planemo Execution Summary: ebola-rnaseq</span>
-<span style="color:#38bdf8;">$</span> planemo test --biocontainers galaxy-workflow.gxwf.yml
-[galaxy.workflow.scheduling] Scheduling 6 workflow steps...
-[galaxy.jobs.runners] Job 1 (salmon_quant): OK (exit 0)
-[galaxy.jobs.runners] Job 2 (salmon_quant): OK (exit 0)
-[galaxy.jobs.runners] Job 3 (salmon_quant): OK (exit 0)
-[galaxy.jobs.runners] Job 4 (salmon_quant): OK (exit 0)
-[galaxy.jobs.runners] Job 5 (deseq2): OK (exit 0)
-<span style="color:#4ade80; font-weight:bold;">Passed: 1, Failed: 0, Errors: 0 (100% pass)</span>
-<span style="color:#e8c547;">Verdict: galaxy-workflow.gxwf.yml_0: passed</span></code></pre>
+          <div style="background: var(--deck-dark); color: #e2e8f0; border-radius: 6px; padding: 10px 14px; font-family: var(--r-code-font); font-size: 0.38em; line-height: 1.4; text-align: left; box-shadow: 0 4px 12px rgba(0,0,0,0.12);">
+            <div style="color:#94a3b8;"># Planemo Execution Summary: ebola-rnaseq</div>
+            <div><span style="color:#38bdf8;">$</span> planemo test --biocontainers galaxy-workflow.gxwf.yml</div>
+            <div>[galaxy.workflow.scheduling] Scheduling 6 workflow steps...</div>
+            <div>[galaxy.jobs.runners] Job 1 (salmon_quant): OK (exit 0)</div>
+            <div>[galaxy.jobs.runners] Job 2 (salmon_quant): OK (exit 0)</div>
+            <div>[galaxy.jobs.runners] Job 3 (salmon_quant): OK (exit 0)</div>
+            <div>[galaxy.jobs.runners] Job 4 (salmon_quant): OK (exit 0)</div>
+            <div>[galaxy.jobs.runners] Job 5 (deseq2): OK (exit 0)</div>
+            <div style="color:#4ade80; font-weight:bold; margin-top:2px;">Passed: 1, Failed: 0, Errors: 0 (100% pass)</div>
+            <div style="color:#ffd700; font-weight:bold;">Verdict: galaxy-workflow.gxwf.yml_0: passed</div>
+          </div>
           <div style="text-align: right; margin-top: 6px;">
-            <a href="../case_studies/ebola-rnaseq/dashboard.html" target="_blank" class="ref-link" style="font-size: 0.42em; font-family: var(--r-code-font);">
+            <a href="../case_studies/ebola-rnaseq/dashboard.html" target="_blank" class="ref-link" style="font-size: 0.40em; font-family: var(--r-code-font);">
               Open Ebola Run Dashboard ↗
             </a>
           </div>
@@ -935,6 +937,9 @@
     center: true,
     transition: 'slide',
     slideNumber: 'c/t',
+    width: 1100,
+    height: 720,
+    margin: 0.04,
     plugins: [ RevealHighlight, RevealNotes ]
   });
 
