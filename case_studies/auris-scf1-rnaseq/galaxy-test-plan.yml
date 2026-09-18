@@ -1,0 +1,1258 @@
+# galaxy-test-plan — run auris-scf1 (paper-to-galaxy, phase 8)
+# Produced by freeform-summary-to-galaxy-test-plan.
+# Reviewable handoff for implement-galaxy-workflow-test. NOT a tests-format file.
+plan_version: "1"
+
+source:
+  kind: freeform
+  name: "Santana DJ et al. 2023, Science 381(6665):1461-1467 (PMID 37769084, doi 10.1126/science.adf8972) — Pipeline A, bulk RNA-seq differential expression"
+  derived_from: intent
+  notes: >-
+    There is no upstream test evidence: the source is a paper, not a Nextflow or CWL pipeline with
+    its own fixtures, so every assertion below is synthesized rather than translated. That said,
+    `derived_from: intent` understates this plan's grounding. Phase 7 (paper-to-test-data) resolved
+    the fixtures and then MEASURED the workflow's central claim against them — six 200,000-read-pair
+    head subsets aligned to GCA_002759435.2 with bwa-mem and counted over the NCBI GTF's exon
+    features. SCF1 (B9J08_001458) carries 414/391 fragments in the two AR0382 replicates against 2/1
+    in AR0387 and 4/3 in tnSWI1. Assertions resting on that measurement are marked `confidence: high`
+    even though the schema forces `evidence: intent`, because the only two enum values are
+    `test-evidence` (upstream test fixtures, which do not exist here) and `intent`. See
+    warnings[] `no-evidence-class-for-fixture-measured`.
+
+    Phase 7's measurement used bwa-mem plus a strand-agnostic exon counter, NOT RNA STAR plus
+    featureCounts with -s 2. It establishes that the signal survives subsetting; it does not predict
+    the workflow's exact integers. No assertion in this plan pins an exact count. Count-derived
+    assertions are expressed as thresholds with a stated margin.
+
+    THE DIFFERENTIAL-EXPRESSION NUMBERS IN THIS PLAN COME FROM A DIFFERENT IMPLEMENTATION THAN THE
+    WORKFLOW RUNS. Phase 7 measured counts only. The statistics quoted below — SCF1's log2 fold
+    change and adjusted p-value per contrast, and the rank figures in omissions[] and unresolved[] —
+    were measured during phase 8 with pydeseq2 over a strand-aware count matrix built from the same
+    six fixture BAMs, as two separate two-level n=2 analyses with no LFC shrinkage, mirroring the
+    workflow's two DESeq2 nodes. pydeseq2 is a faithful reimplementation, NOT the R DESeq2 the Galaxy
+    wrapper runs, and its input matrix came from bwa-mem rather than RNA STAR plus featureCounts -s
+    2. Exact values WILL differ. Measured: tnSWI1 vs AR0382 log2FC -6.93, padj 2.1e-31; AR0387 vs
+    AR0382 log2FC -7.95, padj 4.1e-18. Read those as evidence that a threshold has margin, never as
+    values to assert. What survives the implementation difference is margin — 31 and 18 orders of
+    magnitude on padj against a 0.05 cut, and roughly 5 and 6 log2 units of headroom over the plan's
+    `<= -2` floor. What does not survive it is rank or any exact value, which is why neither is
+    asserted anywhere. See warnings[] `deseq2-statistics-measured-with-pydeseq2-not-r`.
+
+workflow:
+  title: "C. auris Scf1 RNA-seq differential expression (Santana et al. 2023)"
+  label_source: draft
+  notes: >-
+    DELIBERATE DEVIATION FROM THE MOLD DEFAULT. freeform-summary-to-galaxy-test-plan instructs that
+    labels come from the interface brief and be recorded `assumed` / `label_source: interface-brief`,
+    on the premise that the concrete workflow does not exist yet. In this run it does: the harness
+    supplied `galaxy-workflow.gxwf.yml` (27 steps, 9 inputs, 16 outputs, produced by phase 6) as a
+    phase-8 input, and every input and output label below was read from it and matches byte-for-byte.
+    Recording them as `assumed` would discard verified information and hand
+    implement-galaxy-workflow-test a reconciliation job that is already done. Filed as
+    `test-plan-mold-ignores-available-concrete-workflow` in foundry-feedback.ledger.yml.
+
+    The interface brief has itself drifted from the draft (open requirement
+    `interface-brief-output-and-parameter-surface-drifted-from-draft`), which is a second reason to
+    bind to the workflow rather than the brief.
+
+    Labels are the public API of this workflow. Four of them embed condition level names
+    (`... tnSWI1 vs AR0382`) that are NOT derived from the `First/Second contrast condition level`
+    parameters; changing those parameters makes the labels stale without breaking anything, and both
+    test cases below therefore leave the three level parameters at their defaults.
+
+test_cases:
+  - id: scf1-both-contrasts-200k
+    doc: >-
+      End-to-end run over all six deposited runs of PRJNA904261, subset to 200,000 read pairs each,
+      against the NCBI GCA_002759435.2 reference and annotation. Exercises the whole DAG — flatten,
+      FastQC, Cutadapt, RNA STAR, featureCounts, the sample-sheet condition split, both DESeq2
+      reductions, both two-link significance chains — and asserts the paper's central biological
+      result: SCF1 (B9J08_001458) is significantly down-regulated in BOTH contrasts against the
+      AR0382 reference level. This is the plan's primary case; it is the only one that makes
+      biological claims.
+    derived_from: intent
+    provenance: >-
+      Synthesized from the paper's Fig. 1D / Fig. S5A result statement and its |fold change| > 2 and
+      adjusted p-value < 0.05 significance criteria (freeform-summary.md §"Contrasts and expected
+      biological result"), then grounded on phase 7's direct measurement of the resolved fixtures
+      (test-data-refs.json `verdict`, `expected_outputs.safe`, `expected_outputs.biological`).
+    job_inputs:
+      - workflow_label: RNA-seq reads (sample sheet)
+        label_status: resolved
+        description: >-
+          Six paired-end runs, 2 x 50 bp NextSeq 2000, each subset to the first 200,000 read pairs.
+          Element identifiers are the deposited ENA library_name values and are load-bearing: the
+          condition split joins the featureCounts collection back to the sample sheet on them.
+          Identifiers, in sample-sheet row order — AR0382_A (SRR22376032), AR0382_B (SRR22376031),
+          AR0387_A (SRR22376030), AR0387_B (SRR22376029), AR0382_tnSWI1_A (SRR22376028),
+          AR0382_tnSWI1_B (SRR22376027).
+        collection_shape: sample_sheet:paired
+        datatype: fastqsanger.gz
+        fixture:
+          storage: unresolved
+          location: null
+          checksum: null
+          provenance: >-
+            GENERATED AND HASHED BUT NOT HOSTED — this is the one blocking gap in the plan (open
+            requirement `test-fixtures-not-hosted`; test-data-refs.json `unresolved`
+            `fixture-hosting-not-done`). Regenerate deterministically by streaming each ENA FASTQ and
+            taking `head -n 800000`, then verify each against the per-file `md5_uncompressed` in
+            test-data-refs.json. Hash the UNCOMPRESSED .fastq: gzip output is not byte-stable across
+            gzip versions, which is why phase 7 pinned uncompressed md5s and why a `hashes:` block on
+            the .gz fixtures cannot be authored from what phase 7 supplies. ~61 MB compressed for the
+            12 files, so the IWC idiom applies: host on Zenodo and reference by URL, substituting for
+            `<FIXTURE_BASE>` in test-data-refs.json `planemo_test_job_block`.
+
+            The `rows:` shape is settled and has a trap: it is a mapping of element identifier to a
+            POSITIONAL LIST of column values ordered to match `column_definitions` — `AR0382_A:
+            [AR0382, A]`. Galaxy's own non-paired unit tests in test_cwl_util.py write `rows` as a
+            dict; that form never reaches `validate_row()` in those tests and will NOT validate here.
+            Staging never passes `column_definitions`, which is harmless only because this workflow's
+            `Project sample sheet to tabular` step sets `include_headers: false`. Do NOT set
+            `decompress: true` on the reads — the input declares fastqsanger.gz and the .gz must
+            survive.
+      - workflow_label: Reference genome FASTA
+        label_status: resolved
+        description: >-
+          C. auris B8441, NCBI assembly GCA_002759435.2 (Cand_auris_B8441_V2), used whole. At 12.4 Mb
+          it needs no subsetting, so the gene ID space stays exactly the real one and RNA STAR builds
+          its own index inside each of the six mapped jobs.
+        collection_shape: null
+        datatype: fasta
+        fixture:
+          storage: remote-url
+          location: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/759/435/GCA_002759435.2_Cand_auris_B8441_V2/GCA_002759435.2_Cand_auris_B8441_V2_genomic.fna.gz
+          checksum: MD5:a008b270d3aaa04736a8bb7daf3f6dd5
+          provenance: >-
+            Pinned NCBI FTP URL, staged with `decompress: true`. Needs no hosting. The md5 is of the
+            COMPRESSED file as served; see unresolved `hash-vs-decompress-ordering` before pairing it
+            with a `hashes:` block on a `decompress: true` input.
+      - workflow_label: Gene annotation GTF
+        label_status: resolved
+        description: >-
+          NCBI's own GTF for the exact accession the paper names. The paper names no annotation at
+          all, so this choice is load-bearing for both consumers (RNA STAR splice junctions,
+          featureCounts gene assignment) and determines whether SCF1 appears as B9J08_001458 at all.
+          Phase 7 downloaded and inspected it: true GTF (#gtf-version 2.2), `gene_id` values ARE the
+          paper's locus tags, 5586 distinct gene_id values, SCF1 resolves as B9J08_001458, so the
+          workflow's `gff_feature_attribute: gene_id` and `gff_feature_type: exon` bindings are
+          correct as they stand.
+        collection_shape: null
+        datatype: gtf
+        fixture:
+          storage: remote-url
+          location: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/759/435/GCA_002759435.2_Cand_auris_B8441_V2/GCA_002759435.2_Cand_auris_B8441_V2_genomic.gtf.gz
+          checksum: MD5:6e5b9528d48c0a8fc2c8588e6eeea929
+          provenance: >-
+            Pinned NCBI FTP URL, staged with `decompress: true`. Closes open requirement
+            `featurecounts-annotation-source-unnamed`. Same `hashes:` caveat as the FASTA.
+      - workflow_label: Reference condition level
+        label_status: resolved
+        description: The condition value both contrasts are taken against; must match a `condition` value in the sample sheet exactly. Left at the workflow default.
+        collection_shape: null
+        datatype: null
+        fixture:
+          storage: null
+          location: null
+          checksum: null
+          provenance: "Workflow default `AR0382`, the paper's high-adhesion parent and the reference level of both contrasts."
+      - workflow_label: First contrast condition level
+        label_status: resolved
+        description: Condition value for the first contrast. Left at the workflow default, because four output labels hard-code this level name and are not derived from this parameter.
+        collection_shape: null
+        datatype: null
+        fixture:
+          storage: null
+          location: null
+          checksum: null
+          provenance: "Workflow default `tnSWI1`, the AR0382 tnSWI1 insertional mutant."
+      - workflow_label: Second contrast condition level
+        label_status: resolved
+        description: Condition value for the second contrast. Left at the workflow default, same label-staleness reason as the first.
+        collection_shape: null
+        datatype: null
+        fixture:
+          storage: null
+          location: null
+          checksum: null
+          provenance: "Workflow default `AR0387`, the low-adhesion clinical isolate."
+      - workflow_label: Strandedness
+        label_status: resolved
+        description: >-
+          Left at the workflow default `stranded - reverse`. No longer an inference from the library
+          kit name: phase 7 measured it. Of R1 reads unambiguously overlapping a single annotated
+          gene, 98.4% / 98.4% / 98.2% (AR0382_A / AR0387_A / tnSWI1_A) are antisense to the gene,
+          which is reverse-stranded. Closes open requirement
+          `rnaseq-strandedness-inferred-from-kit-name`.
+        collection_shape: null
+        datatype: null
+        fixture:
+          storage: null
+          location: null
+          checksum: null
+          provenance: "Workflow default, confirmed by measurement in test-data-refs.json `inputs.Strandedness.evidence`."
+      - workflow_label: Adjusted p-value threshold
+        label_status: resolved
+        description: Left at the workflow default 0.05, which is the paper's stated criterion. Applied to DESeq2 column c7.
+        collection_shape: null
+        datatype: null
+        fixture:
+          storage: null
+          location: null
+          checksum: null
+          provenance: "Stated by the paper (adjusted p-value < 0.05)."
+      - workflow_label: log2 fold change threshold
+        label_status: resolved
+        description: >-
+          Left at the workflow default 1.0. A log2 FC of 1 is exactly the paper's |fold change| > 2
+          criterion; the filter compares the raw c3 column with no conversion, so a linear 2.0 here
+          would silently apply a 4-fold cut.
+        collection_shape: null
+        datatype: null
+        fixture:
+          storage: null
+          location: null
+          checksum: null
+          provenance: "Paper's |fold change| > 2, expressed in log2 units per open requirement `fold-change-threshold-linear-vs-deseq2-log2fc`."
+    expected_outputs:
+      - workflow_label: "FastQC raw reads: text summary"
+        label_status: resolved
+        description: >-
+          Twelve elements, not six — the reads are flattened per read direction before QC, so
+          identifiers are <sample>_forward / <sample>_reverse. The assertable text checkpoint behind
+          the HTML binary, and the cheapest proof that the flatten side-branch fanned out correctly
+          and that the fixture is the depth it claims to be.
+        output_kind: collection
+        collection_shape: list
+        assertion_intent:
+          - family: has_text_matching
+            intent: >-
+              Each element's fastqc_data.txt reports exactly 200,000 sequences, proving the fixture
+              is the declared head subset and that no read loss happened upstream of QC. Apply to all
+              twelve elements via element_tests.
+            expected_value: 'Total Sequences\s+200000'
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+          - family: has_text
+            intent: "Each element carries the Basic Statistics module, i.e. FastQC actually parsed the file rather than erroring into an empty report."
+            expected_value: ">>Basic Statistics"
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+          - family: has_text
+            intent: >-
+              The twelve element identifiers are addressed explicitly through element_tests, which is
+              itself the cardinality and identifier-space assertion: AR0382_A_forward,
+              AR0382_A_reverse, AR0382_B_forward, AR0382_B_reverse, AR0387_A_forward,
+              AR0387_A_reverse, AR0387_B_forward, AR0387_B_reverse, AR0382_tnSWI1_A_forward,
+              AR0382_tnSWI1_A_reverse, AR0382_tnSWI1_B_forward, AR0382_tnSWI1_B_reverse. Do NOT add
+              an `attributes: {collection_type: list}` assertion here — see unresolved
+              `promoted-collection-type-string-unverified`.
+            expected_value: 12
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+      - workflow_label: Cutadapt trimming report
+        label_status: resolved
+        description: >-
+          Six elements on the sample axis. Deterministic text with exact input counts, so it is a
+          strong and cheap checkpoint that map-over produced one job per sample row and that the
+          paired shape survived into Cutadapt.
+        output_kind: collection
+        collection_shape: list
+        assertion_intent:
+          - family: has_text_matching
+            intent: "Each of the six reports states that 200,000 read pairs were processed — proving the paired-collection map-over kept both mates together on the six-element sample axis."
+            expected_value: 'Total read pairs processed:\s+200,000'
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+          - family: has_text
+            intent: >-
+              Element_tests address the six sample identifiers explicitly (AR0382_A, AR0382_B,
+              AR0387_A, AR0387_B, AR0382_tnSWI1_A, AR0382_tnSWI1_B), asserting that the identifier
+              space did NOT pick up the _forward/_reverse suffixes of the flatten side-branch.
+            expected_value: 6
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+      - workflow_label: Trimmed reads
+        label_status: resolved
+        description: >-
+          Six paired elements. Asserted only for shape: that Cutadapt under
+          `library.type: paired_collection` emitted one paired-inner collection per sample, so no
+          re-pair node is needed ahead of RNA STAR. Content is not asserted — FASTQ quality strings
+          are read-id dependent and the downstream counts table is the stronger checkpoint.
+        output_kind: collection
+        collection_shape: list:paired
+        assertion_intent:
+          - family: has_size
+            intent: >-
+              Each of the six outer elements has non-empty `forward` and `reverse` inner elements
+              (nested element_tests: outer keyed by sample identifier, inner using `elements:`).
+              Catches the failure mode where the paired structure collapses or one mate is dropped.
+            expected_value: null
+            tolerance:
+              kind: none
+              magnitude: null
+              rationale: "Min-only bound; trimmed output size depends on adapter content and is not predicted here."
+            element_identifier: null
+            evidence: intent
+            confidence: medium
+      - workflow_label: STAR mapping summary
+        label_status: resolved
+        description: >-
+          Log.final.out per sample — the assertable text behind the binary BAM, which is why the BAM
+          itself is an intentional omission. Proves the six STAR jobs ran and that the history-FASTA
+          index build produced a usable genome.
+        output_kind: collection
+        collection_shape: list
+        assertion_intent:
+          - family: has_text
+            intent: "The log carries the uniquely-mapped-reads stanza at all, i.e. STAR completed rather than dying in genomeGenerate."
+            expected_value: "Uniquely mapped reads %"
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+          - family: has_line_matching
+            intent: >-
+              Uniquely mapped reads % is at least 80% in every element. Phase 7 measured 198.2-198.6k
+              of 200k R1 reads primary-mapping with bwa-mem (>99%); STAR against the same reference
+              will be lower but comfortably above 80%, so the threshold carries a wide margin. NOTE
+              the full-line anchoring convention recorded in warnings[].
+            expected_value: '\s*Uniquely mapped reads % \|\s+(?:8[0-9]|9[0-9]|100)\.[0-9]+%'
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: medium
+      - workflow_label: Gene counts per sample
+        label_status: resolved
+        description: >-
+          The strongest deterministic checkpoint in the workflow: exact per-gene integer counts,
+          addressable by gene id, keyed by the six sample element identifiers — and the only place
+          the SCF1 signal can be asserted independently of DESeq2. featureCounts on a fixed
+          reference, annotation and strandedness is deterministic, so the IWC comparison notes are
+          right that an existence-only probe here would be the smell the anti-patterns note names.
+          This plan is stricter than the corpus default here without pinning exact integers, which
+          phase 7 cannot supply because it measured with a different aligner.
+        output_kind: collection
+        collection_shape: list
+        assertion_intent:
+          - family: has_n_columns
+            intent: "featureCounts `format: tabdel_short` emitted the two-column gene-id/count table the DESeq2 per-level ports consume."
+            expected_value: 2
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+          - family: has_n_lines
+            intent: >-
+              One row per gene in the annotation. Phase 7 counted exactly 5586 distinct gene_id
+              values in the NCBI GTF. The ±1 allowance is for the header row: the DESeq2 steps bind
+              `header: true` on their counts inputs, implying the wrapper emits one, but that was not
+              read directly from the featureCounts wrapper in this run.
+            expected_value: 5586
+            tolerance:
+              kind: delta
+              magnitude: 1
+              rationale: "Header-row presence on featureCounts output_short is inferred from the DESeq2 steps' `header: true` binding, not verified."
+            element_identifier: null
+            evidence: intent
+            confidence: medium
+          - family: has_line_matching
+            intent: >-
+              THE ANNOTATION-SPACE GUARD. At least 5000 rows are a bare B9J08_ six-digit locus tag
+              plus an integer count. This is the assertion that fails loudly if the annotation input
+              is swapped for the FungiDB GFF3 (keyed on `ID`, different gene ID space) or if
+              `gff_feature_attribute` drifts off `gene_id` — failure modes whose natural symptom is a
+              complete, plausible counts table of the WRONG identifiers rather than an error.
+            expected_value: 'B9J08_[0-9]{6}\t[0-9]+'
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+          - family: has_line_matching
+            intent: "SCF1 is present as a row in every one of the six count tables, with an integer count."
+            expected_value: 'B9J08_001458\t[0-9]+'
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+          - family: has_line_matching
+            intent: >-
+              SCF1 is highly expressed in the AR0382 replicates — at least 100 fragments. Phase 7
+              measured 414 and 391, so the threshold sits about 4x below the measurement; it is a
+              threshold, not the exact count, because phase 7 counted with bwa-mem plus a
+              strand-agnostic counter rather than STAR plus featureCounts -s 2.
+            expected_value: 'B9J08_001458\t[0-9]{3,}'
+            tolerance: null
+            element_identifier: AR0382_A
+            evidence: intent
+            confidence: medium
+          - family: has_line_matching
+            intent: "Same SCF1 >= 100 threshold on the second AR0382 replicate (measured 391)."
+            expected_value: 'B9J08_001458\t[0-9]{3,}'
+            tolerance: null
+            element_identifier: AR0382_B
+            evidence: intent
+            confidence: medium
+          - family: has_line_matching
+            intent: >-
+              SCF1 is at most 99 fragments in AR0387_A. Measured 2, so the threshold sits ~25x above
+              the measurement. Together with the two AR0382 assertions this pins the paper's central
+              separation at the counts table, upstream of DESeq2 and independent of any statistical
+              model.
+            expected_value: 'B9J08_001458\t[0-9]{1,2}'
+            tolerance: null
+            element_identifier: AR0387_A
+            evidence: intent
+            confidence: medium
+          - family: has_line_matching
+            intent: "SCF1 <= 99 in AR0387_B (measured 1)."
+            expected_value: 'B9J08_001458\t[0-9]{1,2}'
+            tolerance: null
+            element_identifier: AR0387_B
+            evidence: intent
+            confidence: medium
+          - family: has_line_matching
+            intent: "SCF1 <= 99 in AR0382_tnSWI1_A (measured 4)."
+            expected_value: 'B9J08_001458\t[0-9]{1,2}'
+            tolerance: null
+            element_identifier: AR0382_tnSWI1_A
+            evidence: intent
+            confidence: medium
+          - family: has_line_matching
+            intent: "SCF1 <= 99 in AR0382_tnSWI1_B (measured 3)."
+            expected_value: 'B9J08_001458\t[0-9]{1,2}'
+            tolerance: null
+            element_identifier: AR0382_tnSWI1_B
+            evidence: intent
+            confidence: medium
+      - workflow_label: featureCounts assignment summary
+        label_status: resolved
+        description: >-
+          Assigned / Unassigned_NoFeatures / Unassigned_Ambiguous totals per sample — and the direct
+          read-out of whether the Strandedness parameter reached featureCounts as the right -s value.
+          The two assertions below are a paired strandedness regression detector: with -s 2 (correct)
+          Assigned is ~180,000 and NoFeatures ~20,000; with -s 1 (inverted) the two swap, and each
+          assertion fails on its own digit-count bound.
+        output_kind: collection
+        collection_shape: list
+        assertion_intent:
+          - family: has_line_matching
+            intent: >-
+              Assigned is between 150,000 and 199,999 fragments, i.e. >=75% of the ~198k fragments
+              entering featureCounts. Phase 7 measured 90-91% of primary-mapped R1 falling inside an
+              annotated exon (178.9k-181.4k assigned). Under an inverted -s 1 the Assigned total
+              collapses to five digits and this fails.
+            expected_value: 'Assigned\t1[5-9][0-9]{4}'
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: medium
+          - family: has_line_matching
+            intent: >-
+              Unassigned_NoFeatures is below 100,000, i.e. under half the fragments. Under an
+              inverted -s 1 setting NoFeatures balloons to ~180,000 — six digits — and this fails.
+              This is the empirical strandedness check the workflow input's own doc names.
+            expected_value: 'Unassigned_NoFeatures\t[0-9]{1,5}'
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: medium
+      - workflow_label: "DESeq2 results: tnSWI1 vs AR0382"
+        label_status: resolved
+        description: >-
+          Full raw result table for the first contrast, a single dataset (the workflow's only
+          reduction happens here). HEADERLESS — deseq2.R writes it with `col.names = FALSE` — which
+          is what makes `header_lines: '0'` correct on the two downstream Filter1 steps. The column
+          contract is c1 GeneID, c2 baseMean, c3 log2FoldChange, c4 lfcSE, c5 stat, c6 pvalue,
+          c7 padj, and it holds ONLY while `lfc_shrinkage_type: none`.
+        output_kind: dataset
+        collection_shape: null
+        assertion_intent:
+          - family: has_n_columns
+            intent: >-
+              CROSS-STEP INVARIANT 1 DETECTOR. Seven columns. `get_result_output_columns()` drops the
+              `stat` column under any shrinkage, which moves padj from c7 to c6 and makes the
+              `c7<0.05` predicate — built in a different step — filter on nothing. If anyone changes
+              `lfc_shrinkage_type` off `none` on either DESeq2 node, this assertion fails. Because
+              the table is headerless, has_n_columns reads a data row here, which is exactly what is
+              wanted.
+            expected_value: 7
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+          - family: not_has_text
+            intent: >-
+              HEADER-ASYMMETRY ASSERTION. The word `baseMean` does not appear anywhere in this table.
+              deseq_out is written with `col.names = FALSE`, so it carries no header row; this is the
+              premise `header_lines: '0'` on the significance filters depends on, and the gene ID
+              space (B9J08_ locus tags) guarantees the token cannot occur as data. If a wrapper
+              upgrade ever starts emitting a header, this fails before the filters silently start
+              passing a header line into a numeric comparison. The SAME assertion inverted applies to
+              the normalized-counts tables below, which DO carry a header.
+            expected_value: baseMean
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+          - family: has_line_matching
+            intent: "SCF1 is present as a full seven-field row in the raw result table."
+            expected_value: 'B9J08_001458(\t[^\t]*){6}'
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+          - family: has_line_matching
+            intent: >-
+              SCF1's log2FoldChange (c3) is negative — down in tnSWI1 relative to AR0382, the
+              direction the paper reports. Magnitude is asserted only on the filtered table below,
+              and the paper's ~29-fold figure is NOT asserted anywhere (see omissions).
+            expected_value: 'B9J08_001458\t[^\t]+\t-[0-9.]+(\t[^\t]*){4}'
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+      - workflow_label: "DESeq2 results: AR0387 vs AR0382"
+        label_status: resolved
+        description: >-
+          Full raw result table for the second contrast. Same shape, same header asymmetry, same
+          column contract as the first. Its normalized counts are not interchangeable with the first
+          contrast's — size factors are estimated over a different sample set.
+        output_kind: dataset
+        collection_shape: null
+        assertion_intent:
+          - family: has_n_columns
+            intent: "CROSS-STEP INVARIANT 1 DETECTOR on the second DESeq2 node. The invariant must hold on BOTH nodes, so it is asserted on both raw tables."
+            expected_value: 7
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+          - family: not_has_text
+            intent: "Headerless, as for the first contrast — the premise of `header_lines: '0'` on this contrast's two significance filters."
+            expected_value: baseMean
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+          - family: has_line_matching
+            intent: "SCF1 is present as a full seven-field row."
+            expected_value: 'B9J08_001458(\t[^\t]*){6}'
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+          - family: has_line_matching
+            intent: "SCF1's log2FoldChange is negative — down in AR0387 relative to AR0382, the paper's headline between-isolate result."
+            expected_value: 'B9J08_001458\t[^\t]+\t-[0-9.]+(\t[^\t]*){4}'
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+      - workflow_label: "DESeq2 normalized counts: tnSWI1 vs AR0382"
+        label_status: resolved
+        description: >-
+          Normalized counts for the first contrast's four samples. THE OPPOSITE HALF OF THE HEADER
+          ASYMMETRY: deseq2.R writes this table with `col.names = NA`, so it DOES carry a header row
+          — padded with a leading blank field so the header is the same width as the data rows. That
+          is why sample-name text assertions are valid here and invalid on deseq_out. This output is
+          also the only place the condition split's correctness becomes visible at workflow level,
+          since every step of the split is hidden.
+        output_kind: dataset
+        collection_shape: null
+        assertion_intent:
+          - family: has_line_matching
+            intent: >-
+              CROSS-STEP INVARIANT 2 DETECTOR (condition-split half). SCF1's row carries EXACTLY four
+              numeric sample fields. If `header_lines` on `Select first-contrast samples` were ever
+              changed from '0' to '1', Filter1 would pass row 1 of the sample metadata table
+              (AR0382_A) through unconditionally regardless of the `c2=='tnSWI1'` predicate, that
+              sample would enter the first-contrast counts sub-collection as well as the
+              reference-level one, and this contrast would run on five sample columns instead of
+              four. Asserting on a DATA row rather than on the header sidesteps the open question of
+              whether the padded header counts as four or five fields.
+            expected_value: 'B9J08_001458(\t[0-9.eE+-]+){4}'
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: medium
+          - family: has_text
+            intent: >-
+              The header names the four samples this contrast should see. Assert each of AR0382_A,
+              AR0382_B, AR0382_tnSWI1_A and AR0382_tnSWI1_B as a separate has_text. This is the
+              membership half of the condition-split check — the workflow's join key is the element
+              identifier, and this is the only workflow-level output that shows which identifiers
+              actually reached the reduction.
+            expected_value: AR0382_tnSWI1_A
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: medium
+          - family: not_has_text
+            intent: >-
+              No AR0387 sample leaked into the first contrast. `AR0387` cannot occur as data — gene
+              ids are B9J08_ locus tags — so this is an unambiguous negative on the split.
+            expected_value: AR0387
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+      - workflow_label: "DESeq2 normalized counts: AR0387 vs AR0382"
+        label_status: resolved
+        description: >-
+          Normalized counts for the second contrast's four samples. Headered, same as the first
+          contrast, and the same condition-split visibility — here against a leak of the tnSWI1
+          samples.
+        output_kind: dataset
+        collection_shape: null
+        assertion_intent:
+          - family: has_line_matching
+            intent: "CROSS-STEP INVARIANT 2 DETECTOR on the second contrast's split: SCF1's row carries exactly four numeric sample fields."
+            expected_value: 'B9J08_001458(\t[0-9.eE+-]+){4}'
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: medium
+          - family: has_text
+            intent: "The header names the four samples this contrast should see: AR0382_A, AR0382_B, AR0387_A and AR0387_B, each as a separate has_text."
+            expected_value: AR0387_A
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: medium
+          - family: not_has_text
+            intent: "No tnSWI1 sample leaked into the second contrast. `tnSWI1` cannot occur as data."
+            expected_value: tnSWI1
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+      - workflow_label: "Significant genes: tnSWI1 vs AR0382"
+        label_status: resolved
+        description: >-
+          Endpoint of the first contrast's two-link chain — rows of the raw table that cleared BOTH
+          adjusted p-value < 0.05 (c7) and |log2 fold change| > 1 (abs(c3)). Membership in this table
+          IS the paper's significance criterion, which is why the biological claim is asserted here
+          rather than by re-deriving thresholds from the raw table.
+        output_kind: dataset
+        collection_shape: null
+        assertion_intent:
+          - family: has_n_columns
+            intent: "Seven columns — the filter chain preserved the raw table's shape rather than reshaping it, and invariant 1 still holds at the chain's endpoint."
+            expected_value: 7
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+          - family: has_line_matching
+            intent: >-
+              THE PAPER'S CENTRAL CLAIM, FIRST CONTRAST. SCF1 appears in the significant-genes table,
+              which by construction means padj < 0.05 AND |log2FC| > 1. Phase 7 measured 414/391
+              fragments in AR0382 against 4/3 in tnSWI1 — a separation DESeq2 will call significant
+              at n=2 with a wide margin.
+            expected_value: 'B9J08_001458(\t[^\t]*){6}'
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+          - family: has_line_matching
+            intent: >-
+              SCF1's log2FoldChange is at most -2, i.e. at least 4-fold down. This is a threshold,
+              deliberately far below the ~270-fold raw separation phase 7 measured and deliberately
+              NOT the paper's ~29-fold figure, which this plan does not assert anywhere. The regex
+              encodes "negative with an integer part of 2 or more". MEASURED for this contrast:
+              log2FC -6.93 at padj 2.1e-31, so the -2 floor clears by ~5 log2 units and the 0.05 cut
+              by 31 orders of magnitude. The measured value is NOT the assertion: it comes from
+              pydeseq2 over bwa-mem counts, not from the wrapper's R DESeq2 over featureCounts -s 2
+              output, and will differ in the last digits at least (warnings[]
+              `deseq2-statistics-measured-with-pydeseq2-not-r`). The margin is what makes the
+              threshold safe across that difference.
+            expected_value: 'B9J08_001458\t[^\t]+\t-(?:[2-9]|[1-9][0-9]+)\.[0-9]+(\t[^\t]*){4}'
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+      - workflow_label: "Significant genes: AR0387 vs AR0382"
+        label_status: resolved
+        description: >-
+          Endpoint of the second contrast's chain. The paper's headline between-isolate result: SCF1
+          the most down-regulated gene between AR0382 and the low-adhesion clinical isolate AR0387.
+          Measurement backs "most down-regulated" HERE — SCF1 ranks 1st by |log2FC| among the 35
+          genes clearing both filters, and 1st among the 9 down-regulated ones — but not in the first
+          contrast, where it ranks 2nd of 63 (2nd of 52 down-regulated). No rank is asserted on
+          either table; see omissions[] for why, and warnings[] for the implementation caveat on
+          those figures.
+        output_kind: dataset
+        collection_shape: null
+        assertion_intent:
+          - family: has_n_columns
+            intent: "Seven columns at the second chain's endpoint."
+            expected_value: 7
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+          - family: has_line_matching
+            intent: >-
+              THE PAPER'S CENTRAL CLAIM, SECOND CONTRAST. SCF1 cleared both filters. Phase 7 measured
+              414/391 against 2/1 — the widest separation in the fixture.
+            expected_value: 'B9J08_001458(\t[^\t]*){6}'
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+          - family: has_line_matching
+            intent: >-
+              SCF1's log2FoldChange is at most -2. Same threshold and same refusal to assert the
+              paper's ~29-fold magnitude. MEASURED for this contrast: log2FC -7.95 at padj 4.1e-18,
+              clearing the -2 floor by ~6 log2 units and the 0.05 cut by 18 orders of magnitude. Same
+              implementation caveat as the first contrast — pydeseq2 over bwa-mem counts, not the
+              wrapper's R DESeq2 — so the margin is asserted and the value is not.
+            expected_value: 'B9J08_001458\t[^\t]+\t-(?:[2-9]|[1-9][0-9]+)\.[0-9]+(\t[^\t]*){4}'
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+      - workflow_label: "DESeq2 diagnostic plots: tnSWI1 vs AR0382"
+        label_status: resolved
+        description: >-
+          Multi-page PDF (dispersion estimates, PCA, MA plot, sample distance heatmap). Deliberately
+          weak check: the PDF embeds a creation timestamp and the plots are the user-facing view of
+          numbers already asserted exactly on the tables above.
+        output_kind: dataset
+        collection_shape: null
+        assertion_intent:
+          - family: has_size
+            intent: >-
+              Non-trivially sized PDF (min only, ~10 KB), catching the "R rendered an empty device"
+              failure mode. Recorded as a deliberate accepted shortcut per iwc-shortcuts-anti-patterns
+              §2-3: the sibling tabular checkpoints carry the content, so a size band adds nothing a
+              min bound does not.
+            expected_value: 10000
+            tolerance:
+              kind: none
+              magnitude: null
+              rationale: "Min bound rather than a delta band; PDF size depends on the gene count that survives independent filtering and is not predicted here."
+            element_identifier: null
+            evidence: intent
+            confidence: medium
+      - workflow_label: "DESeq2 diagnostic plots: AR0387 vs AR0382"
+        label_status: resolved
+        description: Multi-page PDF for the second contrast. Same deliberate weak check.
+        output_kind: dataset
+        collection_shape: null
+        assertion_intent:
+          - family: has_size
+            intent: "Non-trivially sized PDF (min only, ~10 KB)."
+            expected_value: 10000
+            tolerance:
+              kind: none
+              magnitude: null
+              rationale: "Min bound rather than a delta band, as for the first contrast."
+            element_identifier: null
+            evidence: intent
+            confidence: medium
+
+  - id: topology-smoke-25k
+    doc: >-
+      Fast structural smoke test over the same six samples at 25,000 read pairs each (~7 MB
+      compressed total, small enough to commit in-repo). Makes NO biological claim: at that depth
+      SCF1 falls to roughly 50 fragments in AR0382 and near zero elsewhere, per-gene depth drops to
+      ~4.5 reads/gene, and the significance tables may legitimately be empty. What it does buy is a
+      CI lane that is not hostage to a Zenodo fetch and that still exercises every structural thing
+      that can silently break: the sample_sheet:paired input shape, the flatten side-branch, the
+      six-element map-over identifier space, both condition-split joins, both DESeq2 reductions, and
+      BOTH cross-step invariants. Every assertion below is a subset of case 1's, with the depth
+      constant and the biological claims removed.
+    derived_from: intent
+    provenance: >-
+      test-data-refs.json `subsetting.shape_only_alternative`, which records this depth as a
+      committable option and states exactly what it loses. The fixtures at this depth were NOT
+      generated by phase 7 — only the 200k set was — so they must be produced by the same
+      deterministic recipe with `head -n 100000`.
+    job_inputs:
+      - workflow_label: RNA-seq reads (sample sheet)
+        label_status: resolved
+        description: >-
+          The same six samples and the same six element identifiers as case 1, at 25,000 read pairs
+          each. The identifier spine is unchanged, because it is the thing this case exists to
+          exercise.
+        collection_shape: sample_sheet:paired
+        datatype: fastqsanger.gz
+        fixture:
+          storage: in-repo
+          location: test-data/
+          checksum: null
+          provenance: >-
+            NOT YET GENERATED. Produce with the same deterministic head-subset recipe as the 200k
+            fixture but `head -n 100000` per mate, from the same six ENA runs; the source URLs and
+            source md5s are in test-data-refs.json `inputs["RNA-seq reads (sample sheet)"].elements`.
+            Record an uncompressed md5 per file, for the same gzip-instability reason. At ~7 MB total
+            this is under the ~1 MB-per-file IWC in-repo threshold only marginally, so a reviewer may
+            still ask for Zenodo hosting; see unresolved `smoke-fixture-not-generated`.
+      - workflow_label: Reference genome FASTA
+        label_status: resolved
+        description: Identical to case 1 — the reference is used whole at both depths.
+        collection_shape: null
+        datatype: fasta
+        fixture:
+          storage: remote-url
+          location: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/759/435/GCA_002759435.2_Cand_auris_B8441_V2/GCA_002759435.2_Cand_auris_B8441_V2_genomic.fna.gz
+          checksum: MD5:a008b270d3aaa04736a8bb7daf3f6dd5
+          provenance: "Pinned NCBI FTP URL, staged with `decompress: true`. Same as case 1."
+      - workflow_label: Gene annotation GTF
+        label_status: resolved
+        description: Identical to case 1 — the annotation is what fixes the gene ID space, so it must not differ between cases.
+        collection_shape: null
+        datatype: gtf
+        fixture:
+          storage: remote-url
+          location: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/759/435/GCA_002759435.2_Cand_auris_B8441_V2/GCA_002759435.2_Cand_auris_B8441_V2_genomic.gtf.gz
+          checksum: MD5:6e5b9528d48c0a8fc2c8588e6eeea929
+          provenance: "Pinned NCBI FTP URL, staged with `decompress: true`. Same as case 1."
+      - workflow_label: Reference condition level
+        label_status: resolved
+        description: Workflow default AR0382, as case 1.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: null, checksum: null, provenance: "Workflow default."}
+      - workflow_label: First contrast condition level
+        label_status: resolved
+        description: Workflow default tnSWI1, as case 1.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: null, checksum: null, provenance: "Workflow default."}
+      - workflow_label: Second contrast condition level
+        label_status: resolved
+        description: Workflow default AR0387, as case 1.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: null, checksum: null, provenance: "Workflow default."}
+      - workflow_label: Strandedness
+        label_status: resolved
+        description: Workflow default `stranded - reverse`, as case 1. Strandedness is a property of the library, not of the subset depth.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: null, checksum: null, provenance: "Workflow default, measured by phase 7."}
+      - workflow_label: Adjusted p-value threshold
+        label_status: resolved
+        description: Workflow default 0.05, as case 1 — left alone so the filter chain is exercised in its shipped configuration even though no significance claim is made.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: null, checksum: null, provenance: "Workflow default."}
+      - workflow_label: log2 fold change threshold
+        label_status: resolved
+        description: Workflow default 1.0, as case 1.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: null, checksum: null, provenance: "Workflow default."}
+    expected_outputs:
+      - workflow_label: "FastQC raw reads: text summary"
+        label_status: resolved
+        description: Twelve elements. The depth constant is the only thing that changes from case 1.
+        output_kind: collection
+        collection_shape: list
+        assertion_intent:
+          - family: has_text_matching
+            intent: "Each of the twelve elements reports exactly 25,000 sequences, proving the reduced fixture is the depth it claims and that the flatten side-branch fanned out to twelve."
+            expected_value: 'Total Sequences\s+25000'
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+      - workflow_label: Gene counts per sample
+        label_status: resolved
+        description: >-
+          Six elements. The row count and gene ID space are depth-independent — featureCounts emits
+          one row per annotated gene regardless of coverage — so the annotation-space guard carries
+          over unchanged. The SCF1 count thresholds do NOT carry over.
+        output_kind: collection
+        collection_shape: list
+        assertion_intent:
+          - family: has_n_columns
+            intent: "Two-column gene-id/count table."
+            expected_value: 2
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+          - family: has_n_lines
+            intent: "5586 annotated genes, depth-independent. Same ±1 header allowance as case 1."
+            expected_value: 5586
+            tolerance:
+              kind: delta
+              magnitude: 1
+              rationale: "Header-row presence on featureCounts output_short is inferred, not verified."
+            element_identifier: null
+            evidence: intent
+            confidence: medium
+          - family: has_line_matching
+            intent: "The annotation-space guard: at least 5000 rows are a bare B9J08_ locus tag plus an integer count."
+            expected_value: 'B9J08_[0-9]{6}\t[0-9]+'
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+      - workflow_label: "DESeq2 results: tnSWI1 vs AR0382"
+        label_status: resolved
+        description: Raw result table, first contrast. Carries both invariant detectors, which are structural and therefore depth-independent.
+        output_kind: dataset
+        collection_shape: null
+        assertion_intent:
+          - family: has_n_columns
+            intent: "CROSS-STEP INVARIANT 1 DETECTOR: seven columns, i.e. `lfc_shrinkage_type` is still `none` and c7 is still padj."
+            expected_value: 7
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+          - family: not_has_text
+            intent: "Headerless, the premise of `header_lines: '0'` on the significance filters."
+            expected_value: baseMean
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+      - workflow_label: "DESeq2 results: AR0387 vs AR0382"
+        label_status: resolved
+        description: Raw result table, second contrast. Both invariant detectors again, because invariant 1 must hold on BOTH DESeq2 nodes.
+        output_kind: dataset
+        collection_shape: null
+        assertion_intent:
+          - family: has_n_columns
+            intent: "CROSS-STEP INVARIANT 1 DETECTOR on the second node."
+            expected_value: 7
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+          - family: not_has_text
+            intent: "Headerless."
+            expected_value: baseMean
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+      - workflow_label: "DESeq2 normalized counts: tnSWI1 vs AR0382"
+        label_status: resolved
+        description: Headered table. Carries the condition-split half of invariant 2 without needing any biological signal.
+        output_kind: dataset
+        collection_shape: null
+        assertion_intent:
+          - family: has_text
+            intent: >-
+              The header names exactly the four samples of this contrast — AR0382_A, AR0382_B,
+              AR0382_tnSWI1_A, AR0382_tnSWI1_B — each asserted separately.
+            expected_value: AR0382_tnSWI1_A
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: medium
+          - family: not_has_text
+            intent: "CROSS-STEP INVARIANT 2 DETECTOR (condition-split half): no AR0387 sample leaked into the first contrast."
+            expected_value: AR0387
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+          - family: has_n_columns
+            intent: >-
+              Five fields on the first line — one padded row-name column plus four samples. A
+              `header_lines: '1'` regression on `Select first-contrast samples` would leak AR0382_A
+              into this contrast and make it six. See unresolved
+              `normalized-counts-header-width-unverified`: if the wrapper's header turns out NOT to
+              carry the leading blank field, the correct n is 4, and implement-galaxy-workflow-test
+              must settle this from the first real invocation.
+            expected_value: 5
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: medium
+      - workflow_label: "DESeq2 normalized counts: AR0387 vs AR0382"
+        label_status: resolved
+        description: Headered table, second contrast. Same split check against a tnSWI1 leak.
+        output_kind: dataset
+        collection_shape: null
+        assertion_intent:
+          - family: has_text
+            intent: "The header names exactly AR0382_A, AR0382_B, AR0387_A, AR0387_B, each asserted separately."
+            expected_value: AR0387_A
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: medium
+          - family: not_has_text
+            intent: "CROSS-STEP INVARIANT 2 DETECTOR on the second split: no tnSWI1 sample leaked in."
+            expected_value: tnSWI1
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+          - family: has_n_columns
+            intent: "Five fields on the first line, same caveat as the first contrast."
+            expected_value: 5
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: medium
+
+unresolved:
+  - kind: fixture
+    description: >-
+      The twelve 200,000-read-pair FASTQ fixtures for case 1 were generated and hashed by phase 7 but
+      never published; they existed only in that session's scratchpad. `location` is null and
+      `<FIXTURE_BASE>` in test-data-refs.json `planemo_test_job_block` has no value to substitute.
+      Case 1 cannot run until they are regenerated and hosted.
+    blocking: true
+    suggested_resolution: >-
+      Regenerate with test-data-refs.json `subsetting.recipe` (stream each ENA FASTQ, `head -n
+      800000`), verify each against its `md5_uncompressed`, publish to Zenodo, substitute the record
+      URL for `<FIXTURE_BASE>`. Mirrors open requirement `test-fixtures-not-hosted`.
+  - kind: fixture
+    description: >-
+      Case 2's 25,000-read-pair fixtures do not exist at all. Phase 7 costed and characterized this
+      depth (`subsetting.shape_only_alternative`) but generated only the 200k set.
+    blocking: true
+    suggested_resolution: >-
+      Same recipe with `head -n 100000` per mate from the same six ENA runs. Decide in-repo versus
+      Zenodo at that point: ~7 MB total is committable but a reviewer may still push back on twelve
+      binary files in `test-data/`. If the answer is Zenodo, case 2 loses its main advantage over
+      case 1 and should be reconsidered rather than kept for its own sake.
+  - kind: fixture
+    description: >-
+      Whether a `hashes:` block on an input that also sets `decompress: true` validates the
+      compressed bytes as fetched or the decompressed bytes was not established. The reference FASTA
+      and GTF carry md5s of the COMPRESSED NCBI files and are staged with `decompress: true`, so a
+      wrong assumption here fails the fetch with a hash mismatch rather than anything diagnostic.
+    blocking: false
+    suggested_resolution: >-
+      Confirm against Galaxy's fetch handler before adding `hashes:` to those two inputs; if it
+      cannot be confirmed cheaply, omit the hashes there (the URLs are stable NCBI FTP paths) and
+      keep them on the read fixtures, where no decompression happens.
+  - kind: fixture
+    description: >-
+      No `hashes:` block can be authored for the twelve read fixtures from what phase 7 supplies.
+      Phase 7 pinned UNCOMPRESSED md5s deliberately, because gzip output is not byte-stable across
+      gzip versions, but the staged file is the .gz and that is what a `hashes:` block would check.
+      IWC convention puts a hash on every remote input `location:`, so this will be noticed in review.
+    blocking: false
+    suggested_resolution: >-
+      Hash the published .gz files once, after hosting, and record those hashes in the test file —
+      the uncompressed md5s stay in test-data-refs.json as the regeneration check, and the published
+      .gz hashes become the fetch-integrity check. The two serve different purposes and both are
+      needed.
+  - kind: assertion
+    description: >-
+      Two of phase 7's biological claims are RANK claims and no tests-format assertion family can
+      express a rank or a row position: "SCF1 is within the 10 smallest padj rows" and "SCF1's
+      normalized count sits in the top 5% of the table". has_line_matching has no positional
+      anchoring; has_n_lines cannot bound where a match occurs. The padj-rank claim is TRUE as
+      measured — SCF1 is 5th of the 2393 genes carrying a padj in the first contrast and 4th of 1376
+      in the second — so it sits here because it is INEXPRESSIBLE, not because it is doubted. It is
+      also the weaker form of a claim this plan already asserts well: a rank of 5 has no margin
+      against the implementation difference recorded in warnings[]
+      `deseq2-statistics-measured-with-pydeseq2-not-r`, whereas the padj threshold it rests on clears
+      by 31 and 18 orders of magnitude. Promoting it is not worth a workflow change.
+    blocking: false
+    suggested_resolution: >-
+      Either accept membership in the significant-genes table as the proxy (what this plan does), or,
+      if the rank claim must be tested, add a `Select first` step after each DESeq2 node and promote
+      its output — which turns a rank into an ordinary membership assertion. That is a workflow
+      change, not a test change, and should be weighed against the output-list clutter.
+  - kind: assertion
+    description: >-
+      The `has_n_columns` value for the DESeq2 normalized-counts tables depends on whether
+      `col.names = NA` produces a header padded with a leading blank field (making the header the
+      same width as the data rows, n=5 for four samples) or an unpadded one (n=4). Galaxy's
+      has_n_columns reads the FIRST line only, so the two differ. Case 1 sidesteps this by asserting
+      on SCF1's data row instead; case 2 uses has_n_columns and carries the risk.
+    blocking: false
+    suggested_resolution: >-
+      Settle from the first successful invocation — `planemo workflow_test_init --from_invocation`
+      will show the real header — and correct case 2's n before committing the test file.
+  - kind: assertion
+    description: >-
+      Whether the DESeq2 wrapper names normalized-counts columns by the input dataset ELEMENT
+      IDENTIFIER (AR0382_A) or by some other dataset name is assumed, not verified. Every
+      sample-name has_text and not_has_text assertion on the two normalized-counts outputs, and
+      therefore the condition-split half of invariant 2, rests on it.
+    blocking: false
+    suggested_resolution: >-
+      Confirm from the first invocation. If the wrapper uses a different naming scheme, the
+      `not_has_text: AR0387` / `not_has_text: tnSWI1` negatives survive only if the condition token
+      still appears in the column name; otherwise fall back to the SCF1-row field-count assertion as
+      the sole split detector.
+  - kind: collection-shape
+    description: >-
+      The promoted per-sample outputs (FastQC text/HTML, Cutadapt report, Trimmed reads, STAR BAM and
+      summary, Gene counts, featureCounts summary) are recorded here with their BEHAVIOURAL shapes
+      `list` and `list:paired`, but a tool mapped over a `sample_sheet:paired` collection produces a
+      sample_sheet-shaped collection without `column_definitions`, whose declared collection_type
+      string is not `list`. This is open requirement `mapped-outputs-carry-sample-sheet-outer-axis`,
+      which was filed explicitly for this phase.
+    blocking: false
+    suggested_resolution: >-
+      Do NOT author `attributes: {collection_type: ...}` assertions on any of those eight outputs —
+      the plan asserts element identifiers instead, which is what actually matters and is
+      shape-agnostic. Record the real type strings from the first invocation and only then decide
+      whether a collection_type assertion is worth having.
+  - kind: assertion
+    description: >-
+      featureCounts `output_short` header-row presence was not verified. The DESeq2 steps bind
+      `header: true` on their counts inputs, which implies one, and the `has_n_lines` assertions
+      carry a ±1 allowance for it, but the featureCounts wrapper itself was not read in this run.
+    blocking: false
+    suggested_resolution: "Read the pinned iuc/featurecounts 2.1.1+galaxy1 wrapper, or take the line count from the first invocation, and tighten the ±1 to an exact value."
+
+omissions:
+  - target: "FastQC raw reads: HTML report"
+    reason: >-
+      The sibling text summary is promoted precisely so it can carry the assertions, and it does —
+      exact sequence counts and the Basic Statistics module per element. The HTML embeds the FastQC
+      version banner and base64-encoded images, so any content assertion on it either restates the
+      text summary or pins a version string. Asserting both would be duplication, not coverage.
+    category: weak-output
+  - target: "STAR alignments (BAM)"
+    reason: >-
+      BAM is a gzipped block format whose header carries @PG lines with full command lines and Galaxy
+      job ids, so it is never byte-stable; and the workflow already promotes `STAR mapping summary`
+      as the assertable text behind it, which is asserted. Per planemo-asserts-idioms the fallback
+      would be has_size plus has_archive_member, which buys nothing the mapping summary does not
+      already prove.
+    category: weak-output
+  - target: "The paper's ~29-fold SCF1 expression difference between AR0382 and AR0387"
+    reason: >-
+      REFUSED DELIBERATELY. Direct measurement of the deposited data disagrees by roughly an order of
+      magnitude — ~270-fold on aligned fragments at fixture depth, ~158-fold by exact 31-mer matching
+      over 5.2 M reads. Reference bias is ruled out as the explanation, because AR0387 IS the B8441
+      reference strain. The 29-fold may be the RT-qPCR assay rather than the RNA-seq, a shrunk rather
+      than raw log2FC, or a different normalization; nothing in this run distinguishes them. Open
+      requirement `scf1-fold-change-magnitude-disagrees-with-paper`. Direction and significance are
+      asserted; magnitude is asserted only as a loose `<= -2` floor.
+    category: out-of-scope
+  - target: "SCF1 is the single top gene ranked by |log2 fold change|"
+    reason: >-
+      REFUSED DELIBERATELY, AND NOW MEASURED FALSE AS A CROSS-CONTRAST CLAIM. The mechanism was
+      predicted correctly: with `lfc_shrinkage_type: none` — which this workflow pins, for the
+      column-contract reason that is invariant 1 — low-count genes take extreme unshrunk log2FC
+      values and can outrank SCF1. Measurement confirms it, and also kills the fallback this rationale
+      previously proposed. Phase 8 ran pydeseq2 on a strand-aware count matrix built from phase 7's
+      six BAMs, as two separate two-level n=2 analyses with no shrinkage, mirroring the workflow's two
+      DESeq2 nodes. SCF1 (B9J08_001458) came out: tnSWI1 vs AR0382 — log2FC -6.93, padj 2.1e-31, 5th
+      of 2393 genes with a padj, 2nd of the 63 clearing padj<0.05 and |log2FC|>1 by |log2FC| (2nd of
+      the 52 down-regulated ones); AR0387 vs AR0382 — log2FC -7.95, padj 4.1e-18, 4th of 1376 by padj,
+      1st of 35 by |log2FC| (1st of 9 down-regulated). So NO rank-1 assertion holds in both contrasts:
+      not by |log2FC| (2nd, then 1st), and not by adjusted p-value either (5th, then 4th). The earlier
+      claim in this slot that "ranking by adjusted p-value is the safe form" was wrong and has been
+      removed. Membership plus a threshold is the honest form and is what the plan asserts: SCF1
+      appears in each significant-genes table — which by construction means padj < 0.05 and |log2FC| >
+      1 — with log2FoldChange <= -2. That form is also the robust one. It clears by 31 and 18 orders
+      of magnitude on padj and ~5 and ~6 log2 units on fold change, which is margin enough to survive
+      the fact that these numbers come from pydeseq2 over bwa-mem counts rather than the wrapper's R
+      DESeq2 over featureCounts -s 2 (warnings[] `deseq2-statistics-measured-with-pydeseq2-not-r`); a
+      rank of 1, 2, 4 or 5 has no such margin and would be a flaky assertion even if tests-format
+      could express it, which it cannot (see unresolved).
+    category: other
+  - target: "No significant dysregulation of the ALS or IFF/HYR adhesin families in the tnSWI1 contrast"
+    reason: >-
+      REFUSED DELIBERATELY. A negative claim over twelve named genes (B9J08_002582/_004498/_004112
+      ALS; _004100/_004109/_004098/_004110/_001531/_004892/_001155/_004451/_000675 IFF-HYR). At
+      200,000 read pairs most of those sit at counts where DESeq2 simply lacks power, so their
+      absence from the significant table is a depth artefact rather than evidence for the paper's
+      claim. Asserting it would be a fixture claiming an outcome it cannot produce — exactly the
+      defect the Foundry's fixture rule names. It would need full-depth runs.
+    category: out-of-scope
+  - target: "The tnBCY1 vs AR0382 contrast (Fig. S2)"
+    reason: >-
+      No tnBCY1 run was ever deposited in PRJNA904261; only three conditions exist. There is no test
+      input for it at any depth, and the workflow does not model it.
+    category: out-of-scope
+  - target: "Exact per-gene integer counts on `Gene counts per sample`"
+    reason: >-
+      The IWC comparison notes recommend being stricter than the corpus default here, and they are
+      right in principle — featureCounts on a fixed reference, annotation and strandedness is
+      deterministic. But phase 7 measured with bwa-mem plus a strand-agnostic exon counter, not with
+      RNA STAR plus featureCounts -s 2, so it cannot supply the exact integers and inventing them
+      would be a fixture asserting something nothing measured. The plan asserts thresholds with a
+      stated margin instead, and the exact-count upgrade is an explicit follow-up once a real
+      invocation exists.
+    category: other
+  - target: "Negative / failure-path test cases"
+    reason: >-
+      `expect_failure:` does not appear anywhere in the 115-file IWC test corpus. Error-path testing
+      belongs in tool wrappers, not workflow tests. No such case is authored here.
+    category: out-of-scope
+
+warnings:
+  - code: fixture-measured-assertions-lack-an-evidence-class
+    message: >-
+      Every assertion carries `evidence: intent` because the schema's only alternative is
+      `test-evidence`, which means "translated from upstream test fixtures". A large share of these
+      assertions are neither: they were measured directly against the resolved fixtures by phase 7.
+      Confidence is raised to `high` where that is the case, but a reader filtering on `evidence`
+      will see a uniformly synthesized plan and undercount its grounding.
+    path: "test_cases[*].expected_outputs[*].assertion_intent[*].evidence"
+  - code: full-line-anchoring-convention
+    message: >-
+      Every `has_line_matching` expected_value in this plan is written to match a WHOLE line, because
+      Galaxy evaluates has_line_matching as `^(?:expression)$` under re.MULTILINE. The
+      `has_text_matching` values are written for `re.search` over the whole content instead, and `^`
+      would NOT be multiline there. Do not move an expression between the two families without
+      rewriting it.
+    path: "test_cases[*].expected_outputs[*].assertion_intent[*].expected_value"
+  - code: iwc-notes-and-test-data-refs-disagree-on-count-strictness
+    message: >-
+      iwc-comparison-notes.md §5 recommends exact per-gene integer counts on `Gene counts per
+      sample`; test-data-refs.json `unresolved.counts-measured-with-bwa-not-star` forbids pinning any
+      exact count. Resolved in favour of the later and better-grounded artifact: thresholds now,
+      exact counts as a recorded follow-up once a real invocation exists. Both positions are correct
+      about different moments in the run.
+    path: "test_cases[0].expected_outputs[4]"
+  - code: deseq2-at-reduced-depth-untested
+    message: >-
+      Case 2 assumes DESeq2 completes at 25,000 read pairs per sample (~4.5 reads/gene average). It
+      should — the gene count and sample count are unchanged and only the counts shrink — but no run
+      at that depth has happened, and a DESeq2 failure there would surface as a whole-case failure
+      rather than an assertion failure. Run case 2 once before relying on it as the fast CI lane.
+    path: "test_cases[1]"
+  - code: reference-level-filter-regression-undetectable
+    message: >-
+      Of the seven Filter1 steps that bind `header_lines: '0'`, this plan can detect a regression on
+      only two — `Select first-contrast samples` and `Select second-contrast samples`. On `Select
+      reference-level samples` the leaked row IS AR0382_A, which the `c2=='AR0382'` predicate keeps
+      anyway, so the output is identical and no assertion can see it. On the four significance
+      filters the leaked row is row 1 of a padj-sorted table, which passes both filters on its own
+      merits, so the regression is again invisible at workflow level. See the report for the full
+      accounting.
+    path: "test_cases[*].expected_outputs[*]"
+  - code: deseq2-statistics-measured-with-pydeseq2-not-r
+    message: >-
+      Every differential-expression number quoted in this plan — SCF1's log2 fold change and adjusted
+      p-value per contrast, and every rank figure in omissions[] and unresolved[] — was produced by
+      pydeseq2 over a strand-aware count matrix built from phase 7's six bwa-mem BAMs, as two separate
+      two-level n=2 analyses with no LFC shrinkage. The workflow runs the Galaxy DESeq2 wrapper, i.e.
+      R DESeq2, over RNA STAR plus featureCounts -s 2. pydeseq2 is a faithful reimplementation, but it
+      is not the same implementation and the counts are not the same counts, so exact values will
+      differ. NO number from that measurement may be turned into an equality assertion, and none is.
+      What survives the difference is margin: padj 2.1e-31 and 4.1e-18 against a 0.05 threshold,
+      log2FC -6.93 and -7.95 against a -2 floor. What does not survive it is rank — 5th and 4th by
+      padj, 2nd and 1st by |log2FC| — or any exact value, which is why neither is asserted.
+    path: "test_cases[*].expected_outputs[*].assertion_intent[*].intent"
+  - code: no-corpus-precedent-for-sample-sheet-test-fixture
+    message: >-
+      No IWC test fixture in the 115-file corpus declares a `sample_sheet` collection or any
+      `column_definitions`, so the job block for the reads input has no worked example to
+      pattern-match against. Phase 7 established from Galaxy's source that it IS expressible and
+      pinned the positional-list `rows:` shape; that reading is the plan's only authority here, and
+      the first `planemo test` run is what confirms it.
+    path: 'test_cases[*].job_inputs[0]'

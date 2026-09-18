@@ -1,0 +1,266 @@
+{
+    "exit_code": null,
+    "summary": {
+        "num_errors": 1,
+        "num_failures": 0,
+        "num_skips": 0,
+        "num_tests": 1
+    },
+    "tests": [
+        {
+            "data": {
+                "end_datetime": "2026-09-17T16:26:33.715448",
+                "execution_problem": "Unexpected HTTP status code: 400: {\"err_msg\":\"Workflow was not invoked; the following required tools are not installed: toolshed.g2.bx.psu.edu/repos/lparsons/cutadapt/cutadapt (version 5.2+galaxy2), toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param (version 0.1.1), toolshed.g2.bx.psu.edu/repos/iuc/map_param_value/map_param_value (version 0.2.0), toolshed.g2.bx.psu.edu/repos/devteam/fastqc/fastqc (version 0.74+galaxy1), toolshed.g2.bx.psu.edu/repos/iuc/rgrnastar/rna_star (version 2.7.11b+galaxy1), toolshed.g2.bx.psu.edu/repos/iuc/featurecounts/featurecounts (version 2.1.1+galaxy1), toolshed.g2.bx.psu.edu/repos/iuc/deseq2/deseq2 (version 2.11.40.8+galaxy4)\",\"err_code\":0}",
+                "inputs": {
+                    "Adjusted p-value threshold": 0.05,
+                    "First contrast condition level": "tnSWI1",
+                    "Gene annotation GTF": {
+                        "class": "File",
+                        "decompress": true,
+                        "filetype": "gtf",
+                        "location": "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/759/435/GCA_002759435.2_Cand_auris_B8441_V2/GCA_002759435.2_Cand_auris_B8441_V2_genomic.gtf.gz"
+                    },
+                    "RNA-seq reads (sample sheet)": {
+                        "class": "Collection",
+                        "collection_type": "sample_sheet:paired",
+                        "elements": [
+                            {
+                                "class": "Collection",
+                                "collection_type": "paired",
+                                "elements": [
+                                    {
+                                        "class": "File",
+                                        "filetype": "fastqsanger.gz",
+                                        "hashes": [
+                                            {
+                                                "hash_function": "SHA-1",
+                                                "hash_value": "7686fa073a0089b0376bbe1d3b819b4ea14e3a67"
+                                            }
+                                        ],
+                                        "identifier": "forward",
+                                        "path": "test-data/smoke-25k/AR0382_A_1.fastq.gz"
+                                    },
+                                    {
+                                        "class": "File",
+                                        "filetype": "fastqsanger.gz",
+                                        "hashes": [
+                                            {
+                                                "hash_function": "SHA-1",
+                                                "hash_value": "f1749c97d907abffd4f5ee36139c22b15376d2af"
+                                            }
+                                        ],
+                                        "identifier": "reverse",
+                                        "path": "test-data/smoke-25k/AR0382_A_2.fastq.gz"
+                                    }
+                                ],
+                                "identifier": "AR0382_A"
+                            },
+                            {
+                                "class": "Collection",
+                                "collection_type": "paired",
+                                "elements": [
+                                    {
+                                        "class": "File",
+                                        "filetype": "fastqsanger.gz",
+                                        "hashes": [
+                                            {
+                                                "hash_function": "SHA-1",
+                                                "hash_value": "a120941043541873bd674fc8e5cab4bf7d8dcc37"
+                                            }
+                                        ],
+                                        "identifier": "forward",
+                                        "path": "test-data/smoke-25k/AR0382_B_1.fastq.gz"
+                                    },
+                                    {
+                                        "class": "File",
+                                        "filetype": "fastqsanger.gz",
+                                        "hashes": [
+                                            {
+                                                "hash_function": "SHA-1",
+                                                "hash_value": "8f315372a23e305fc5dc5ee04d31d8a771ccb8f3"
+                                            }
+                                        ],
+                                        "identifier": "reverse",
+                                        "path": "test-data/smoke-25k/AR0382_B_2.fastq.gz"
+                                    }
+                                ],
+                                "identifier": "AR0382_B"
+                            },
+                            {
+                                "class": "Collection",
+                                "collection_type": "paired",
+                                "elements": [
+                                    {
+                                        "class": "File",
+                                        "filetype": "fastqsanger.gz",
+                                        "hashes": [
+                                            {
+                                                "hash_function": "SHA-1",
+                                                "hash_value": "d8e170332a2ae20242b8f79c66f287b79fa2c56a"
+                                            }
+                                        ],
+                                        "identifier": "forward",
+                                        "path": "test-data/smoke-25k/AR0387_A_1.fastq.gz"
+                                    },
+                                    {
+                                        "class": "File",
+                                        "filetype": "fastqsanger.gz",
+                                        "hashes": [
+                                            {
+                                                "hash_function": "SHA-1",
+                                                "hash_value": "89a32f456f670a00719362b8d72a1a90110c7e94"
+                                            }
+                                        ],
+                                        "identifier": "reverse",
+                                        "path": "test-data/smoke-25k/AR0387_A_2.fastq.gz"
+                                    }
+                                ],
+                                "identifier": "AR0387_A"
+                            },
+                            {
+                                "class": "Collection",
+                                "collection_type": "paired",
+                                "elements": [
+                                    {
+                                        "class": "File",
+                                        "filetype": "fastqsanger.gz",
+                                        "hashes": [
+                                            {
+                                                "hash_function": "SHA-1",
+                                                "hash_value": "022d0851c4b94b919c62d6c1af64e3713bb8e138"
+                                            }
+                                        ],
+                                        "identifier": "forward",
+                                        "path": "test-data/smoke-25k/AR0387_B_1.fastq.gz"
+                                    },
+                                    {
+                                        "class": "File",
+                                        "filetype": "fastqsanger.gz",
+                                        "hashes": [
+                                            {
+                                                "hash_function": "SHA-1",
+                                                "hash_value": "28d347eddac1455d3df000846cffb4dc0a472c4d"
+                                            }
+                                        ],
+                                        "identifier": "reverse",
+                                        "path": "test-data/smoke-25k/AR0387_B_2.fastq.gz"
+                                    }
+                                ],
+                                "identifier": "AR0387_B"
+                            },
+                            {
+                                "class": "Collection",
+                                "collection_type": "paired",
+                                "elements": [
+                                    {
+                                        "class": "File",
+                                        "filetype": "fastqsanger.gz",
+                                        "hashes": [
+                                            {
+                                                "hash_function": "SHA-1",
+                                                "hash_value": "3b6109b5392bba5cb75f312fd7c078b67346013c"
+                                            }
+                                        ],
+                                        "identifier": "forward",
+                                        "path": "test-data/smoke-25k/AR0382_tnSWI1_A_1.fastq.gz"
+                                    },
+                                    {
+                                        "class": "File",
+                                        "filetype": "fastqsanger.gz",
+                                        "hashes": [
+                                            {
+                                                "hash_function": "SHA-1",
+                                                "hash_value": "e5599b61d6ec223f9cd88e7eb7e7877c6d7cf29c"
+                                            }
+                                        ],
+                                        "identifier": "reverse",
+                                        "path": "test-data/smoke-25k/AR0382_tnSWI1_A_2.fastq.gz"
+                                    }
+                                ],
+                                "identifier": "AR0382_tnSWI1_A"
+                            },
+                            {
+                                "class": "Collection",
+                                "collection_type": "paired",
+                                "elements": [
+                                    {
+                                        "class": "File",
+                                        "filetype": "fastqsanger.gz",
+                                        "hashes": [
+                                            {
+                                                "hash_function": "SHA-1",
+                                                "hash_value": "f803a1ee765bd35a575ab66f80133ad09e50a4ea"
+                                            }
+                                        ],
+                                        "identifier": "forward",
+                                        "path": "test-data/smoke-25k/AR0382_tnSWI1_B_1.fastq.gz"
+                                    },
+                                    {
+                                        "class": "File",
+                                        "filetype": "fastqsanger.gz",
+                                        "hashes": [
+                                            {
+                                                "hash_function": "SHA-1",
+                                                "hash_value": "97a623f6a006e90740a44d6391685ede0157acf4"
+                                            }
+                                        ],
+                                        "identifier": "reverse",
+                                        "path": "test-data/smoke-25k/AR0382_tnSWI1_B_2.fastq.gz"
+                                    }
+                                ],
+                                "identifier": "AR0382_tnSWI1_B"
+                            }
+                        ],
+                        "rows": {
+                            "AR0382_A": [
+                                "AR0382",
+                                "A"
+                            ],
+                            "AR0382_B": [
+                                "AR0382",
+                                "B"
+                            ],
+                            "AR0382_tnSWI1_A": [
+                                "tnSWI1",
+                                "A"
+                            ],
+                            "AR0382_tnSWI1_B": [
+                                "tnSWI1",
+                                "B"
+                            ],
+                            "AR0387_A": [
+                                "AR0387",
+                                "A"
+                            ],
+                            "AR0387_B": [
+                                "AR0387",
+                                "B"
+                            ]
+                        }
+                    },
+                    "Reference condition level": "AR0382",
+                    "Reference genome FASTA": {
+                        "class": "File",
+                        "decompress": true,
+                        "filetype": "fasta",
+                        "location": "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/759/435/GCA_002759435.2_Cand_auris_B8441_V2/GCA_002759435.2_Cand_auris_B8441_V2_genomic.fna.gz"
+                    },
+                    "Second contrast condition level": "AR0387",
+                    "Strandedness": "stranded - reverse",
+                    "log2 fold change threshold": 1.0
+                },
+                "invocation_details": null,
+                "job": null,
+                "output_problems": [],
+                "problem_log": null,
+                "start_datetime": "2026-09-17T16:25:26.367512",
+                "status": "error"
+            },
+            "doc": "Fast structural smoke test over the same six samples at 25,000 read pairs each (~7 MB compressed total). Makes NO biological claim: at that depth SCF1 falls to roughly 50 fragments in AR0382 and near zero elsewhere, and the significance tables may legitimately be empty. What it does exercise is everything that can silently break without erroring - the sample_sheet:paired input shape, the flatten side-branch, the six-element map-over identifier space, both condition-split joins, both DESeq2 reductions, and both cross-step invariants. Every assertion here is a subset of case 1's, with the depth constant changed and the biological claims removed.",
+            "has_data": true,
+            "id": "galaxy-workflow.gxwf.yml_1",
+            "test_type": "galaxy_workflow"
+        }
+    ],
+    "version": "0.1"
+}

@@ -1,0 +1,2676 @@
+run:
+  pipeline: paper-to-galaxy
+  run_slug: auris-scf1
+  status: running
+  phases:
+    - { n: 1, kind: mold, skill: summarize-paper, status: done, feedback_checked: true }
+    - { n: 2, kind: mold, skill: freeform-summary-to-galaxy-interface, status: done, feedback_checked: true }
+    - { n: 3, kind: mold, skill: freeform-summary-to-galaxy-data-flow, status: done, feedback_checked: true }
+    - { n: 4, kind: mold, skill: compare-against-iwc-exemplar, status: done, feedback_checked: true }
+    - { n: 5, kind: mold, skill: freeform-summary-to-galaxy-template, status: done, feedback_checked: true }
+    - { n: 6, kind: mold, skill: advance-galaxy-draft-step, status: done, feedback_checked: true, iterations: 26 }
+    - { n: 7, kind: branch, pattern: test-data-resolution, status: done, feedback_checked: true, selected: paper-to-test-data }
+    - { n: 8, kind: mold, skill: freeform-summary-to-galaxy-test-plan, status: done, feedback_checked: true }
+    - { n: 9, kind: mold, skill: implement-galaxy-workflow-test, status: done, feedback_checked: true }
+    - { n: 10, kind: mold, skill: validate-galaxy-workflow, status: done, feedback_checked: true }
+    - { n: 11, kind: mold, skill: run-workflow-test, status: running }
+    - { n: 12, kind: mold, skill: debug-galaxy-workflow-output, status: pending }
+entries:
+  - id: summarize-paper-declares-no-freeform-summary-shape
+    raised_by: summarize-paper
+    observed_in:
+      mold: summarize-paper
+      path: content/molds/summarize-paper/index.md
+      revision: 2
+      content_hash: ac601516a655a5a97bf9cc6d865839622efd509a295f99410c9e47e3952f269d
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: summarize-paper
+      locator: content/molds/summarize-paper/index.md
+      content_hash: ac601516a655a5a97bf9cc6d865839622efd509a295f99410c9e47e3952f269d
+    kind: gap
+    severity: major
+    what: >-
+      The Mold produces the shared freeform-summary handoff but specifies no shape for it.
+      The procedure says only "a free-form Markdown summary capturing the workflow's steps,
+      tools, parameters, and sample/reference-data leads", the cast bundle packages no
+      template, example, or reference, and the runtime notes forbid reading Foundry source
+      at runtime. Four downstream Molds consume this artifact
+      (freeform-summary-to-galaxy-interface, -data-flow, -template, -test-plan), so the
+      section structure they can rely on was guessed at, not settled by the instructions.
+    expected: >-
+      Package a freeform-summary skeleton or worked example in the cast bundle, or state in
+      the procedure the minimum sections every consumer can assume (source identity,
+      candidate workflow scope, per-step tool/parameter table, reference data, sample data
+      accessions, assumptions, open questions). interview-to-freeform-summary emits the
+      same artifact id and should share whatever contract is written.
+    evidence: >-
+      Bundle carries SKILL.md plus _feedback/_provenance/_verify only; refs is empty and
+      "Load Upfront"/"Load On Demand" are both "None declared". Output section names the
+      filename and format but no structure.
+    status: open
+    issue: null
+  - id: summarize-paper-silent-on-supplementary-methods-retrieval
+    raised_by: summarize-paper
+    observed_in:
+      mold: summarize-paper
+      path: content/molds/summarize-paper/index.md
+      revision: 2
+      content_hash: ac601516a655a5a97bf9cc6d865839622efd509a295f99410c9e47e3952f269d
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: summarize-paper
+      locator: content/molds/summarize-paper/index.md
+      content_hash: ac601516a655a5a97bf9cc6d865839622efd509a295f99410c9e47e3952f269d
+    kind: gap
+    severity: major
+    what: >-
+      The Mold's entire job is to extract methods from a paper, but it declares no required
+      tools and describes no procedure for actually obtaining the text. For this run the
+      article's main text contained no Methods section at all: every computational detail
+      lived only in a supplementary PDF. The publisher page returned HTTP 403, the article
+      is not in the Europe PMC open-access set, and a single fetch of the PMC article page
+      yielded a tool list with no parameters and no pipeline. The retrieval route that
+      worked was improvised and is not described anywhere in the bundle.
+    expected: >-
+      State in the procedure that Science/Nature-style papers carry their Methods in
+      supplementary materials and that the main text alone is not a sufficient source, and
+      package a reference covering the retrieval routes worth trying in order (NCBI eutils
+      efetch db=pmc for JATS full text, the supplementary-material file list inside that
+      XML, Europe PMC, preprint and institutional-repository copies), plus the instruction
+      to report inaccessible Methods as an open question rather than summarize around them.
+    evidence: >-
+      Main-text JATS body ended at a bare "Supplementary Material" label; the full methods,
+      tool parameters, and reference-assembly accession came only from the supplement PDF
+      listed in that XML. Artifact open question 10 records the same for the next reader.
+    status: open
+    issue: null
+  - id: testability-note-silent-on-sample-sheet-test-fixtures
+    raised_by: freeform-summary-to-galaxy-interface
+    observed_in:
+      mold: freeform-summary-to-galaxy-interface
+      path: content/molds/freeform-summary-to-galaxy-interface/index.md
+      revision: 3
+      content_hash: de0cb02532205ad18f4aa1ab2881cac725a3191b448468a8a11d0663ff1ec97d
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: research
+      label: galaxy-workflow-testability-design
+      locator: content/research/galaxy-workflow-testability-design/index.md
+      content_hash: 81b01801ec3d14810d570dd2d7815da2bb11e41a562af9182c29fd2974f4b855
+    kind: gap
+    severity: major
+    what: >-
+      Section 5 ("Design inputs with fixtures in mind") instructs the designer to match workflow
+      input collection types to realistic fixture shapes and to choose labels readable as test
+      `job:` keys, and its evidence covers `list`, `list:paired`, data, string, boolean and int
+      inputs. It says nothing about the `sample_sheet` family, even though the sibling note
+      galaxy-sample-sheet-collections is packaged in the same bundle and is what pushes the
+      designer toward that shape. Nothing in the bundle states whether a `sample_sheet:paired`
+      workflow input — element identifiers plus per-row typed `columns` plus collection-level
+      `column_definitions` — can be expressed in a Planemo/IWC `-tests.yml` job block at all. This
+      run's most consequential interface decision, the primary reads input, had to be made without
+      knowing whether the same run's own test phase can express it.
+    expected: >-
+      Add a rule and evidence to section 5 covering sample_sheet-family inputs: either a corpus or
+      Planemo-schema citation showing the job-block fixture syntax for `column_definitions` and
+      per-row `columns`, or an explicit statement that no such fixture form exists yet and that a
+      sample_sheet input therefore trades testability for metadata carriage. Either answer settles
+      the decision; the absence of both leaves it a guess. The sample_sheet note's "Edges to flag"
+      list would be the natural second home for the same statement.
+    evidence: >-
+      Bundle packages galaxy-sample-sheet-collections (which documents the workflow YAML
+      `column_definitions` form) and galaxy-workflow-testability-design (which documents fixture
+      design) with no overlap on this point; the note that would cover it,
+      iwc-test-data-conventions, is cross-referenced from section 5 but is not packaged. The
+      interface brief at <run>/freeform-galaxy-interface.md settles on `sample_sheet:paired` and
+      carries open-requirements entry `sample-sheet-input-test-fixture-expressibility` plus a named
+      `list:paired` fallback precisely because the question could not be answered.
+    status: open
+    issue: null
+  - id: paper-to-galaxy-path-has-no-reference-data-owner
+    raised_by: freeform-summary-to-galaxy-interface
+    observed_in:
+      mold: freeform-summary-to-galaxy-interface
+      path: content/molds/freeform-summary-to-galaxy-interface/index.md
+      revision: 3
+      content_hash: de0cb02532205ad18f4aa1ab2881cac725a3191b448468a8a11d0663ff1ec97d
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: pipeline
+      label: paper-to-galaxy
+      locator: content/pipelines/paper-to-galaxy/index.md
+      content_hash: null
+    kind: gap
+    severity: major
+    what: >-
+      The Nextflow path has a dedicated Mold for deciding the Galaxy-side shape of external
+      reference data (nextflow-summary-to-galaxy-reference-data, listed among the producers of the
+      open-requirements ledger). The paper path has no equivalent, and this run's phase roster
+      contains no reference-data phase. The source paper nonetheless pins a specific non-model
+      assembly (GCA_002759435.2, C. auris B8441) and requires an annotation file, so the decision
+      between a built-in index, a data-table string, and a portable history dataset had to be made
+      somewhere. The interface Mold made it, unprompted: nothing in its procedure or references
+      assigns reference-data shape to the interface tier.
+    expected: >-
+      Either add a reference-data phase to the paper-to-galaxy pipeline (a freeform sibling of
+      nextflow-summary-to-galaxy-reference-data, since the input is a narrative accession rather
+      than an igenomes-style parameter), or state explicitly in
+      freeform-summary-to-galaxy-interface that reference-data delivery shape is its call and
+      package the guidance that decision needs. Today the decision is unowned, which means it gets
+      made by whichever Mold notices, with no shared basis.
+    evidence: >-
+      Run roster phases 1-12 in this ledger contain no `*-to-galaxy-reference-data` step. The
+      interface brief settles the genome as a history fasta on portability grounds and carries
+      open-requirements entry `reference-genome-delivery-shape-unverified` recording that no
+      built-in-index check was performed, because no phase owns performing one. The subject's
+      content hash is null: this Mold's runtime notes forbid reading Foundry source, so the
+      pipeline note could not be hashed from inside the run.
+    status: open
+    issue: null
+  - id: interface-mold-gives-no-rule-for-parameter-exposure
+    raised_by: freeform-summary-to-galaxy-interface
+    observed_in:
+      mold: freeform-summary-to-galaxy-interface
+      path: content/molds/freeform-summary-to-galaxy-interface/index.md
+      revision: 3
+      content_hash: de0cb02532205ad18f4aa1ab2881cac725a3191b448468a8a11d0663ff1ec97d
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: freeform-summary-to-galaxy-interface
+      locator: content/molds/freeform-summary-to-galaxy-interface/index.md
+      content_hash: de0cb02532205ad18f4aa1ab2881cac725a3191b448468a8a11d0663ff1ec97d
+    kind: gap
+    severity: minor
+    what: >-
+      The procedure names inputs, outputs, labels, collection shapes and checkpoints as the things
+      to settle, but gives no rule for which source-stated parameters become exposed typed workflow
+      inputs and which are baked into step defaults. The only nearby guidance is one line in the
+      packaged testability note ("Keep typed parameters explicit when tests need to set them"),
+      which answers the test-facing half and not the design half. For a paper source the
+      distinction is sharp and recurring: a value the paper pins is settled and can be baked, while
+      a value inferred from a kit name or an accession list is exactly what a reviewer must be able
+      to see and change. That rule was invented here, not read.
+    expected: >-
+      State the rule in the procedure: expose as a typed workflow parameter any value the source
+      leaves unstated or that this brief infers, so the inference is visible and overridable, plus
+      any value a test must set; bake values the source pins. Applies equally to the Nextflow and
+      CWL interface Molds, whose sources pin parameters far more often than a paper does.
+    evidence: >-
+      Interface brief section 2.3 has to justify its own exposure policy from scratch: strandedness
+      exposed because inferred, Cutadapt `-q 20` and RNA STAR defaults baked because stated,
+      significance thresholds exposed because stated but test-relevant. Three different
+      justifications for one decision class, none of them sourced from the bundle.
+    status: open
+    issue: null
+  - id: design-briefs-duplicate-open-questions-into-ledger-entries
+    raised_by: freeform-summary-to-galaxy-interface
+    observed_in:
+      mold: freeform-summary-to-galaxy-interface
+      path: content/molds/freeform-summary-to-galaxy-interface/index.md
+      revision: 3
+      content_hash: de0cb02532205ad18f4aa1ab2881cac725a3191b448468a8a11d0663ff1ec97d
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: research
+      label: open-requirements-ledger
+      locator: content/research/open-requirements-ledger/index.md
+      content_hash: e1d5e3a4d6d650af5b2efc4703fe6f79bb4d0cc12e6cd14e841c5b91df122ea0
+    kind: friction
+    severity: minor
+    what: >-
+      The Mold's output contract requires an "open questions" section in the Markdown brief and a
+      ledger of open entries, with no rule for which destination an unresolved choice belongs in.
+      Every unresolved item in this run was genuinely both an obligation a later Mold must
+      discharge and a thing a human reviewer should see, so all ten were written twice, in two
+      different shapes, and cross-referenced by entry id by hand to stop them drifting. Confirming
+      a real-run instance of something the note already lists under Open work
+      ("Reconcile the design-tier briefs' free-text 'open questions' sections with the ledger");
+      filed as corroboration rather than as a new finding.
+    expected: >-
+      Pick one source of truth and say so. The cheapest version that would have helped here: make
+      the ledger authoritative and specify the brief's open-questions section as a rendered index
+      of the entries it raised, one line each keyed by entry id, rather than an independently
+      authored list.
+    evidence: >-
+      Interface brief section 5 carries ten numbered open questions, each ending in the entry id it
+      mirrors; the ledger carries the same ten as structured entries. The duplication is manual and
+      nothing checks it.
+    status: open
+    issue: null
+  - id: data-flow-mold-packages-pattern-mocs-without-their-recipe-pages
+    raised_by: freeform-summary-to-galaxy-data-flow
+    observed_in:
+      mold: freeform-summary-to-galaxy-data-flow
+      path: content/molds/freeform-summary-to-galaxy-data-flow/index.md
+      revision: 3
+      content_hash: 22613db4e710f58b29bfd2d6fe1d49f167afe451e09afefb2efd755b4a6e4da1
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: freeform-summary-to-galaxy-data-flow
+      locator: content/molds/freeform-summary-to-galaxy-data-flow/index.md
+      content_hash: 22613db4e710f58b29bfd2d6fe1d49f167afe451e09afefb2efd755b4a6e4da1
+    kind: gap
+    severity: major
+    what: >-
+      All four packaged pattern references are MOC index pages. Each is a list of wiki-links to
+      operation and recipe pages — sync-collections-by-identifier, collection-cleanup-after-
+      mapover-failure, tabular-to-collection-by-row, tabular-filter-by-column-value and roughly
+      thirty others — and none of those pages is in the bundle, while the Mold's runtime notes
+      forbid reading Foundry source at runtime. The collection MOC states its own role plainly:
+      "the operation and recipe pages are the actionable references". So the Mold packages the
+      index and withholds the content it indexes. Every collection-idiom choice in this run's
+      brief was made from a one-line MOC description, with no corpus-observed recipe available to
+      check the shape, the built-in tool id, or the failure modes against.
+    expected: >-
+      Package the recipe and operation pages the MOCs name, or at least the subset a data-flow
+      brief can act on (the Cleanup, Identifiers, Structural Reshape and Bridges sections of
+      galaxy-collection-patterns and the Bridges section of galaxy-tabular-patterns). If the full
+      leaf set is too large for a bundle, say so in the Mold and state that MOC entries are naming
+      hints only, so the brief records idiom selections as unverified rather than as
+      corpus-grounded. Applies identically to the Nextflow and CWL data-flow Molds, which package
+      the same MOCs. The refs manifest marks these `evidence: corpus-observed`, which as packaged
+      is true of the map but not of anything the runtime can actually read.
+    evidence: >-
+      Bundle references/patterns holds exactly four files, all `pattern_kind: moc`. The brief at
+      <run>/freeform-galaxy-data-flow.md selects the identifier-sync idiom for its central
+      decision and has to state in its confidence section that the selection rests on a one-line
+      index entry.
+    status: open
+    issue: null
+  - id: data-flow-contract-silent-on-contradicting-the-interface-brief
+    raised_by: freeform-summary-to-galaxy-data-flow
+    observed_in:
+      mold: freeform-summary-to-galaxy-data-flow
+      path: content/molds/freeform-summary-to-galaxy-data-flow/index.md
+      revision: 3
+      content_hash: 22613db4e710f58b29bfd2d6fe1d49f167afe451e09afefb2efd755b4a6e4da1
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: research
+      label: galaxy-data-flow-draft-contract
+      locator: content/research/galaxy-data-flow-draft-contract/index.md
+      content_hash: f8f75f5a4ff750bff5f682847466492dd8a9910b95b5078373567f84ce16fb54
+    kind: gap
+    severity: major
+    what: >-
+      The contract partitions ownership between data-flow, template and step implementation, and
+      the Mold declares the interface brief as an input that "pins inputs, outputs, and labels".
+      Neither says what to do when the data-flow analysis shows a pinned interface decision is not
+      achievable under Galaxy semantics. That happened three times in this run: FastQC mapped over
+      a sample_sheet:paired input fans out per read direction, so two outputs the interface
+      declared as flat lists are nested; the outer axis of every mapped output is sample_sheet-
+      shaped, not the declared `list`; and a linear fold-change parameter is declared against a
+      DESeq2 column reported in log2. Whether the data-flow brief may correct the interface, must
+      defer to it, or must only record the conflict is not stated anywhere in the bundle. The
+      route taken here — ledger each one and state the correction in the brief — was invented.
+    expected: >-
+      State the rule in the contract's Boundary section: the data-flow draft may contradict an
+      interface decision when Galaxy collection or map-over semantics make it unachievable, and
+      must record each contradiction as an open-requirements entry naming the interface decision
+      it invalidates, so the interface brief and the template cannot silently diverge. Worth
+      pairing with a note in the open-requirements research page, whose `supersedes` mechanism
+      covers a refuted justification on an existing entry but has nothing for a refuted claim in
+      a sibling brief that was never ledgered.
+    evidence: >-
+      Interface brief section 3 declares outputs 1-8 as `list`/`list:paired` and input 7 as a
+      linear fold change; the data-flow brief section 7 shows all three are unachievable as
+      written and raises `fastqc-per-read-fanout-not-a-flat-list`,
+      `mapped-outputs-carry-sample-sheet-outer-axis` and
+      `fold-change-threshold-linear-vs-deseq2-log2fc` in the open-requirements ledger.
+    status: open
+    issue: null
+  - id: sample-sheet-note-omits-sample-sheet-to-tabular-output-columns
+    raised_by: freeform-summary-to-galaxy-data-flow
+    observed_in:
+      mold: freeform-summary-to-galaxy-data-flow
+      path: content/molds/freeform-summary-to-galaxy-data-flow/index.md
+      revision: 3
+      content_hash: 22613db4e710f58b29bfd2d6fe1d49f167afe451e09afefb2efd755b4a6e4da1
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: research
+      label: galaxy-sample-sheet-collections
+      locator: content/research/galaxy-sample-sheet-collections/index.md
+      content_hash: 98736fdcd0c4f4698af4e0cd4c539b33e3d0db872de1e10487556b21033030ec
+    kind: gap
+    severity: major
+    what: >-
+      The note's closing guidance is that carry-forward of sample-sheet metadata past map-over
+      "must be explicit (re-attaching metadata via `__SAMPLE_SHEET_TO_TABULAR__` or rules DSL
+      `add_column_from_sample_sheet_index`)", and the note is packaged into this Mold precisely to
+      drive that re-attachment. But it describes the tool in one clause — "iterates and tab-joins
+      for downstream tabular consumers" — and never states its output columns. Whether the element
+      identifier is emitted as a column is the single fact the re-attachment turns on, because the
+      identifier is the only key that survives map-over and therefore the only possible join key
+      back to a downstream collection. The note recommends the mechanism without supplying what is
+      needed to wire it.
+    expected: >-
+      State the tool's output schema in the "Tool-side access" section: whether the element
+      identifier is emitted, in which column, and how the remaining columns order relative to
+      `column_definitions`. Do the same for the rules-DSL alternative — which axis
+      `add_column_from_sample_sheet_index` reads and whether it can apply to a collection that has
+      already lost its `column_definitions`, since that is the case a reader arrives with. The
+      sources list already cites lib/galaxy/tools/sample_sheet_to_tabular.xml, so the fact is one
+      line away from where it is needed.
+    evidence: >-
+      This run's central data-flow decision (<run>/freeform-galaxy-data-flow.md section 4) is an
+      identifier-keyed split that joins this tool's output to the featureCounts collection. It had
+      to ship with open-requirements entry `sample-sheet-to-tabular-identifier-column-unverified`
+      and a named substitute node, because the join key could not be confirmed from the bundle and
+      the Mold's runtime notes forbid reading Galaxy or Foundry source.
+    status: open
+    issue: null
+  - id: iwc-corpus-path-hard-coded-with-no-override
+    raised_by: compare-against-iwc-exemplar
+    observed_in:
+      mold: compare-against-iwc-exemplar
+      path: content/molds/compare-against-iwc-exemplar/index.md
+      revision: 10
+      content_hash: 5b198e9b87cf554cb01aceaa14a5aaa3ab24c6a35afc35dab7d09ce154cc3a77
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: compare-against-iwc-exemplar
+      locator: content/molds/compare-against-iwc-exemplar/index.md
+      content_hash: 5b198e9b87cf554cb01aceaa14a5aaa3ab24c6a35afc35dab7d09ce154cc3a77
+    kind: defect
+    severity: blocker
+    what: >-
+      The procedure's first and only prerequisite step is "Clone or pull and merge the IWC corpus
+      (https://github.com/galaxyproject/iwc) to `~/.foundry/iwc`". That path is hard-coded, and the
+      Mold names no environment variable, no configuration key, and no fallback for a machine where
+      it cannot be created. On this machine it cannot: `mkdir ~/.foundry` fails with `Operation not
+      permitted`, with and without the Bash sandbox. The Mold is the corpus-first check of every
+      Galaxy-targeting pipeline, so an unsatisfiable corpus location makes the whole phase
+      unrunnable, and the only reason this run produced a comparison at all is that the harness
+      supplied a clone at a different path out of band. Nothing in the bundle describes that route,
+      and an unattended run has no way to discover it.
+    expected: >-
+      Read the corpus location from an environment variable with `~/.foundry/iwc` as the default —
+      the same shape `OMC_STATE_DIR` already has elsewhere in this toolchain — and state in the
+      procedure that a caller-supplied corpus path is honoured and pinned rather than pulled.
+      Two smaller corrections belong with it. State that when the corpus is supplied rather than
+      cloned, the Mold must not `git pull` or write inside it, since a caller-owned checkout may be
+      shared or read-only. And require the corpus commit to be recorded in `iwc-comparison-notes`
+      as provenance in every case, not only the supplied one: a structural comparison is a claim
+      about a moving corpus, and without the commit no later reader can tell whether a divergence
+      this Mold reported has since been closed upstream. The output artifact description says
+      nothing about provenance today.
+    evidence: >-
+      `mkdir ~/.foundry` returned `Operation not permitted` on darwin 25.5.0 under both the
+      sandboxed and unsandboxed Bash tool. The phase ran against a caller-supplied shallow clone
+      pinned at galaxyproject/iwc `fe41a79`, recorded in <run>/iwc-comparison-notes.md under
+      "Corpus provenance" on this phase's own initiative, since no packaged instruction asks for it.
+    status: open
+    issue: null
+  - id: iwc-exemplar-artifact-assumes-a-single-nearest-exemplar
+    raised_by: compare-against-iwc-exemplar
+    observed_in:
+      mold: compare-against-iwc-exemplar
+      path: content/molds/compare-against-iwc-exemplar/index.md
+      revision: 10
+      content_hash: 5b198e9b87cf554cb01aceaa14a5aaa3ab24c6a35afc35dab7d09ce154cc3a77
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: compare-against-iwc-exemplar
+      locator: content/molds/compare-against-iwc-exemplar/index.md
+      content_hash: 5b198e9b87cf554cb01aceaa14a5aaa3ab24c6a35afc35dab7d09ce154cc3a77
+    kind: gap
+    severity: major
+    what: >-
+      The Mold speaks of "nearest IWC exemplar(s)" in its summary, its procedure and its confidence
+      table, but the gxformat2 artifact is specified strictly in the singular — one declared
+      filename, "the nearest exemplar's relevant subgraph", "Once the nearest exemplar is chosen
+      (High or Medium confidence), convert it". Nothing says what to emit when the honest answer is
+      several exemplars covering disjoint parts of the subject. That is what happened here and it
+      was not an edge case: IWC publishes the subject's journey as two workflows joined at the
+      count-table boundary, so one exemplar covers the map-over head and a different one covers the
+      differential-expression tail, and a third workflow in another domain was the only corpus
+      source for one tool's output shape. Whether that is one file with several YAML documents,
+      several files, or a single forced choice was guessed at.
+    expected: >-
+      State the multi-exemplar case in the "Nearest exemplar (gxformat2) view" section and settle
+      the encoding. The shape that worked here and is worth specifying: one file at the declared
+      filename, one YAML document per exemplar, each document headed by the abstract IWC workflow
+      ID it came from, the steps covered, the steps dropped, and its own confidence level — so a
+      Low-confidence cross-domain citation cannot be mistaken for a domain exemplar, which the
+      section already warns about in prose but gives no structural way to express. Worth pairing
+      with a sentence in the Feature Hierarchy noting that a corpus which splits the subject's
+      scope across workflows is itself a first-class structural finding for the template tier, not
+      a retrieval failure.
+    evidence: >-
+      Ranking produced transcriptomics/rnaseq-de/rnaseq-de-filtering-plotting at High for the DE
+      tail, transcriptomics/rnaseq-pe/rnaseq-pe at Medium for the map-over head, and
+      epigenetics/cutandrun/cutandrun as tool-level-only evidence for the Cutadapt output shape.
+      <run>/iwc-exemplar.gxwf.yml carries all three as three YAML documents at the one declared
+      filename, an encoding invented in this run.
+    status: open
+    issue: null
+  - id: bounded-subgraph-artifact-has-no-stated-validity-contract
+    raised_by: compare-against-iwc-exemplar
+    observed_in:
+      mold: compare-against-iwc-exemplar
+      path: content/molds/compare-against-iwc-exemplar/index.md
+      revision: 10
+      content_hash: 5b198e9b87cf554cb01aceaa14a5aaa3ab24c6a35afc35dab7d09ce154cc3a77
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: compare-against-iwc-exemplar
+      locator: content/molds/compare-against-iwc-exemplar/index.md
+      content_hash: 5b198e9b87cf554cb01aceaa14a5aaa3ab24c6a35afc35dab7d09ce154cc3a77
+    kind: gap
+    severity: major
+    what: >-
+      The artifact is described as a "Cleaned gxformat2 conversion (via convert --to format2
+      --compact) of the nearest IWC exemplar's relevant subgraph", and separately as "bounded to
+      the relevant subgraph, not the whole workflow". Those two requirements cannot both hold
+      literally. `convert` emits the whole workflow; bounding it to a subgraph is hand surgery that
+      necessarily leaves dangling `source:` references to removed steps and outputs, so the result
+      is well-formed YAML but not a loadable gxformat2 workflow. The Mold never says which property
+      matters, and the downstream consumer is named only as something that "pattern-matches
+      against" the file — which does not distinguish a human-read reference from a parsed one. This
+      run resolved it by treating the artifact as a reading aid, eliding non-structural tool_state
+      and marking every elision inline, but a template Mold that tried to load the file would
+      fail, and nothing warned it.
+    expected: >-
+      State the contract in the "Nearest exemplar (gxformat2) view" section: the artifact is a
+      bounded reading aid, not a runnable or validatable workflow; dangling references to elided
+      steps are expected; and elisions must be marked in place so a reader can tell a bound from
+      an absence. If instead the file is meant to stay loadable, say that and specify how — keep
+      every transitively referenced step, or rewrite dropped sources to workflow inputs. Either
+      answer is workable; the absence of both means each run invents its own and the downstream
+      Mold cannot rely on either. A one-line statement in the artifact description would settle it,
+      since that is where a consumer looks.
+    evidence: >-
+      <run>/iwc-exemplar.gxwf.yml drops the visualization tail of one exemplar and roughly
+      two-thirds of the other, leaving references to steps that are no longer present — for
+      example the second document's `outputs[Counts Table].outputSource: _unlabeled_step_25/...`,
+      whose producing step was dropped — and requiring several step `in:` entries to be commented
+      out rather than resolved. It parses as three valid YAML documents and would not load as
+      gxformat2. The convert CLI reference packaged in this bundle documents no subsetting option,
+      so the bounding is necessarily out-of-band.
+    status: open
+    issue: null
+  - id: gxwf-version-flag-reports-stale-version
+    raised_by: compare-against-iwc-exemplar
+    observed_in:
+      mold: compare-against-iwc-exemplar
+      path: content/molds/compare-against-iwc-exemplar/index.md
+      revision: 10
+      content_hash: 5b198e9b87cf554cb01aceaa14a5aaa3ab24c6a35afc35dab7d09ce154cc3a77
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: related-project
+      label: "@galaxy-tool-util/cli — gxwf --version"
+      locator: https://github.com/jmchilton/galaxy-tool-util-ts
+    kind: defect
+    severity: minor
+    what: >-
+      `gxwf --version` prints `1.0.0` regardless of the installed package version. The version
+      actually installed here is `@galaxy-tool-util/cli@1.10.1`, confirmed by `npm ls -g`. Every
+      Foundry Mold that requires gxwf pins a package version in `_required_tools.json` — this one
+      pins `^1.8.1` — and none of those pins can be checked at runtime, because the only version
+      the CLI reports is a constant that satisfies no pin and matches no release. The packaged
+      availability check works around this by grepping `--help` for a subcommand name, which
+      detects presence but says nothing about version.
+    expected: >-
+      Have `gxwf --version` report the package version from package.json. Until it does, a Mold
+      that needs version-sensitive behaviour has no runtime signal, and a run that records its tool
+      versions as provenance records a number that is always `1.0.0`.
+    evidence: >-
+      `gxwf --version` → `1.0.0`; `npm ls -g @galaxy-tool-util/cli` → `@galaxy-tool-util/cli@1.10.1`;
+      this Mold's `_required_tools.json` pins `package_version: ^1.8.1` with
+      `availability_check: gxwf --help | grep -q draft-validate`. Conversions in this phase
+      succeeded, so the defect is in version reporting only, not in the tool's behaviour.
+    status: open
+    issue: null
+
+  - id: draft-format-note-silent-on-step-addressing-by-label
+    raised_by: freeform-summary-to-galaxy-template
+    observed_in:
+      mold: freeform-summary-to-galaxy-template
+      path: content/molds/freeform-summary-to-galaxy-template/index.md
+      revision: 6
+      content_hash: 0a95f8c04465d48131ace523e0b27af53f1ade6e525a9173c5ff1e936ddc3366
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: research
+      label: galaxy-workflow-draft-format
+      locator: content/research/galaxy-workflow-draft-format/index.md
+      content_hash: 93f3b231dd063bf059c550f18b2200c61909af0da9408e0d43351116e886bf7b
+    kind: gap
+    severity: major
+    what: >-
+      The note never says which step field a connection's `source:` resolves against. Its only
+      example uses the map form, where the step key and its identity are the same string, so the
+      question cannot arise there. In the list form a step may carry both `id` and `label`, and
+      `gxwf draft-validate` resolves `source:` against the LABEL when one is present — an `id`
+      that differs from the label is not addressable at all.
+    expected: >-
+      State the rule in the "Relaxations vs. gxformat2" section: a labelled step is addressed by
+      its label, so in list form `id` and `label` must be the same string (which is what the IWC
+      corpus does), or the label must be omitted. Adding a list-form example alongside the
+      existing map-form sketch would carry the rule by demonstration.
+    evidence: >-
+      A first draft of 27 steps, each with a snake_case `id` and a separate human `label`, with
+      every `source:` written against the id. `gxwf draft-validate` returned 47 topology errors,
+      all of the form `references unknown step "<id>"`, while reporting the same steps in its
+      diagnostic paths under their labels. Renaming every `id` to match its `label` and rewriting
+      all 47 references cleared it to `draft valid` with no other change. Neither the note nor the
+      packaged `draft-validate` command reference mentions the distinction.
+    status: open
+    issue: null
+
+  - id: draft-format-note-example-writes-format-as-a-scalar
+    raised_by: freeform-summary-to-galaxy-template
+    observed_in:
+      mold: freeform-summary-to-galaxy-template
+      path: content/molds/freeform-summary-to-galaxy-template/index.md
+      revision: 6
+      content_hash: 0a95f8c04465d48131ace523e0b27af53f1ade6e525a9173c5ff1e936ddc3366
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: research
+      label: galaxy-workflow-draft-format
+      locator: content/research/galaxy-workflow-draft-format/index.md
+      content_hash: 93f3b231dd063bf059c550f18b2200c61909af0da9408e0d43351116e886bf7b
+    kind: defect
+    severity: major
+    what: >-
+      The note's "Example (sketch)" declares a workflow input as `format: fastqsanger.gz` — a bare
+      scalar. The draft schema the same Mold packages types `format` as `null | ReadonlyArray<string>`,
+      so the sketch is not valid against the contract it illustrates. An author who copies the
+      sketch, as it invites, gets a structure error.
+    expected: >-
+      Write `format:` as a list in the sketch (`format: [fastqsanger.gz]` or the block form), and
+      say in the relaxations section that `format` is a list even for a single value. If the
+      scalar form is in fact accepted by some other consumer, say which and why the draft schema
+      rejects it.
+    evidence: >-
+      The draft was authored with `format: fastqsanger.gz`, `format: fasta` and `format: gtf`, all
+      copied in form from the note's sketch. `gxwf draft-validate` returned one structure error
+      against the whole `inputs` array; converting all three to single-element lists cleared it.
+      Confirmed independently against the packaged
+      `references/schemas/galaxy-workflow-draft.schema.json`, where the input variants type
+      `format` as an array of strings only.
+    status: open
+    issue: null
+
+  - id: draft-format-tiers-conflate-a-named-tool-with-a-named-tool-id
+    raised_by: freeform-summary-to-galaxy-template
+    observed_in:
+      mold: freeform-summary-to-galaxy-template
+      path: content/molds/freeform-summary-to-galaxy-template/index.md
+      revision: 6
+      content_hash: 0a95f8c04465d48131ace523e0b27af53f1ade6e525a9173c5ff1e936ddc3366
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: research
+      label: galaxy-workflow-draft-format
+      locator: content/research/galaxy-workflow-draft-format/index.md
+      content_hash: 93f3b231dd063bf059c550f18b2200c61909af0da9408e0d43351116e886bf7b
+    kind: gap
+    severity: major
+    what: >-
+      The Identity-pinned tier admits "a source summary that names a specific `tool_id` with
+      evidence", and the Mold's source-tendency paragraph relaxes that to "a free-form source that
+      does name a specific tool/version with evidence hardens to the matching tier". Two
+      paragraphs earlier the same note forbids pinning "on plausibility". A paper naming "FastQC"
+      names a piece of software, not a Galaxy `tool_id`; reading the tier rule literally licenses
+      writing a Tool Shed path from memory, which is exactly the plausibility pin the note
+      forbids. The note never distinguishes the two kinds of naming, and they come apart on every
+      free-form source.
+    expected: >-
+      Say explicitly that Identity-pinned requires a concrete `tool_id` STRING from evidence — a
+      corpus workflow, a pattern page's worked example, or a source that quotes the Galaxy tool id
+      — and that a source naming a tool by its software name, with no corpus or pattern hit for
+      its wrapper, is Deferred with the software name recorded in `_plan_context`. The
+      source-tendency paragraph should be reworded to match, since as written it points the other
+      way.
+    evidence: >-
+      All six tools in this run's source are named by the paper. Five had a corpus-confirmed
+      `tool_id` from the phase-4 exemplar and were Identity-pinned. FastQC had none: the nearest
+      exemplar uses `iuc/falco` instead, so the only route to a FastQC `tool_id` was recall. That
+      step was Deferred, against the plainest reading of the source-tendency sentence, on the
+      strength of the plausibility prohibition. The two rules gave opposite answers for the same
+      step and the note offers nothing to break the tie.
+    status: open
+    issue: null
+
+  - id: draft-format-has-no-way-to-mark-a-region-provisional
+    raised_by: freeform-summary-to-galaxy-template
+    observed_in:
+      mold: freeform-summary-to-galaxy-template
+      path: content/molds/freeform-summary-to-galaxy-template/index.md
+      revision: 6
+      content_hash: 0a95f8c04465d48131ace523e0b27af53f1ade6e525a9173c5ff1e936ddc3366
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: research
+      label: galaxy-workflow-draft-format
+      locator: content/research/galaxy-workflow-draft-format/index.md
+      content_hash: 93f3b231dd063bf059c550f18b2200c61909af0da9408e0d43351116e886bf7b
+    kind: gap
+    severity: minor
+    what: >-
+      The draft superset can mark a STEP as unresolved (`TODO`, `_plan_*`) but has no way to mark
+      a REGION as provisional, or to record the named alternative a later phase should swap in.
+      The `_plan_*` family is per-step and explicitly wrapper-tier, so a multi-step topology
+      choice that is settled-but-unprecedented has nowhere durable to live.
+    expected: >-
+      Decide a home for it and add it to the note — a workflow-level annotation beside the
+      `topology_repair` budget the open-requirements note already wants moved into the draft, or
+      an explicit statement that a titled `comments:` frame plus an open-requirements entry IS the
+      intended mechanism. Either answer is fine; the absence of one means each template Mold run
+      invents its own.
+    evidence: >-
+      Phase 4 instructed this phase to build the sample-sheet condition split "as a delimited
+      region with the phase-2 alternative one deletion away". Thirteen steps, no corpus precedent,
+      settled topology. The delimitation was expressed three ways, none of them contractual: YAML
+      comments (lost on any round-trip through Galaxy), a titled `comments:` frame (schema-legal
+      and durable, but the packaged `galaxy-workflow-comments` note describes frames as narrative
+      stage annotation, not risk marking), and a `type: markdown` comment holding the four-step
+      swap procedure as prose. A reader of the draft alone has no typed signal that the region is
+      provisional.
+    status: open
+    issue: null
+
+  - id: template-mold-packages-pattern-mocs-without-their-recipe-pages
+    raised_by: freeform-summary-to-galaxy-template
+    observed_in:
+      mold: freeform-summary-to-galaxy-template
+      path: content/molds/freeform-summary-to-galaxy-template/index.md
+      revision: 6
+      content_hash: 0a95f8c04465d48131ace523e0b27af53f1ade6e525a9173c5ff1e936ddc3366
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: freeform-summary-to-galaxy-template
+      locator: content/molds/freeform-summary-to-galaxy-template/index.md
+      content_hash: 0a95f8c04465d48131ace523e0b27af53f1ade6e525a9173c5ff1e936ddc3366
+    kind: gap
+    severity: major
+    what: >-
+      The Mold packages four pattern references and all four are MOC index pages. Each names the
+      recipe pages that carry the actual tool ids, port names and worked wiring, and none of those
+      pages is in the bundle. The runtime notes forbid reading Foundry source, so a recipe named
+      in a packaged MOC is unreachable at runtime — the reference resolves to a one-line
+      description and a dead wiki-link.
+    expected: >-
+      Add the recipe pages the template actually reaches for to the manifest, or state in the
+      Mold's procedure that the MOCs are for naming an idiom only and that port names and tool ids
+      must come from the exemplar artifact or from `discover-shed-tool`. The first is better; the
+      second at least stops the bundle promising what it cannot deliver. The data-flow Mold has
+      the same defect, filed separately as
+      `data-flow-mold-packages-pattern-mocs-without-their-recipe-pages` — different manifest, same
+      correction, so fixing one does not fix the other.
+    evidence: >-
+      Three steps in this draft implement idioms the packaged MOCs name and cannot describe.
+      `sync-collections-by-identifier` (collection MOC) is the pattern behind the three
+      `__FILTER_FROM_FILE__` steps, but with no recipe page its input and output port names stayed
+      `TODO_` sentinels. `tabular-filter-by-column-value` and `tabular-cut-and-reorder-columns`
+      (tabular MOC) are the `Filter1` and `Cut1` steps; `Filter1`'s ports were recoverable only
+      because the phase-4 exemplar happened to contain a worked instance, and `Cut1`'s were not
+      recoverable at all and are recorded as assumed-by-convention in `_plan_context`. The phase-3
+      brief flagged the same limitation prospectively in its section 9 evidence-class caveat; this
+      is the concrete cost at the template tier.
+    status: open
+    issue: null
+  - id: gxwf-drops-connectedvalue-under-format2-state-key
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold: advance-galaxy-draft-step
+      path: content/molds/advance-galaxy-draft-step/index.md
+      revision: 4
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: related-project
+      label: "@galaxy-tool-util/cli — gxwf tool-state validation (state: vs tool_state:)"
+      locator: https://github.com/jmchilton/galaxy-tool-util-ts
+    kind: defect
+    severity: major
+    what: >-
+      `gxwf validate` (and `draft-validate --concrete`) drops a
+      `component_value: {__class__: ConnectedValue}` from a step's tool state before validating
+      it when the state is written under the format2 key `state:`, but honours it under
+      `tool_state:`. The same bytes under the two keys therefore get opposite verdicts. Any
+      conditional parameter case whose generated `workflow_step_linked` branch marks
+      `component_value` as required — every non-text case — then fails as
+      "component_value: is missing", and the anyOf fallback reports the misleading
+      "select_param_type: Expected \"text\", actual \"float\"" alongside it.
+    expected: >-
+      Treat `state:` and `tool_state:` identically in the tool-state validation path, so a
+      connected value placeholder survives to validation under both keys. Failing that, the
+      generated `workflow_step_linked` schema should not require `component_value` for a
+      parameter that a step connection supplies, which is exactly the relaxation that
+      distinguishes it from `workflow_step`. A one-line note in the `draft-validate` /
+      `validate` docs would not be enough: the failure names a required field the author
+      deliberately connected, which reads as an authoring error rather than a tool bug.
+    evidence: >-
+      gxwf 1.10.1. Minimal one-step workflow around
+      `iuc/compose_text_param/compose_text_param@0.1.1`, second repeat component in the float
+      case, `component_value: {__class__: ConnectedValue}`, connected via
+      `components_1|param_type|component_value`. Under `state:` the tool-state check fails with
+      the five diagnostics above; byte-identical content under `tool_state:` reports
+      `tool_state: OK`. Failure does not depend on the connection being present, on
+      `__index__`, or on `__current_case__`; substituting a literal float under `state:` passes,
+      which is the wrong workaround to be nudged toward — it leaves a shadow default behind a
+      connected parameter. The IWC exemplar this run compares against
+      (`transcriptomics/rnaseq-de/rnaseq-de-filtering-plotting` at fe41a79) passes its three
+      compose_text_param steps precisely because `gxwf convert --to format2` emits `tool_state:`.
+    status: open
+    issue: null
+
+  - id: advance-draft-mold-needs-a-tool-cache-it-never-declares
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold: advance-galaxy-draft-step
+      path: content/molds/advance-galaxy-draft-step/index.md
+      revision: 4
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: advance-galaxy-draft-step
+      locator: content/molds/advance-galaxy-draft-step/index.md
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+    kind: gap
+    severity: major
+    what: >-
+      The procedure names `galaxy-tool-cache list` as the way to resolve a stock tool's version,
+      and the per-step validator it mandates only produces a real verdict when given
+      `--cache-dir` with the step's tool cached. Neither the cache nor the `galaxy-tool-cache`
+      binary appears anywhere in the bundle's contract: `_required_tools.json` declares `gxwf`
+      alone, derived from the three `gxwf` commands the Mold cites, and no step of the procedure
+      says to populate a cache. Without it `draft-validate --concrete` reports
+      `skip_tool_not_found` for every step and the iteration's green is vacuous.
+    expected: >-
+      Declare `galaxy-tool-cache` as a required tool of this Mold (it ships in the same
+      `@galaxy-tool-util/cli` package, so it costs no new install), and make cache population an
+      explicit move in the procedure — `galaxy-tool-cache add <tool_id> --tool-version <v>` after
+      wrapper resolution, with the resulting `--cache-dir` passed to `draft-validate --concrete`.
+      Citing the command as a CLI reference rather than in prose would also let the required-tools
+      deriver pick it up, which is why it is missing today.
+    evidence: >-
+      Iteration 1 of this run. `galaxy-tool-cache` is not on PATH after the documented
+      `npm install -g @galaxy-tool-util/cli` (it exists in the package's bin directory but only
+      `gxwf` was linked), and its default cache root `~/.galaxy/tool_info_cache` is not writable
+      in this sandbox, so both had to be worked around before any concrete verdict was possible.
+      Until the cache was populated by hand, `draft-validate --concrete` reported
+      `Tool state: 0 ok, 0 fail, 1 skip` — which the procedure's "on green, return" would have
+      accepted.
+    status: open
+    issue: null
+
+  - id: implement-step-mold-says-state-without-saying-which-key
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold: advance-galaxy-draft-step
+      path: content/molds/advance-galaxy-draft-step/index.md
+      revision: 4
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: implement-galaxy-tool-step
+      locator: content/molds/implement-galaxy-tool-step/index.md
+      content_hash: 197be2d9b27741c3f258092f8392654369d1ca234d7fad492387ff69d656292b
+    kind: gap
+    severity: major
+    what: >-
+      The procedure says to "shape the step's `state` against
+      `input_schemas.workflow_step_linked`" and speaks of `state` throughout, but the
+      galaxy-workflow-draft schema it packages admits both `state` and `tool_state` on a step and
+      the Mold never says which to write. The two are not interchangeable in practice: under
+      gxwf 1.10.1 a connected non-text parameter validates under `tool_state:` and fails under
+      `state:` (filed as `gxwf-drops-connectedvalue-under-format2-state-key`), so following the
+      Mold's own wording is what produces the red verdict.
+    expected: >-
+      Name one key as the authoring convention and say it once — `tool_state:`, which is what
+      `gxwf convert --to format2` emits and what every converted IWC exemplar a run compares
+      against will therefore show — and note that a step mixing the two conventions within one
+      draft is a readability cost, not a correctness one. This is worth fixing independently of
+      the gxwf defect: the ambiguity is in the instruction, and it will still be there after the
+      validator is corrected.
+    status: open
+    issue: null
+
+  - id: gxwf-cannot-decode-collection-outputs-of-builtin-collection-operations
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold: advance-galaxy-draft-step
+      path: content/molds/advance-galaxy-draft-step/index.md
+      revision: 4
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: related-project
+      label: "@galaxy-tool-util/cli — gxwf tool fetch/decode for built-in collection operations"
+      locator: https://github.com/jmchilton/galaxy-tool-util-ts
+    kind: defect
+    severity: major
+    what: >-
+      `gxwf draft-validate --concrete` cannot bring the built-in `__FLATTEN__` into its tool
+      cache. The fetch is reported as `toolshed fetch failed ... for __FLATTEN__`, but the
+      accompanying dump is a decode failure against the tool schema, not a transport error:
+      `["outputs"][0]` is decoded as the collection-output branch and `["structure"]` `is
+      missing`. The tool's collection output carries no `structure`, and the schema requires
+      one. The step is then reported `skip_tool_not_found`, so its tool state is never
+      validated — and no amount of cache priming can fix it, because the tool cannot be
+      decoded into the cache in the first place. The same shape is likely to hit the other
+      collection-operation built-ins (`__UNZIP_COLLECTION__`, `__FILTER_FROM_FILE__`,
+      `__APPLY_RULES__`), which are exactly the steps a Galaxy draft uses for collection
+      plumbing.
+    expected: >-
+      Make `structure` optional on the collection-output branch of the tool schema (or supply a
+      default for tools that declare a collection output without one), so built-in collection
+      operations decode and cache like any other tool. Separately, distinguish a transport
+      failure from a decode failure in the message: "toolshed fetch failed" sent this run
+      looking at network and cache-priming for a fault that was neither.
+    evidence: >-
+      `gxwf draft-validate <run>/galaxy-workflow-draft.gxwf.yml --concrete --cache-dir <cache>`
+      at iteration 2, gxwf 1.10.1. Verdict line `Tool state: 2 ok, 0 fail, 1 skip`, with
+      `0 (__FLATTEN__) [skip_tool_not_found]  __FLATTEN__ not in cache (fetch failed)`. The two
+      compose_text_param steps validated from the same cache in the same run, so the cache path
+      and network were both working. The decode dump is also ~4 KB of expanded structural type
+      text printed ahead of the verdict, which buries the one line that names the cause.
+    status: open
+    issue: null
+
+  - id: advance-draft-mold-reresolves-a-wrapper-already-pinned-in-the-draft
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold: advance-galaxy-draft-step
+      path: content/molds/advance-galaxy-draft-step/index.md
+      revision: 4
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: advance-galaxy-draft-step
+      locator: content/molds/advance-galaxy-draft-step/index.md
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+    kind: friction
+    severity: minor
+    what: >-
+      The procedure's resolve-then-summarize sequence is written as if each iteration met its
+      wrapper for the first time. It has no notion of a wrapper already resolved earlier in the
+      same run: this draft uses one wrapper at five steps, and the identity-pinned branch still
+      directs the iteration to confirm the pin via discover-shed-tool and then invoke
+      summarize-galaxy-tool, both of which a sibling step's already-concrete
+      `tool_id` + `tool_version` pair has settled. The Mold never describes what this iteration
+      actually did, which was to take the sibling's pin and read the summary already in the
+      cache.
+    expected: >-
+      Add a short third case to the resolve step: when another step of this same draft is
+      already concrete on the same `tool_id`, adopt its `tool_version` and skip discovery,
+      re-using the cached summary rather than re-summarizing. Say plainly that this is the
+      intended move, so an iteration that takes it is following the procedure rather than
+      departing from it. The Mold should also state that a per-run resolved-wrapper reuse is
+      safe precisely because the pin is recorded in the artifact, not in operator memory.
+    evidence: >-
+      Iteration 2 of this run, step `Build first-contrast row predicate`. Iteration 1 had
+      already resolved `iuc/compose_text_param` to 0.1.1 against the live Tool Shed for
+      `Build adjusted p-value predicate`, and written the pin into the draft. Three more steps
+      of the same draft await the same wrapper.
+    status: open
+    issue: null
+
+  - id: advance-draft-mold-cites-draft-format-note-it-does-not-package
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold: advance-galaxy-draft-step
+      path: content/molds/advance-galaxy-draft-step/index.md
+      revision: 4
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: advance-galaxy-draft-step
+      locator: content/molds/advance-galaxy-draft-step/index.md
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+    kind: gap
+    severity: major
+    what: >-
+      The procedure's resolve step branches on the draft tiers and sends the reader to
+      `galaxy-workflow-draft-format` for them, but the Mold does not package that note: the
+      bundle's references are three gxwf CLI pages, `galaxy-tool-job-failure-reference`,
+      `open-requirements-ledger`, and the tool-summary and draft JSON Schemas. The Runtime
+      Notes then forbid reading Foundry source files at runtime, so the one document the
+      procedure names for the distinction it asks the iteration to make is unreachable from
+      inside the bundle. The draft JSON Schema does not carry the tiers — they are prose.
+    expected: >-
+      Package `content/research/galaxy-workflow-draft-format/index.md` in this Mold's
+      references, as `freeform-summary-to-galaxy-template` already does. It is the note this
+      Mold's central branch depends on, and the per-step loop reads a draft written against it
+      on every iteration. If the intent is that the tiers be inferable from the draft alone,
+      say that instead and drop the cross-reference.
+    evidence: >-
+      Iteration 3 of this run, step `Build log2 fold-change predicate`. The tier vocabulary was
+      taken from the draft's own `doc:` strings (`Tier: Identity-pinned.` / `Tier: Resolved.`,
+      a convention iteration 1 introduced) rather than from any packaged contract, and the same
+      gap left the fate of the step's `_plan_context` provenance undecided — see
+      `advance-draft-mold-silent-on-plan-provenance-at-concretion`.
+    status: open
+    issue: null
+
+  - id: advance-draft-mold-silent-on-plan-provenance-at-concretion
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold: advance-galaxy-draft-step
+      path: content/molds/advance-galaxy-draft-step/index.md
+      revision: 4
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: advance-galaxy-draft-step
+      locator: content/molds/advance-galaxy-draft-step/index.md
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+    kind: gap
+    severity: minor
+    what: >-
+      Concretizing a step forces its `_plan_*` fields to be deleted — `draft-next-step` counts
+      any surviving `_plan_*` as remaining work, so a finished step that keeps one is selected
+      again on the next iteration and the harness loop cannot terminate. Those fields are also
+      where the corpus provenance lives: the step implemented here carried a `_plan_context`
+      citing the exemplar workflow and step that fixes its component text. The Mold says only
+      that the implement phase "resolves the chosen step's remaining `TODO_*` / `_plan_*`
+      slots", and never says whether that provenance should be carried into `doc:`, dropped,
+      or recorded elsewhere. This run has been keeping it in a YAML comment above the step, a
+      convention it invented, and nothing states whether `draft-extract` preserves comments
+      when it re-serializes the concrete workflow (this iteration did not test that).
+    expected: >-
+      Say in the implement step what becomes of a concretized step's planning provenance: fold
+      the load-bearing part of `_plan_context` into the step's `doc:` (which survives
+      extraction and is visible to a Galaxy user), and drop the rest. State plainly that
+      `_plan_*` must not survive concretion, and why — `draft-next-step` would re-select the
+      step forever. If YAML comments are in fact preserved by `draft-extract`, say so and
+      sanction the comment form; if they are not, say that too, so a run does not park
+      provenance somewhere that silently disappears at loop endstate.
+    evidence: >-
+      Iteration 3, step `Build log2 fold-change predicate`. Its `_plan_context` cited
+      `transcriptomics/rnaseq-de` at corpus fe41a79, step `_unlabeled_step_10`, as the source
+      of the `abs(c3)>` component text; the step's post-implementation `doc:` and the YAML
+      comment above it were written by hand to retain that, with no instruction either way.
+      `gxwf draft-next-step` lists every `_plan_*` field of the selected step under `work`,
+      which is what makes their removal mandatory rather than stylistic.
+    status: open
+    issue: null
+
+  - id: advance-draft-mold-treats-a-skipped-tool-state-as-green
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold: advance-galaxy-draft-step
+      path: content/molds/advance-galaxy-draft-step/index.md
+      revision: 4
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: advance-galaxy-draft-step
+      locator: content/molds/advance-galaxy-draft-step/index.md
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+    kind: gap
+    severity: major
+    what: >-
+      The validate step is written as a two-valued gate — "On green, return; on red, route per
+      the failure-routing rules" — but `draft-validate --concrete` reports three tool-state
+      outcomes, `ok`, `fail`, and `skip`. A step reported `skip` had its tool state checked
+      against nothing at all, yet the run prints `Concrete: OK` and the procedure's green branch
+      accepts it. The Mold never says which of the two branches a skip belongs to, that a
+      skipped step's state is unvalidated, or that some skips are permanent and cannot be
+      cleared by priming the cache. An iteration reading only this Mold would return green on a
+      draft whose collection-plumbing steps have never been validated, and no later phase would
+      know which steps those were.
+    expected: >-
+      Make the accept criterion three-valued in the validate step: `fail` routes per the
+      existing rules; `skip` is neither green nor red but an explicit hole — say that the
+      iteration must name each skipped step in its report and hand-review that step's `state`
+      against the wrapper, because nothing else will. Distinguish a skip that cache priming
+      would clear (tool simply not yet added) from one that priming cannot clear (the tool
+      cannot be decoded into the cache at all), and say that repeatedly re-priming the latter is
+      wasted work. Carry the list of skipped steps into the loop endstate so terminal validation
+      inherits it rather than rediscovering it.
+    evidence: >-
+      Iteration 4 of this run. `gxwf draft-validate <run>/galaxy-workflow-draft.gxwf.yml
+      --concrete --cache-dir <cache>` returned `Concrete: OK` with
+      `Tool state: 4 ok, 0 fail, 1 skip`, the skip being `0 (__FLATTEN__)
+      [skip_tool_not_found]`. That step's `state` has gone unvalidated for four consecutive
+      iterations and is accepted as green every time. Only a convention carried in this run's
+      own harness brief — not anything in the Mold bundle — told the iteration to treat the skip
+      as a permanent hole needing review by eye rather than as a cache-priming task to retry.
+    status: open
+    issue: null
+  - id: gxwf-linked-step-schema-rejects-the-keys-its-own-converter-emits
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold: advance-galaxy-draft-step
+      path: content/molds/advance-galaxy-draft-step/index.md
+      revision: 4
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: related-project
+      label: "@galaxy-tool-util/cli — generated input_schemas.workflow_step_linked vs gxwf convert --to format2"
+      locator: https://github.com/jmchilton/galaxy-tool-util-ts
+    kind: defect
+    severity: major
+    what: >-
+      Three surfaces of the same CLI disagree about whether format2 `tool_state` may carry the
+      `__`-prefixed bookkeeping keys Galaxy writes into conditionals and repeats. For
+      `iuc/map_param_value/map_param_value` 0.2.0, `galaxy-tool-cache summarize` generates
+      `input_schemas.workflow_step_linked` with `additionalProperties: false` on every
+      conditional branch object (allowing only `type`, `input_param`, `mappings`) and on every
+      `mappings` item (allowing only `from`, `to`). That schema rejects `__current_case__` and
+      `__index__`. But `gxwf convert --to format2` of a real Galaxy workflow emits exactly those
+      keys, and `gxwf draft-validate --concrete` accepts a state block containing them. The
+      generated schema is therefore stricter than both the converter that produces format2 and
+      the validator that checks it — and it is the one surface a Mold is told to author against.
+      implement-galaxy-tool-step step 2 says to "shape the step's `state` against
+      `input_schemas.workflow_step_linked`"; following that literally produces a state block
+      that diverges from what Galaxy round-trips, and no gate reports the divergence, because
+      the validator is the permissive one.
+    expected: >-
+      Make the three surfaces agree, and say which one is normative. Either the generated
+      linked-step schema should admit the `__`-prefixed bookkeeping keys the converter emits
+      (`__current_case__`, `__index__`, and the top-level `__page__` /
+      `__rerun_remap_job_id__`), or `gxwf convert --to format2` should strip them and the
+      validator should reject them. Until then, document in the schema-generation output which
+      form is canonical for authoring, so a Mold binding a step against the published schema
+      gets the same answer as the validator and the converter.
+    evidence: >-
+      Iteration 6 of this run, gxwf 1.10.1, step `Get featureCounts strandedness parameter`.
+      Four state shapes were probed against `gxwf draft-validate <run>/galaxy-workflow-draft.gxwf.yml
+      --concrete --cache-dir <cache>`: with the bookkeeping keys, without them, with the
+      connected `input_param` omitted from the state block, and with the whole block moved from
+      `tool_state:` to `state:`. All four returned `Tool state: 6 ok, 0 fail, 1 skip` — the
+      validator discriminates none of them. `gxwf convert --to format2` of the corpus workflow
+      `transcriptomics/rnaseq-pe/rnaseq-pe` at IWC fe41a79 emits, for the same step,
+      `input_param_type: {type: text, __current_case__: 0, input_param: {__class__:
+      ConnectedValue}, mappings: [{__index__: 0, from: ..., to: ...}, ...]}` and
+      `unmapped: {on_unmapped: fail, __current_case__: 1}` — every key the generated schema
+      forbids. The round-trip form was taken as authoritative for this step.
+    status: open
+    issue: null
+  - id: shed-search-normalization-misses-abbreviation-expansion
+    raised_by: discover-shed-tool
+    observed_in:
+      mold: discover-shed-tool
+      path: content/molds/discover-shed-tool/index.md
+      revision: 5
+      content_hash: 05c99cbac2ec6a4d130b06204c15d0e76cf4fd0e00cdc8164dd606dac72809e2
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: discover-shed-tool
+      locator: content/molds/discover-shed-tool/index.md
+      content_hash: 05c99cbac2ec6a4d130b06204c15d0e76cf4fd0e00cdc8164dd606dac72809e2
+    kind: gap
+    severity: major
+    what: >-
+      The procedure's query-normalization recipe for a tool-id-shaped need is to strip any
+      `owner/` prefix, split on `_` / `-` into space-separated words, and also try the bare
+      significant word — and it states that "a `miss` is only honest after the name variants
+      have been tried". Every variant that recipe generates fails for
+      `iuc/map_param_value/map_param_value`, a tool that is published, current, and pinned by
+      the IWC corpus. The recipe does not cover the one transform that works: expanding an
+      abbreviated word in the id to the word the human tool name actually uses. Galaxy tool ids
+      abbreviate routinely (`param`, `val`, `seq`, `align`, `qc`, `col`), so this is a recurring
+      shape, not a one-off. An iteration following the packaged recipe literally would have
+      declared `miss` and fallen through to author-galaxy-tool-wrapper — authoring a new wrapper
+      for a tool that already exists, which is the most expensive possible wrong answer this
+      Mold can produce.
+    expected: >-
+      Add abbreviation expansion to the §1 normalization list, with the common Galaxy
+      abbreviations spelled out, and make the honest-miss condition explicit that it includes
+      expanded variants. Better still, invert the last resort: before returning `miss`, search
+      the significant words with the id token dropped entirely (here `parameter value` alone
+      ranks the target first), and state that a `miss` is only honest when a name-shaped query
+      has been tried, not merely an id-shaped one.
+    evidence: >-
+      Iteration 6 of this run, gxwf 1.10.1, resolving the wrapper for step
+      `Get featureCounts strandedness parameter`. `gxwf tool-search` returned zero hits for
+      `map param value` (the recipe's underscore split), zero for the same query scoped
+      `--owner iuc`, and zero for the raw token `map_param_value`. The bare significant word
+      `map` returned only unrelated tools (`tdrmapper`, `multi_fasta_glimmerhmm`,
+      `glimmerhmm_predict`). Expanding `param` to `parameter` found it immediately and first:
+      `map parameter value` scores 42.1 at rank 1, and `parameter value` scores 29.7 at rank 1.
+      The tool's human name is "Map parameter value".
+    status: open
+    issue: null
+
+  - id: stock-tool-version-resolution-is-circular-in-the-builtin-branch
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold: advance-galaxy-draft-step
+      path: content/molds/advance-galaxy-draft-step/index.md
+      revision: 4
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: advance-galaxy-draft-step
+      locator: content/molds/advance-galaxy-draft-step/index.md
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+    kind: gap
+    severity: major
+    what: >-
+      Procedure step 2's built-in/stock branch offers exactly two ways to get a stock tool's
+      version — "read it from a populated cache via `galaxy-tool-cache list` or take a known pin
+      from the step plan" — and then forbids the only remaining move: "never hand-guess a stock
+      version". Both offered sources presuppose the version is already known. For a stock tool
+      meeting the run for the first time, with `tool_version: TODO` in the draft and no step-plan
+      pin, the cache is empty of it precisely because populating the cache requires an `add`
+      that takes `--tool-version`. The branch is circular, and its stated prohibition closes the
+      only exit. There is no third route to fall back on: the Tool Shed publishes no version
+      listing for a bare stock id at all.
+    expected: >-
+      Say that a bare-id probe is the sanctioned route for a stock tool and why it is not a
+      guess: `galaxy-tool-cache add <id> --tool-version <v>` either returns a summary whose own
+      `id` and `version` fields confirm the pin, or fails loudly with a 404 from
+      `/api/tools/<id>/versions/<v>`. There is no silent-wrong outcome, so the probe is
+      self-verifying and the prohibition should be narrowed to "never record an unconfirmed
+      version" rather than "never try one". Name the starting probe — Galaxy's built-in
+      collection operations ship at `1.0.0` — and require that the confirming summary be read
+      back before the version is written into the draft.
+    evidence: >-
+      Iteration 7 of phase 6 in this run, gxwf/galaxy-tool-cache 1.10.1, resolving
+      `__SAMPLE_SHEET_TO_TABULAR__` for step `Project sample sheet to tabular`. `galaxy-tool-cache
+      list` held only the two Tool Shed wrappers earlier iterations had cached. The step plan
+      pinned identity but not version (`tool_version: TODO`). Bare `add __SAMPLE_SHEET_TO_TABULAR__`
+      failed twice over — TRS versions 500, then `/versions/_default_` 404 — and reported
+      "Failed to fetch tool", which reads as "not available" rather than "version unresolved".
+      `add __SAMPLE_SHEET_TO_TABULAR__ --tool-version 1.0.0` succeeded immediately and returned
+      the full summary; `--tool-version 0.1.0` 404'd. `GET /api/tools/__SAMPLE_SHEET_TO_TABULAR__/versions`
+      (the non-TRS listing) returns "No route for" — checked directly, so no listing fallback
+      exists. The cached summary then let `draft-validate --concrete` validate the step's state
+      for real (7 ok, 0 fail, 1 skip), rather than skipping it.
+    status: open
+    issue: null
+
+  - id: tool-cache-records-a-shed-path-for-a-bare-stock-tool-id
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold: advance-galaxy-draft-step
+      path: content/molds/advance-galaxy-draft-step/index.md
+      revision: 4
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: related-project
+      label: "galaxy-tool-util-ts / galaxy-tool-cache (@galaxy-tool-util/cli 1.10.1)"
+      locator: https://github.com/jmchilton/galaxy-tool-util-ts
+    kind: defect
+    severity: minor
+    what: >-
+      When `galaxy-tool-cache add` caches a stock Galaxy tool by its bare id, it writes the id
+      into `index.json` with a Tool Shed repository path glued on the front, producing
+      `toolshed.g2.bx.psu.edu/repos/__SAMPLE_SHEET_TO_TABULAR__` — an identifier that names
+      nothing: there is no such shed repository, and no workflow may legally carry that tool id.
+      The cached summary body alongside it is correct (`"id": "__SAMPLE_SHEET_TO_TABULAR__"`), so
+      the damage is confined to the index, but the index is what `galaxy-tool-cache list` prints.
+      That matters because `list` is the surface the advance-galaxy-draft-step procedure directs
+      an author to read a stock tool's version off, and what it shows there cannot be pasted into
+      a draft.
+    expected: >-
+      Preserve a bare stock tool id verbatim in the cache index, as the summary body already
+      does. A tool id with no `owner/repo` path is not a shed-relative name and should not have
+      `toolshed.g2.bx.psu.edu/repos/` prefixed to it.
+    evidence: >-
+      Iteration 7 of phase 6 in this run. After `galaxy-tool-cache add __SAMPLE_SHEET_TO_TABULAR__
+      --tool-version 1.0.0 --cache-dir <run-scratch>/gxwf-cache`, `index.json` records
+      `"tool_id": "toolshed.g2.bx.psu.edu/repos/__SAMPLE_SHEET_TO_TABULAR__"` against
+      `"source_url": "https://toolshed.g2.bx.psu.edu/api/tools/__SAMPLE_SHEET_TO_TABULAR__/versions/1.0.0"`,
+      while the summary file it points at carries `"id": "__SAMPLE_SHEET_TO_TABULAR__"`.
+      `galaxy-tool-cache list` prints the prefixed form. Lookup at validation time is evidently
+      keyed off the summary body rather than the index, since `draft-validate --concrete`
+      resolved the step against the cache and reported it ok.
+    status: open
+    issue: null
+
+  - id: collection-output-decode-is-a-flat-vs-nested-shape-mismatch-not-a-missing-field
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold: advance-galaxy-draft-step
+      path: content/molds/advance-galaxy-draft-step/index.md
+      revision: 4
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: related-project
+      label: "@galaxy-tool-util/cli — ParsedTool collection-output decoding vs the Tool Shed tool API"
+      locator: https://github.com/jmchilton/galaxy-tool-util-ts
+    kind: defect
+    severity: major
+    what: >-
+      This CORRECTS the root cause and the scope recorded in
+      `gxwf-cannot-decode-collection-outputs-of-builtin-collection-operations`, which is filed against
+      the same decode failure. Two things in that entry are wrong.
+      (1) The collection output does NOT "carry no `structure`". The Tool Shed serializes a collection
+      output FLAT — `collection_type`, `collection_type_source`, `collection_type_from_rules`,
+      `structured_like` and `discover_datasets` all sit at the top level of the output object — while
+      the decoder expects exactly those five fields nested inside a `structure` object. Every field the
+      decoder wants is present in the payload; only the nesting differs. The correction that entry
+      proposes — make `structure` optional, or default it — would therefore decode cutadapt's
+      `out_pairs` with a NULL collection type when the API plainly said `"collection_type": "paired"`.
+      That is worse than the current loud failure: downstream shape reasoning would silently lose the
+      one fact the output exists to carry.
+      (2) It is not a built-in phenomenon. The trigger is a `<collection>` output, wherever it occurs.
+      `toolshed.g2.bx.psu.edu/repos/lparsons/cutadapt/cutadapt` — a mainstream IUC-maintained wrapper
+      pinned by eight workflows in IWC at fe41a79 — fails identically at every version tried, because
+      its paired-collection branch declares `<collection name="out_pairs" type="paired">`. So the
+      blast radius is not "the collection-operation built-ins a draft uses for plumbing"; it is every
+      tool with a collection output, which includes a large share of the wrappers real Galaxy
+      workflows are built from. Any such step is permanently unvalidatable by
+      `draft-validate --concrete`, and no cache priming can help.
+    expected: >-
+      Decode the flat form the Tool Shed actually emits: read `collection_type`,
+      `collection_type_source`, `collection_type_from_rules`, `structured_like` and
+      `discover_datasets` from the output object itself when no `structure` key is present, and
+      populate `structure` from them. Do not make `structure` optional or default it to nulls — that
+      discards `collection_type`, which is the only thing a caller needs the branch for. If the
+      nested form is the intended contract, then the Tool Shed's
+      `/api/tools/<trs-id>/versions/<v>` serializer is the side that must change, and the decoder
+      should say which shape it received rather than printing the expected type.
+    evidence: >-
+      Iteration 8 of phase 6 in this run, gxwf/galaxy-tool-cache 1.10.1, resolving the Cutadapt
+      wrapper for step `Quality-trim reads`. `galaxy-tool-cache add
+      toolshed.g2.bx.psu.edu/repos/lparsons/cutadapt/cutadapt --tool-version 5.2+galaxy2` fails with
+      `toolshed fetch failed ... for lparsons~cutadapt~cutadapt` and the same
+      `["outputs"][0] ... ["structure"] is missing` dump as `__FLATTEN__`; 5.2+galaxy0, 4.9+galaxy1
+      and 3.7+galaxy0 fail identically, so it is not version-specific. Fetching the same payload
+      directly — `GET https://toolshed.g2.bx.psu.edu/api/tools/lparsons~cutadapt~cutadapt/versions/5.2+galaxy2`,
+      200 — shows `outputs[0]` is `{"name": "out_pairs", "type": "collection", "collection_type":
+      "paired", "collection_type_source": null, "collection_type_from_rules": null,
+      "structured_like": null, "discover_datasets": ..., "hidden": ..., "label": ...}` with no
+      `structure` key and nothing missing from it. `outputs[1]` (`split_output`) has the same shape;
+      the thirteen `data` outputs decode fine. The eight IWC workflows at fe41a79 that pin this
+      wrapper all pin 5.2+galaxy2 at changeset f6168dd17f82. Net effect on this run:
+      `draft-validate --concrete` reports `7 ok, 0 fail, 2 skip`, both skips being collection-output
+      tools, and the Cutadapt step's tool state had to be bound by hand against the wrapper XML and a
+      `gxwf convert --to format2` round-trip of a corpus `.ga`.
+    status: open
+    issue: null
+
+  - id: tool-search-default-page-returns-every-hit-three-times
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold: advance-galaxy-draft-step
+      path: content/molds/advance-galaxy-draft-step/index.md
+      revision: 4
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: related-project
+      label: "@galaxy-tool-util/cli — gxwf tool-search result de-duplication"
+      locator: https://github.com/jmchilton/galaxy-tool-util-ts
+    kind: defect
+    severity: minor
+    what: >-
+      With no `--max-results`, `gxwf tool-search` returns every hit three times — in the table
+      rendering and in `--json` alike. Passing any explicit `--max-results` returns distinct hits, so
+      the duplication is confined to the default page size. It is not cosmetic for a discovery
+      procedure that triages by counting and comparing candidates: the default view of a search makes
+      a field of twenty wrappers look like sixty, and the triage rule "multiple plausible hits ... →
+      weak" reads a repeated single candidate as a cluster.
+    expected: >-
+      De-duplicate on `(repoName, repoOwnerUsername, toolId)` before returning, on the default page
+      size as well as an explicit one — or, if the repetition encodes distinct revisions, surface the
+      revision that distinguishes the rows instead of emitting rows that are byte-identical.
+    evidence: >-
+      Iteration 8 of phase 6 in this run, gxwf 1.10.1. `gxwf tool-search "cutadapt" --json` returns 50
+      `trsToolId` values of which 20 are distinct, each repeated three times; the table rendering of
+      the same query shows the same triples. `--max-results 5`, `--max-results 10` and
+      `--max-results 20` each return exactly N values, all distinct.
+    status: open
+    issue: null
+
+  - id: implement-step-mold-has-no-binding-path-when-no-tool-summary-exists
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold: advance-galaxy-draft-step
+      path: content/molds/advance-galaxy-draft-step/index.md
+      revision: 4
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: implement-galaxy-tool-step
+      locator: content/molds/implement-galaxy-tool-step/index.md
+      content_hash: 197be2d9b27741c3f258092f8392654369d1ca234d7fad492387ff69d656292b
+    kind: gap
+    severity: major
+    what: >-
+      Both Molds assume a tool summary always exists. advance-galaxy-draft-step's sequence step 3 is
+      an unconditional "Invoke summarize-galaxy-tool on the resolved wrapper", and
+      implement-galaxy-tool-step's sequence step 2 is an unconditional "Read the galaxy-tool-summary
+      manifest". Neither says what to do when the summary cannot be produced at all. That is not a
+      hypothetical: summarize-galaxy-tool can only summarize what `galaxy-tool-cache add` could
+      decode, and a wrapper with a collection output cannot be decoded (see
+      `collection-output-decode-is-a-flat-vs-nested-shape-mismatch-not-a-missing-field`). The Mold's
+      one nearby escape hatch does not cover it either — "If `input_schemas` is `null`, consult
+      `warnings[]`" presupposes a manifest with a warnings array, and here there is no manifest.
+      The result is an author improvising the most consequential part of a step, its tool state, with
+      no stated evidence standard, on the first genuinely complex wrapper of the run.
+    expected: >-
+      Give implement-galaxy-tool-step an explicit no-summary branch that names the fallback evidence
+      in priority order and requires the step to record which one it used: (1) the wrapper XML at the
+      pinned changeset, which is authoritative for parameter names, defaults and output filters;
+      (2) `gxwf convert --to format2` over a corpus `.ga` that pins the same version, which is
+      authoritative for the round-trip state shape; (3) nothing else. summarize-galaxy-tool already
+      sanctions raw XML as supporting evidence ("Optional raw XML source for ambiguity checks"), so
+      the material exists — it is the implement Mold that never mentions it. The branch should also
+      require the step to carry a visible marker that its state was hand-bound and is therefore
+      unchecked by `draft-validate`, since the verdict line will show it as a skip and a skip is
+      indistinguishable from an absent step in the counts.
+    evidence: >-
+      Iteration 8 of phase 6 in this run, step `Quality-trim reads`, wrapper
+      `lparsons/cutadapt/cutadapt` 5.2+galaxy2 at changeset f6168dd17f82. `galaxy-tool-cache add`
+      failed at four different versions, so summarize-galaxy-tool could not run and no
+      `galaxy-tool-summary.json` was ever produced. The step's `tool_state` — a `library`
+      conditional at `__current_case__: 2` with six adapter repeats, plus `output_selector`, which
+      gates the promoted `report` output through an XML `<filter>` — was bound entirely by hand from
+      the tools-iuc wrapper XML at the pinned version and from `gxwf convert --to format2` over
+      `epigenetics/cutandrun/cutandrun.ga` and
+      `VGP-assembly-v2/post-curation-processing/Post_Curation.ga` at fe41a79. That route was
+      inferred, not instructed. `draft-validate --concrete` then reported `7 ok, 0 fail, 2 skip` with
+      this step among the skips, so nothing in the run checks the binding.
+    status: open
+    issue: null
+  - id: discovery-schema-cannot-express-an-unresolved-alternate
+    raised_by: discover-shed-tool
+    observed_in:
+      mold: discover-shed-tool
+      path: content/molds/discover-shed-tool/index.md
+      revision: 5
+      content_hash: 05c99cbac2ec6a4d130b06204c15d0e76cf4fd0e00cdc8164dd606dac72809e2
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: schema
+      label: galaxy-tool-discovery
+      locator: package://@galaxy-foundry/gxwf-foundry#galaxyToolDiscoverySchema
+      content_hash: c0940fc0265e8fd25955f4380f03e088b62d25155fe98e7f051a5a3957d2840c
+    kind: gap
+    severity: minor
+    what: >-
+      `alternates[]` reuses the full `ToolCandidate` shape, which requires `version` and
+      `changeset_revision` (both `minLength: 1`) plus a numeric `score`. There is no way to record
+      a candidate the discovery deliberately did NOT pin. The procedure asks for exactly that —
+      "multiple plausible hits ... → `weak` with the leading candidate plus alternates", and the
+      surrounding Molds hand this skill named alternatives in a step's `_plan_context` — but an
+      alternate is only representable after it has been fully resolved to a changeset. So an author
+      recording a runner-up faces two bad options: spend Tool Shed calls pinning a wrapper being
+      rejected, or write placeholder strings. The second validates green. `"changeset_revision":
+      "unresolved"` and `"score": 0` pass `validate-galaxy-tool-discovery` without a murmur, in a
+      field the schema itself documents as "Selected Tool Shed Mercurial changeset revision for
+      reproducible gxformat2 tool_shed_repository pinning" and one documented as "Higher is better".
+      A machine-read pin contract should not be able to carry a fabricated pin.
+    expected: >-
+      Let an alternate be unresolved. Either make `version` and `changeset_revision` nullable on
+      `ToolCandidate` and require them non-null only for the selected `candidate` (the existing
+      `allOf` if/then on `status` is already the place to say so), or split a lighter
+      `AlternateCandidate` shape carrying identity plus rationale and no pin fields. Add a
+      `match_fields` enum value for a candidate surfaced from an upstream plan hint rather than from
+      the lexical index — `matched_terms` already anticipates this case ("Empty only when the
+      candidate came from a non-lexical hint") but `match_fields` has no corresponding value, so a
+      plan-hint alternate has to claim lexical evidence it does not have or leave the array empty.
+    evidence: >-
+      Iteration 9 of phase 6 in this run, step `Read quality report`. The step was Deferred and its
+      `_plan_context` named `iuc/falco` as the corpus-observed alternative to `devteam/fastqc`,
+      asking that it be recorded if not taken. Recording it cost three extra Tool Shed calls
+      (`tool-search falco`, `tool-versions`, `tool-revisions`) for a wrapper being rejected, and the
+      score needed its own query because `iuc~falco~falco` does not appear in the `fastqc` result set
+      at all. The first artifact written instead used `"changeset_revision": "unresolved"` and
+      `"score": 0`; `foundry validate-galaxy-tool-discovery` reported `galaxy-tool-pin.json: valid`.
+      It was corrected by hand afterwards, not by the gate. Notably the schema ref's own
+      `verification` line in the cast provenance is "Run discover-shed-tool against known FastQC,
+      ambiguous BWA-style, and no-hit queries and validate each emitted recommendation" — this is
+      that FastQC query, and the alternates path is what it does not exercise.
+    status: open
+    issue: null
+  - id: no-authority-for-scalar-value-encoding-in-tool-state
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold: advance-galaxy-draft-step
+      path: content/molds/advance-galaxy-draft-step/index.md
+      revision: 4
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: implement-galaxy-tool-step
+      locator: content/molds/implement-galaxy-tool-step/index.md
+      content_hash: 197be2d9b27741c3f258092f8392654369d1ca234d7fad492387ff69d656292b
+    kind: gap
+    severity: minor
+    what: >-
+      Nothing the Mold names settles how a scalar parameter's VALUE is encoded in the step's
+      state block, and the two authorities an author can reach disagree. Procedure step 2 sends
+      the author to `parsed_tool` for ports and datatypes and to
+      `input_schemas.workflow_step_linked` for the state shape. For `Filter1`'s `header_lines`,
+      `parsed_tool` declares `parameter_type: gx_integer`, `type: integer`, `value: 0` — read
+      literally that says write the YAML integer `0`. Every real Galaxy workflow writes the
+      string `'0'`. This is a different axis from the two disagreements already filed here:
+      `implement-step-mold-says-state-without-saying-which-key` is about WHICH block key, and
+      `gxwf-linked-step-schema-rejects-the-keys-its-own-converter-emits` is about `__`-prefixed
+      bookkeeping keys. This one is about the scalar leaf value, and it is unaddressed by either
+      correction. The Mold's guidance is not merely silent — following the one authority it
+      names produces the form the corpus never uses.
+    expected: >-
+      Say in procedure step 2 that a wrapper's declared parameter type fixes the SEMANTICS of a
+      state value, not its serialization, and that the authoring form for scalar leaves is what
+      `gxwf convert --to format2` emits from a real workflow — strings for integer, float, and
+      select parameters alike, because Galaxy's `tool_state` is JSON-string-encoded at the
+      source. That is the same authority the run already had to fall back on for conditional
+      and repeat bookkeeping, so naming it once covers all three axes. If the Foundry would
+      rather not carry that rule, say instead that either encoding is accepted and that the
+      choice is a consistency matter within a draft — but say which, because an author who
+      reads only `parsed_tool` currently has no way to find out and no gate that will tell them.
+    evidence: >-
+      Phase 6 iteration 10 of this run, step `Select first-contrast samples` (`Filter1` 1.1.1).
+      The cached summary declares `header_lines` as `gx_integer` with `value: 0`. A survey of
+      all 21 `Filter1` states in the pinned IWC corpus found the value serialized as a string in
+      every one ('0' x14, '1' x7) and as an integer in none; `gxwf convert --to format2` of
+      `transcriptomics/rnaseq-de/rnaseq-de-filtering-plotting` likewise emits `header_lines: "1"`.
+      `gxwf draft-validate --concrete` was then run twice over otherwise byte-identical drafts,
+      once with `header_lines: '0'` and once with `header_lines: 0`, against a cache holding the
+      real `Filter1` summary. Both returned `draft valid` / `Concrete: OK` /
+      `Tool state: 9 ok, 0 fail, 2 skip` — identical verdicts, so the gate decides nothing here
+      and an author cannot resolve the question by trying it. The binding was settled by corpus
+      frequency alone, which is exactly the guess the Mold should have removed.
+    status: open
+    issue: null
+
+  - id: tool-summary-whens-order-is-the-current-case-index-and-nothing-says-so
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold: advance-galaxy-draft-step
+      path: content/molds/advance-galaxy-draft-step/index.md
+      revision: 4
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: schema
+      label: galaxy-tool-summary conditional whens
+      locator: package://@galaxy-foundry/gxwf-foundry#galaxyToolSummarySchema
+      content_hash: bf77d0735410fa0028bc9bea08edaff3016580508bf27851fdcae65d038f2d94
+    kind: gap
+    severity: major
+    what: >-
+      A conditional's `__current_case__` is an INDEX, and nothing in the packaged summary
+      schema, the Mold, or any packaged note says what it indexes. The summary gives each
+      conditional a `test_parameter.options` array and a `whens` array with a `discriminator`
+      per element. The index that `__current_case__` must carry is the position in `whens`
+      (i.e. `<when>` document order), NOT the position of the matching value in `options`. The
+      two are not interchangeable and this run hit a live divergence: in
+      iuc/rgrnastar/rna_star 2.7.11b+galaxy1, `refGenomeSource[history].GTFconditional` lists
+      its options as `without-gtf, with-gtf` but its whens as `with-gtf, without-gtf`, so
+      `with-gtf` is case 0 while the dropdown shows it second. An author reading the field an
+      author would naturally read gets 1. The bundle offers no way to know which array is
+      authoritative, so the rule had to be re-established from outside the bundle -- by
+      round-tripping a corpus `.ga` that happens to use the same tool and reading the wrapper
+      XML's `<when>` order to confirm the correspondence.
+    expected: >-
+      State once, in the summary schema's own description of `whens` (and echo it in
+      implement-galaxy-tool-step's state-authoring guidance), that `whens` is emitted in
+      `<when>` document order and that a conditional's `__current_case__` is the zero-based
+      index into that array -- explicitly warning that it may differ from the option order,
+      with a one-line example. Better still, emit the index on each `whens` element so the
+      author never has to count, which also makes the contract checkable rather than
+      conventional. This is a third axis of the same family already filed here:
+      `implement-step-mold-says-state-without-saying-which-key` is about which block key,
+      `no-authority-for-scalar-value-encoding-in-tool-state` is about the scalar leaf value,
+      and this one is about the bookkeeping key's VALUE. The `__index__` key on repeat entries
+      has the same problem and the same fix.
+    status: open
+    issue: null
+
+  - id: tool-summary-drops-output-filter-expressions
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold: advance-galaxy-draft-step
+      path: content/molds/advance-galaxy-draft-step/index.md
+      revision: 4
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: schema
+      label: galaxy-tool-summary parsed_tool.outputs
+      locator: package://@galaxy-foundry/gxwf-foundry#galaxyToolSummarySchema
+      content_hash: bf77d0735410fa0028bc9bea08edaff3016580508bf27851fdcae65d038f2d94
+    kind: gap
+    severity: major
+    what: >-
+      `parsed_tool.outputs` carries name, label, hidden, type, format, format_source,
+      metadata_source, discover_datasets, from_work_dir and precreate_directory -- but not the
+      output's `<filter>` expression. A Galaxy output filter is what decides whether a declared
+      output EXISTS for a given parameter branch, so the summary can enumerate ten outputs for
+      a tool that will produce four, with nothing marking the difference. That is not cosmetic
+      for this Mold: a step's `out:` list and every workflow output wired to it are only valid
+      if the chosen tool state keeps those outputs alive, and the summary is the artifact
+      procedure step 3 produces expressly so step 4 can bind the step against it. Concretely,
+      this run's STAR step had to establish that `output_log` and `mapped_reads` survive
+      `quantMode: '-'` and `outWigType: None`, because its plan makes a suppressed `output_log`
+      a hard failure -- and the summary cannot answer that question at all. The answer
+      (`reads_per_gene` and `transcriptome_mapped_reads` are filtered on quantMode; the two
+      promoted outputs carry no filter) came only from reading the wrapper XML. Iteration 8 hit
+      the same wall on lparsons/cutadapt, where the `report` and `out_pairs` filters are what
+      keep two promoted outputs alive.
+    expected: >-
+      Carry the raw `<filter>` expression string on each output in `parsed_tool.outputs` (a
+      nullable `filter` field is enough; the Mold does not need it evaluated, only visible),
+      and have implement-galaxy-tool-step's procedure say that before finalizing a step's
+      `out:` list the author must check each promoted output's filter against the state just
+      bound. Without the field the correct instruction is unfollowable, because the evidence is
+      not in the artifact the procedure hands the author.
+    status: open
+    issue: null
+
+  - id: no-reachable-wrapper-xml-at-a-pinned-changeset
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold: advance-galaxy-draft-step
+      path: content/molds/advance-galaxy-draft-step/index.md
+      revision: 4
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: related-project
+      label: "Galaxy Tool Shed + galaxy-tool-cache: raw wrapper source retrieval"
+      locator: https://toolshed.g2.bx.psu.edu
+    kind: gap
+    severity: major
+    what: >-
+      Several authoring paths depend on reading a wrapper's XML at the pinned changeset -- the
+      correction already filed as `implement-step-mold-has-no-binding-path-when-no-tool-summary-exists`
+      names it as fallback evidence "authoritative for parameter names, defaults and output
+      filters", and it is the only source for output filters at all (see
+      `tool-summary-drops-output-filter-expressions`). No declared tool can fetch it. The
+      summary manifest sets `artifacts.raw_tool_source_path: null` for a toolshed-sourced tool;
+      the Tool Shed's `repos/<owner>/<repo>/raw-file/<changeset>/<path>` endpoint answers 403;
+      and `/api/tools/<trs-id>/versions/<v>/raw_tool_source` answers 404 with "No route". The
+      only thing that worked this run was guessing the upstream repository layout from the
+      repository record's `remote_repository_url` and fetching the file from GitHub at the
+      default branch -- where the filename was `rg_rnaStar.xml`, not the `<repo>/<tool_id>.xml`
+      the shed path implies, so the first two guesses 404'd. That fetch is also UNPINNED: it
+      happened to match the pinned version here only because tools-iuc main still carried
+      @TOOL_VERSION@ 2.7.11b / @VERSION_SUFFIX@ 1, which a later iteration on a lagging wrapper
+      cannot count on.
+    expected: >-
+      Give `galaxy-tool-cache add` an option to retain the raw tool source it already
+      downloads, and populate `artifacts.raw_tool_source_path` for toolshed sources rather than
+      nulling it -- the bytes are in hand at fetch time, so this is retention, not new
+      retrieval. Failing that, the Tool Shed should expose a supported raw-source route per
+      (tool id, version) so the pin and the source agree. Until one of those exists, any Mold
+      instruction of the form "bind against the wrapper XML at the pinned version" names an
+      artifact the run has no sanctioned way to obtain, and authors will keep reaching an
+      unpinned copy by guesswork.
+    status: open
+    issue: null
+  - id: draft-format-sentinel-hint-cannot-express-a-conditional-nested-port
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold: advance-galaxy-draft-step
+      path: content/molds/advance-galaxy-draft-step/index.md
+      revision: 4
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: research
+      label: galaxy-workflow-draft-format
+      locator: content/research/galaxy-workflow-draft-format/index.md
+      content_hash: 93f3b231dd063bf059c550f18b2200c61909af0da9408e0d43351116e886bf7b
+    kind: gap
+    severity: major
+    what: >-
+      The `TODO_<port>` input sentinel carries the port's semantic hint as a FLAT identifier, so
+      it cannot express a port that lives inside a conditional -- and it reads as though no
+      qualification were needed. `__FILTER_FROM_FILE__` has one top-level `input` and a
+      `filter_source` that exists only inside the `how` conditional, but the template wrote both
+      as siblings, `TODO_input` and `TODO_filter_source`. The concrete `in:` key for the second
+      is `how|filter_source`; a literal reading of the sentinel yields a bare `filter_source:`,
+      which connects nothing. `gxwf draft-next-step` then restates the flat hint verbatim --
+      "assign the real wrapper input port name (semantic hint: 'filter_source')" -- so the loop's
+      own work list repeats the wrong shape at the moment the author acts on it. The note does
+      define qualified keys elsewhere (concrete steps in the same draft carry
+      `select_data|rep_factorName_0|rep_factorLevel_0|countsFile`), so the shape is expressible;
+      what is missing is any statement that the sentinel's hint is a NAME rather than a PATH,
+      and that concretion may have to qualify it.
+    expected: >-
+      State in the sentinel section that a `TODO_<port>` hint names a parameter, not its address,
+      and that the concrete `in:` key must be the tool's full parameter path -- `|`-qualified
+      through every enclosing conditional and repeat. Better still, let the sentinel carry the
+      path it already knows when the template resolves a nested port, so the hint and the answer
+      have the same shape. A worked conditional-nested example next to the existing flat one
+      would carry the rule by demonstration, as the map-form/list-form correction did.
+    evidence: >-
+      Established from the raw TRS payload `GET /api/tools/__FILTER_FROM_FILE__/versions/1.1.0`
+      (200), where `filter_source` appears only under `how.whens[*].parameters` and never at the
+      top level, and from `mgnify-amplicon-pipeline-v5-rrna-prediction` at IWC fe41a79 through
+      `gxwf convert --to format2`, which writes `- id: how|filter_source`. The cost of the gap is
+      that NOTHING catches the literal reading: this tool's outputs are collections, so it fails
+      the cache decode and reports `skip_tool_not_found`, and a probe run of the same draft with
+      the unqualified `filter_source:` key returned a byte-identical verdict to the correct one
+      -- `draft valid`, `Concrete: OK`, `Tool state: 16 ok, 0 fail, 3 skip`. A silently
+      disconnected input survives every gate in the run.
+    status: open
+    issue: null
+
+  - id: no-evidence-route-for-an-output-content-property-the-declaration-cannot-carry
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold: advance-galaxy-draft-step
+      path: content/molds/advance-galaxy-draft-step/index.md
+      revision: 4
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: implement-galaxy-tool-step
+      locator: content/molds/implement-galaxy-tool-step/index.md
+      content_hash: 197be2d9b27741c3f258092f8392654369d1ca234d7fad492387ff69d656292b
+    kind: gap
+    severity: major
+    what: >-
+      Some step bindings depend on a property of an UPSTREAM output's CONTENT -- does this
+      tabular output carry a header row, is the element identifier emitted as a column -- and no
+      artifact the Mold names can answer that class of question. `parsed_tool.outputs` carries
+      name, label, type, format and discovery rules; it carries nothing about the rows inside the
+      file, and it never could, because the property is a fact about the wrapper's script rather
+      than about its declaration. The Mold has no instruction for the case, so the author either
+      guesses or invents a method. This is not the same wall as
+      `implement-step-mold-has-no-binding-path-when-no-tool-summary-exists`: there the summary is
+      merely absent, and the fallback list that entry proposes -- wrapper XML at the pinned
+      changeset, then a corpus round-trip, then "nothing else" -- would still not answer this,
+      because the XML's `<param>`/`<data>` declarations are silent on it and the round-trip
+      actively misleads. The cost is silent: a wrong `header_lines` drops the first data row of
+      every filtered table, or passes a header into a numeric comparison, and either way the
+      workflow emits a plausible result.
+    expected: >-
+      Add to the binding procedure a named evidence route for output CONTENT properties, distinct
+      from the one for parameter shape, and require the step to record which source settled it:
+      the wrapper's `<test>` blocks -- `assert_contents` on the output in question is a positive
+      statement about what the file actually contains, and the absence of a header assertion on
+      one output beside its presence on a sibling is itself evidence -- and, when the wrapper is
+      open-source, its script's write call. Say explicitly that a corpus round-trip is NOT
+      authority for this class: a corpus workflow's binding is evidence about the table IT filters,
+      which may be several steps removed from the producer, and copying it across is exactly the
+      error this route exists to prevent. Related but separable: this run's phase-5 Mold recorded
+      the question as "closable by a summarize-galaxy-tool pass", which is false for the same
+      reason -- the pass it names cannot see the property.
+    evidence: >-
+      Phase 6 iteration 21 of this run, closing open-requirement
+      `deseq2-result-table-header-presence-unverified` for `iuc/deseq2/deseq2` @ 2.11.40.8+galaxy4
+      (changeset 05f9e54d7e81), which gates `header_lines` on the four downstream `Filter1` steps.
+      The tool summary route was unavailable at all (the cache add fails on the collection-output
+      decode). What settled it was outside every sanctioned source: `deseq2.R` writes the result
+      table with `write.table(..., col.names = FALSE)` while writing the normalized counts one
+      screen up with `col.names = NA` -- one tool, opposite answers for two tabular outputs, so no
+      tool-level generalization is available either; and `deseq2.xml`'s test asserts `deseq_out`
+      content starting at a data row with `has_n_lines`, while the `vst_out` and `counts_out`
+      assertions in the same test block DO assert a sample-name header line. The round-trip is the
+      trap: `gxwf convert --to format2` over IWC
+      `transcriptomics/rnaseq-de/rnaseq-de-filtering-plotting` at fe41a79 shows BOTH its `Filter1`
+      steps binding `header_lines: "1"`, which reads as a direct answer and is not one -- that
+      workflow manufactures a header with `tp_text_file_with_recurring_lines` + `tp_sed_tool` and
+      concatenates it onto the DESeq2 output with `tp_cat` before filtering. Copying its binding
+      into a workflow that filters `deseq_out` directly would have silently discarded the most
+      significant gene from every result table.
+    status: open
+    issue: null
+  - id: draft-format-cannot-express-a-cross-step-invariant
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold: advance-galaxy-draft-step
+      path: content/molds/advance-galaxy-draft-step/index.md
+      revision: 4
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: research
+      label: galaxy-workflow-draft-format
+      locator: content/research/galaxy-workflow-draft-format/index.md
+      content_hash: 93f3b231dd063bf059c550f18b2200c61909af0da9408e0d43351116e886bf7b
+    kind: gap
+    severity: major
+    what: >-
+      Every annotation the draft format offers is scoped to ONE step (`TODO_*`, `_plan_*`, the
+      tier vocabulary), so an invariant that binds two or more steps has nowhere to live except
+      prose inside one of them -- and `advance-galaxy-draft-step` advances exactly one step per
+      invocation, so it is also structurally unable to check one. The step's own `_plan_state`
+      said it outright: "Bind both steps together so the factor name, level ordering, header flag
+      and output_selector cannot drift apart between the two contrasts." That is an instruction
+      with no mechanism behind it. The author is the only enforcement, and only if they happen to
+      read a sibling step's plan prose while implementing a different step.
+    expected: >-
+      Give the format a typed, workflow-level way to declare that named steps must agree on named
+      state paths -- a sibling of the `comments:` frame, or a `_plan_invariant` block naming the
+      step ids and the `|`-qualified paths -- and have `draft-validate` check it once every named
+      step is concrete. It is a cheap check: the paths are already addressable, and this run's
+      loop concretized the two coupled steps 1 iteration apart. Failing that, state in the note
+      that cross-step couplings are out of scope for the draft and must be carried as
+      open-requirements entries, so a Mold run stops inventing its own mechanism.
+    evidence: >-
+      Two couplings in one workflow, both invisible to every gate. (1) The two DESeq2 nodes must
+      stay key-for-key identical apart from one counts collection and one factor level; this was
+      settled only by hand-diffing the two steps' parsed `in:`/`out:`/`tool_state` trees (5 `in:`
+      keys, 3 `out:` ids, 27 state leaves). (2) Worse, `advanced_options.lfc_shrinkage_type: none`
+      on BOTH DESeq2 nodes determines the result table's column count, and two DIFFERENT steps
+      bake the resulting indices as opaque string literals -- `"c7<"` and `"abs(c3)>"` in two
+      `compose_text_param` bridges. Any other shrinkage value drops the `stat` column, moves padj
+      from c7 to c6, and `"c7<"` then names a column that does not exist. A three-step coupling
+      expressed as a magic number in a text field. Both DESeq2 steps additionally report
+      `skip_tool_not_found` (their `split_output` collection output fails the cache decode), so
+      not even the tool-state gate looks at them.
+    status: open
+    issue: null
+  - id: a-required-port-missing-from-in-carries-no-sentinel-and-no-gate
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold: advance-galaxy-draft-step
+      path: content/molds/advance-galaxy-draft-step/index.md
+      revision: 4
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: research
+      label: galaxy-workflow-draft-format
+      locator: content/research/galaxy-workflow-draft-format/index.md
+      content_hash: 93f3b231dd063bf059c550f18b2200c61909af0da9408e0d43351116e886bf7b
+    kind: gap
+    severity: major
+    what: >-
+      A `TODO_<port>` sentinel marks a port whose NAME is unresolved, but there is no way to mark
+      a port that is simply ABSENT from `in:` -- and an absent port is invisible to
+      `gxwf draft-next-step`, whose `work` list enumerates sentinels and `_plan_*` fields and so
+      reports nothing at all. The obligation survives only as prose. Distinct from
+      `draft-format-sentinel-hint-cannot-express-a-conditional-nested-port`, which is about a
+      sentinel whose hint has the wrong SHAPE; here there is no sentinel to misread.
+    expected: >-
+      Require in the note that every port the step's plan calls for appears in `in:` -- as a
+      `TODO_<port>` sentinel while unresolved -- so that "the plan named it" and "the work list
+      reports it" cannot come apart. A cheap partial check for `draft-next-step`: when a step's
+      `_plan_*` prose names a sibling step as its model, flag an `in:` key set that is a strict
+      subset of that sibling's.
+    evidence: >-
+      `Differential expression: second contrast vs reference` declared three `in:` keys; the
+      already-concrete sibling it was told to copy declared five. The two missing ones were
+      `select_data|rep_factorName_0|rep_factorLevel_{0,1}|factorLevel`. `draft-next-step` reported
+      only `TODO[tool_version]` plus four `_plan_*` strings; the sole trace of the two missing
+      connections was the sentence "As for the first contrast, with `Counts for the second
+      contrast level` at level index 0". Left unwired, both factor levels would fall back to the
+      wrapper's empty default -- blank contrast titles on the diagnostic plots, and the silent
+      re-opening of resolved entry `deseq2-factor-level-names-not-parameterized`, whose closure
+      asserts that no level literal is baked into any step. Nothing would have failed: this run
+      already measured that a disconnected input validates byte-identically green, and this step
+      reports `skip_tool_not_found` besides.
+    status: open
+    issue: null
+  - id: ledger-resolved-entries-are-never-read-back-at-binding-time
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold: advance-galaxy-draft-step
+      path: content/molds/advance-galaxy-draft-step/index.md
+      revision: 4
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: advance-galaxy-draft-step
+      locator: content/molds/advance-galaxy-draft-step/index.md
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+    kind: gap
+    severity: major
+    what: >-
+      The open-requirements ledger is the only artifact that carries a decision from one
+      iteration of the per-step loop to a later one, but the Mold never reads it as an INPUT to
+      binding. Its `Inputs` section declares the ledger carries "the run's open, resolved, and
+      surrendered entries", and then the procedure's single ledger touchpoint is step 5, AFTER
+      implement: "Inspect the open-requirements-ledger for a new `open` blocking entry ...
+      appended against this step." New, open, post-hoc. A decision settled five iterations
+      earlier lives in a `resolved` entry -- whose `note` field is where the ledger note itself
+      says the closure reasoning goes -- and no procedure step ever routes an author back to it
+      before they bind state. The packaged `open-requirements-ledger` note does not close the
+      gap either: its "how downstream reads it" paragraph covers only
+      repair-galaxy-draft-topology reading OPEN blocking entries, and its one line about
+      resolved entries ("Resolving is not deleting -- a resolved entry stays in the ledger as
+      the audit trail") frames them as provenance, not as an input.
+    expected: >-
+      Add a read to the procedure BEFORE implement: select the ledger entries whose `step` names
+      the step being concretized -- regardless of status -- and treat a `resolved` entry's
+      `note` as a binding already settled for this step, to be copied rather than re-derived.
+      Entries carry a `step` field precisely so this lookup is a filter, not a search. Say
+      explicitly that a resolved entry is authority at binding time and not merely an audit
+      trail, and say the converse too: a Mold that settles a binding for a step it is not
+      currently implementing must record it in that entry's `note`, because the draft itself has
+      nowhere to put it (the sibling steps' `_plan_state` prose is deleted at their own
+      concretion).
+    evidence: >-
+      This iteration concretized `Filter with p-adj threshold: first contrast`. Its whole
+      remaining decision was `header_lines`, and the answer -- `'0'`, because the pinned
+      iuc/deseq2 wrapper writes `deseq_out` with `col.names = FALSE` -- had been established
+      two iterations earlier and recorded ONLY in the `note` of the now-`resolved` entry
+      `deseq2-result-table-header-presence-unverified`. Following the procedure literally, that
+      note is never opened: step 5 filters for new open entries and runs after the binding is
+      already written. The default an author reaches for instead is the corpus, and the corpus
+      is wrong here -- `rnaseq-de-filtering-plotting` binds `header_lines: "1"` because it
+      MANUFACTURES a header (tp_text_file_with_recurring_lines -> tp_sed -> tp_cat) before
+      filtering, which this workflow omits. Binding "1" against the headerless `deseq_out`
+      discards row 1 of a table sorted by padj: the most significant gene, which for this
+      paper is *SCF1*, the finding the workflow exists to reproduce. No error, no warning, and
+      `draft-validate --concrete` returns identical green for '0' and '1'. Three more steps
+      (the remaining significance filters) must copy that same value, each from an iteration
+      that will not be told to look.
+    status: open
+    issue: null
+  - id: draft-extract-destroys-yaml-comments
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold: advance-galaxy-draft-step
+      path: content/molds/advance-galaxy-draft-step/index.md
+      revision: 4
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: cli-command
+      label: gxwf draft-extract
+      locator: content/cli/gxwf/draft-extract.md
+      content_hash: f8e9350c96ce005ed5e38deefff6c993824c951784f17f79f7e60d1ad664d8d7
+    kind: gap
+    severity: major
+    what: >-
+      `gxwf draft-extract` re-serializes the workflow from a parsed data model, so every YAML
+      `#` comment in the draft is destroyed. The note describes the command as three subtractive
+      operations — drop drafty steps, strip `_plan_*`, promote `class` — and its Output and
+      Gotchas sections say nothing about comments. Nothing in this Mold's bundle does either.
+      The loss is total and silent: it is not reported in `--report-json` (which counts only
+      dropped steps, dropped outputs and rewritten inputs) and the extracted file validates
+      clean, so no gate in the pipeline can see it. It matters because a per-step draft loop has
+      nowhere else to put the reasoning: `_plan_*` fields MUST be deleted at concretion or
+      `draft-next-step` re-selects the step forever, and the gxformat2 `doc:` field is
+      user-facing prose, not a place for a corpus citation or a cross-step warning. A run that
+      parks that material in comments above each step — as this one did, and as the concrete
+      steps of a template naturally invite — loses all of it at the exact moment the artifact
+      becomes the one downstream Molds consume. The two surfaces that DO survive are `doc:` and
+      the gxformat2 `comments:` block (frames/markdown), and the note names neither as the place
+      to put anything load-bearing.
+    expected: >-
+      State in the note's Output section that `draft-extract` is a re-serialization, not a
+      textual edit, and that YAML comments do not survive it; add it to Gotchas next to the
+      existing "this is a transformation, not a validator" warning. Name the two surfaces that
+      do survive — step `doc:` and the gxformat2 `comments:` block — and say that anything a
+      later reader must not lose belongs there before the loop reaches endstate. Ideally
+      `--report-json` should also count discarded comment lines, so the loss is at least
+      visible in the sidecar; failing that, the note is the only place a run can learn it, and
+      it has to say so. (The upstream fix — a comment-preserving round-trip — is a separate,
+      larger ask; the note must describe today's behaviour either way.)
+    evidence: >-
+      Iteration 26 of this run, at loop endstate, gxwf 1.10.1. `gxwf draft-extract
+      <run>/galaxy-workflow-draft.gxwf.yml -o <run>/galaxy-workflow.gxwf.yml --report-json
+      <report>` exited 0 with `0 steps dropped, 0 outputs dropped, 0 input rewrites;
+      class_after=GalaxyWorkflow`. Parsing both files and comparing: `steps`, `inputs`,
+      `outputs` and the `comments:` block are deep-equal, and the only structural difference is
+      `class`. The textual difference is 850 comment lines / 62,565 characters present in the
+      draft and 0 in the extract — 106,359 bytes down to 41,862, about 59% of the file. What was
+      in them: the per-step corpus citations this loop moved out of `_plan_*` at concretion, and
+      the two cross-step invariant warnings this run established by hand — that
+      `lfc_shrinkage_type: none` on both DESeq2 nodes is what makes the `c7<` and `abs(c3)>`
+      predicates in four other steps refer to the right columns, and that `header_lines: '0'` on
+      the four significance filters must NOT be the corpus's `'1'`. Neither invariant is
+      expressible in the draft schema (see `draft-format-cannot-express-a-cross-step-invariant`)
+      and neither is checked by any gate, so the comment was the only record, and the extract is
+      where it stopped existing.
+    status: open
+    issue: null
+  - id: paper-to-test-data-declares-no-test-data-refs-shape
+    raised_by: paper-to-test-data
+    observed_in:
+      mold: paper-to-test-data
+      path: content/molds/paper-to-test-data/index.md
+      revision: 2
+      content_hash: 863d7b503a77fa63449899f124d1669e181fdfd9a72f81f516a219cdc89cb6bb
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: paper-to-test-data
+      locator: content/molds/paper-to-test-data/index.md
+      content_hash: 863d7b503a77fa63449899f124d1669e181fdfd9a72f81f516a219cdc89cb6bb
+    kind: gap
+    severity: major
+    what: >-
+      The Mold emits `test-data-refs.json` and specifies no shape for it. The whole procedure is
+      one sentence — "derive concrete workflow test inputs and expected outputs — resolvable
+      URLs, file shapes, and expected hashes — emitted as `test-data-refs`" — and the bundle
+      packages no schema, template, or worked example (`refs: []`, "Load Upfront" and "Load On
+      Demand" both "None declared"). The whole JSON structure was invented at runtime: how to key
+      an input against a workflow input label, how to express a collection input's elements and
+      per-row metadata, where expected outputs live and how to separate an assertion the data
+      supports from one it does not. Two downstream Molds in this pipeline consume the artifact
+      (freeform-summary-to-galaxy-test-plan at phase 8, implement-galaxy-workflow-test at phase
+      9) and neither can rely on any particular key existing. This is the same defect class
+      already filed as `summarize-paper-declares-no-freeform-summary-shape`, at the other end of
+      the same pipeline.
+    expected: >-
+      Package a `test-data-refs` skeleton or worked example, or state in the procedure the
+      minimum keys every consumer can assume. At minimum: one entry per workflow input keyed by
+      the input's label, carrying source URL, hash, datatype and (for collections) collection
+      type, element identifiers and per-element metadata; expected outputs separated from
+      inputs; and an explicit place to record which expected outputs the resolved data can
+      actually produce versus which it cannot. The three sibling test-data Molds
+      (`nextflow-to-test-data`, `cwl-to-test-data`, `find-test-data`) emit the same artifact id
+      and should share whatever contract is written.
+    evidence: >-
+      Bundle carries SKILL.md plus _feedback/_provenance/_verify only. The Output section names
+      the filename, the format (`json`) and a one-line description, and nothing else. The
+      artifact this run wrote (<run>/test-data-refs.json) has seventeen top-level keys, none of
+      which were prescribed.
+    status: open
+    issue: null
+
+  - id: paper-to-test-data-silent-on-subsetting-deposited-data
+    raised_by: paper-to-test-data
+    observed_in:
+      mold: paper-to-test-data
+      path: content/molds/paper-to-test-data/index.md
+      revision: 2
+      content_hash: 863d7b503a77fa63449899f124d1669e181fdfd9a72f81f516a219cdc89cb6bb
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: paper-to-test-data
+      locator: content/molds/paper-to-test-data/index.md
+      content_hash: 863d7b503a77fa63449899f124d1669e181fdfd9a72f81f516a219cdc89cb6bb
+    kind: gap
+    severity: major
+    what: >-
+      The Mold is silent on subsetting, which is the central problem of deriving test data from a
+      paper. A paper's deposited data is essentially always orders of magnitude too large to be a
+      workflow test fixture — this run's six SRA runs are 22–30 M read pairs each, ~6.5 GB — so
+      the Mold's real task is not "resolve URLs" but "resolve URLs AND decide a subset AND
+      establish whether that subset still supports the paper's claims". The procedure's phrasing
+      ("resolvable URLs, file shapes, and expected hashes") reads as though the deposited data is
+      used as-is. Nothing tells the runtime to subset, how to choose a depth, how to keep the
+      recipe deterministic, or how to decide whether the result is a fixture that reproduces the
+      paper's finding or one that only exercises the workflow's shape. That last decision is
+      exactly what the Foundry's own fixture rule makes mandatory — "a fixture must also be able
+      to produce the outcome the scenario bound to it claims" (AGENTS.md) — and the Mold never
+      routes to it. The subsetting strategy, the depth, the evidence standard and the tiering of
+      assertions by whether the data supports them were all invented here.
+    expected: >-
+      Add a subsetting step to the procedure and state the decision it has to reach. Name the
+      common strategies and when each applies (deterministic head subset; alignment-based region
+      targeting; downsampling to a fixed seed), require the recipe be reproducible and the
+      subset be hashed on its UNCOMPRESSED bytes, and require the output artifact to state
+      explicitly whether the subset reproduces the paper's result or is shape-only — citing the
+      fixture rule so the runtime knows an unmarked shape-only fixture is a defect and not a
+      shortcut. Relatedly, "Required Tools: None declared. Procedure should not assume external
+      CLIs are present" sits in tension with the same procedure demanding "expected hashes": a
+      hash of a subsetted fixture cannot be produced without tooling, so either the tool
+      expectation or the hash expectation should be stated honestly.
+    evidence: >-
+      This run reached a defensible answer only by going well outside anything the Mold
+      describes: measuring SCF1-matching reads per 1 M-read block to show a head subset carries
+      no positional bias, then aligning 200,000-pair subsets of all six runs to the pinned
+      reference to measure that SCF1 retains 414/391 fragments in AR0382 against 1–4 in the two
+      comparison conditions. Without that work the honest answer would have been "shape-only,
+      probably"; the Mold gave no reason to do it and no standard to judge it against.
+    status: open
+    issue: null
+
+  - id: galaxy-test-staging-drops-sample-sheet-column-definitions
+    raised_by: paper-to-test-data
+    observed_in:
+      mold: paper-to-test-data
+      path: content/molds/paper-to-test-data/index.md
+      revision: 2
+      content_hash: 863d7b503a77fa63449899f124d1669e181fdfd9a72f81f516a219cdc89cb6bb
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: related-project
+      label: Galaxy — test-data staging for sample_sheet collections (galaxy.tool_util.cwl.util / galaxy.tool_util.client.staging)
+      locator: https://github.com/galaxyproject/galaxy
+    kind: gap
+    severity: major
+    what: >-
+      A sample_sheet collection staged from a Planemo/gxwf test `job:` block never carries
+      collection-level `column_definitions`, although the API it posts to accepts them.
+      `galactic_job_json`'s `replacement_collection()` passes only `rows` and `name` for a
+      sample_sheet collection type, and `StagingInterface`'s `create_collection_func` has no
+      `column_definitions` parameter to pass — while `CreateNewCollectionPayload` declares the
+      field and `SampleSheetDatasetCollectionType.generate_elements` reads it. The result is
+      that a workflow input declaring `column_definitions` is, under test, fed a collection that
+      has none. Per-element `columns` survive, so most workflows still behave, and the two
+      `column_definitions_compatible()` call sites are both in `DataCollectionToolParameter`
+      option-building (UI dropdown filtering) which a test bypasses by supplying the HDCA by id
+      — so the divergence is silent rather than caught. It becomes visible at
+      `__SAMPLE_SHEET_TO_TABULAR__`, whose header line is emitted only
+      `#if $include_headers and $input.collection.column_definitions`: a workflow using that
+      tool with headers on produces a header in the UI and no header under test, and no gate
+      reports the difference.
+    expected: >-
+      Accept `column_definitions` on a `Collection` entry in a test job block and thread it
+      through `galactic_job_json` → `create_collection_func` → the collections API, alongside
+      `rows`. Then a sample sheet staged for a test is the same object a user builds, and
+      `validate_row` actually validates the fixture's rows against the declared columns instead
+      of short-circuiting. Failing that, Galaxy should say plainly that test-staged sample
+      sheets are column-definition-free, so workflow authors know that any behaviour gated on
+      `column_definitions` is untestable.
+    evidence: >-
+      Read at galaxyproject/galaxy dev while resolving open-requirements entry
+      `sample-sheet-input-test-fixture-expressibility` for this run:
+      lib/galaxy/tool_util/cwl/util.py `replacement_collection()` (sample_sheet branch sets only
+      `kwds["rows"]`); lib/galaxy/tool_util/client/staging.py `create_collection_func` signature
+      `(element_identifiers, collection_type, rows=None, name=None)`;
+      lib/galaxy/schema/schema.py `CreateNewCollectionPayload.column_definitions`;
+      lib/galaxy/model/dataset_collections/types/sample_sheet.py `generate_elements`;
+      lib/galaxy/model/dataset_collections/types/sample_sheet_util.py `validate_row` and
+      `column_definitions_compatible`; lib/galaxy/tools/sample_sheet_to_tabular.xml. This run's
+      workflow is unaffected only because its `Project sample sheet to tabular` step sets
+      `include_headers: false`. This entry also supplies part of the evidence asked for by
+      `testability-note-silent-on-sample-sheet-test-fixtures`, which remains open on its own
+      subject.
+    status: open
+    issue: null
+
+  - id: galaxy-unit-test-documents-a-sample-sheet-rows-shape-the-api-rejects
+    raised_by: paper-to-test-data
+    observed_in:
+      mold: paper-to-test-data
+      path: content/molds/paper-to-test-data/index.md
+      revision: 2
+      content_hash: 863d7b503a77fa63449899f124d1669e181fdfd9a72f81f516a219cdc89cb6bb
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: related-project
+      label: Galaxy — test/unit/tool_util/test_cwl_util.py sample_sheet rows tests
+      locator: https://github.com/galaxyproject/galaxy
+    kind: defect
+    severity: minor
+    what: >-
+      `test_galactic_job_json_sample_sheet_collection_with_rows` asserts that `rows` round-trips
+      as `{"el1": {"condition": "treatment"}, "el2": {"condition": "control"}}` — a mapping of
+      column name to value. The real contract is a POSITIONAL LIST per row: `validate_row` in
+      lib/galaxy/model/dataset_collections/types/sample_sheet_util.py rejects on
+      `len(row) != len(column_definitions)` and then zips `row` against `column_definitions` in
+      order. The unit test never catches this because it mocks `collection_create_func`, so
+      nothing downstream of `galactic_job_json` is exercised. These unit tests are the most
+      discoverable documentation of the job-block `rows` syntax, and the shape they document
+      will not validate whenever the target collection has column definitions.
+    expected: >-
+      Change the two `rows` unit tests to the positional-list form
+      (`{"el1": ["treatment"], "el2": ["control"]}`), matching
+      lib/galaxy_test/workflow/collection_semantics_cat_sample_sheet.gxwf-tests.yml which
+      already uses lists (`rows: {el1: [], el2: []}`). Better, add an integration test that
+      stages a sample sheet WITH column definitions through the real API, which would have
+      caught the divergence and would also cover the gap filed as
+      `galaxy-test-staging-drops-sample-sheet-column-definitions`.
+    evidence: >-
+      Read at galaxyproject/galaxy dev: test/unit/tool_util/test_cwl_util.py lines ~192–219
+      versus `validate_row` in
+      lib/galaxy/model/dataset_collections/types/sample_sheet_util.py. Encountered while
+      deriving the job block now recorded in <run>/test-data-refs.json; the dict form was
+      adopted from the unit test first and corrected only after reading the validator.
+    status: open
+    issue: null
+  - id: test-plan-mold-ignores-available-concrete-workflow
+    raised_by: freeform-summary-to-galaxy-test-plan
+    observed_in:
+      mold: freeform-summary-to-galaxy-test-plan
+      path: content/molds/freeform-summary-to-galaxy-test-plan/index.md
+      revision: 2
+      content_hash: 9c1d56e625a5dd26cb7a82082ac8f4eeb7db287a626bf00e73457c8dd491ad6d
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: freeform-summary-to-galaxy-test-plan
+      locator: content/molds/freeform-summary-to-galaxy-test-plan/index.md
+      content_hash: 9c1d56e625a5dd26cb7a82082ac8f4eeb7db287a626bf00e73457c8dd491ad6d
+    kind: gap
+    severity: major
+    what: >-
+      The procedure's "Labels and fixtures are assumed, not bound" section instructs the Mold to
+      bind assertions to interface-brief labels with `label_status: assumed` and
+      `workflow.label_source: interface-brief`, and to record fixtures as `storage: unresolved` with
+      `location: null`, on the stated premise that the concrete workflow and the resolved test-data
+      refs "exist in the harness run-state by the time the plan is authored, but they are reconciled
+      downstream rather than here". In this run both were supplied as phase-8 inputs and both were
+      settled: `galaxy-workflow.gxwf.yml` (27 steps, 9 inputs, 16 outputs) carries the real labels,
+      and `test-data-refs.json` carries resolved URLs, md5s and a measured verdict. Following the
+      instruction would have meant writing `assumed` over labels read byte-for-byte from the
+      workflow and `unresolved` over fixtures with pinned NCBI URLs and md5s — discarding verified
+      information and handing implement-galaxy-workflow-test a reconciliation job already done. The
+      Mold was deliberately disobeyed on both counts, and the deviation had to be argued inside the
+      artifact rather than settled by the procedure.
+    expected: >-
+      Make the premise conditional rather than absolute. State that when a concrete workflow or a
+      resolved test-data-refs artifact is available to the invocation, the plan binds to it and
+      records `label_status: resolved` / `label_source: draft` and real fixture storage; the
+      `assumed` / `unresolved` path is the fallback for the template-era case the section describes.
+      Declaring `galaxy-workflow-gxformat2` and `test-data-refs` as optional consumed artifacts
+      would make that explicit in the bundle instead of leaving it to the runtime to notice.
+    evidence: >-
+      <run>/galaxy-test-plan.yml `workflow.notes` records the deviation and its reasoning; every
+      `label_status` in the plan is `resolved` and `workflow.label_source` is `draft`. The interface
+      brief had itself drifted from the draft (open requirement
+      `interface-brief-output-and-parameter-surface-drifted-from-draft`), so binding to the brief
+      would have produced labels that do not exist in the workflow under test.
+    status: open
+    issue: null
+  - id: test-plan-schema-has-no-evidence-class-for-run-measured-assertions
+    raised_by: freeform-summary-to-galaxy-test-plan
+    observed_in:
+      mold: freeform-summary-to-galaxy-test-plan
+      path: content/molds/freeform-summary-to-galaxy-test-plan/index.md
+      revision: 2
+      content_hash: 9c1d56e625a5dd26cb7a82082ac8f4eeb7db287a626bf00e73457c8dd491ad6d
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: schema
+      label: galaxy-workflow-test-plan
+      locator: package://@galaxy-foundry/gxwf-foundry#galaxyWorkflowTestPlanSchema
+      content_hash: 325e9cf1bb5e075fa818dc68868647de95389ca8df8581ee8cf1e2be61196e37
+    kind: gap
+    severity: minor
+    what: >-
+      `AssertionIntent.evidence` is a two-value enum, `test-evidence` or `intent`, described as
+      "whether this assertion was translated from upstream test evidence or synthesized from
+      intent". A third case is routine on the paper and interview paths and occurred throughout this
+      run: an assertion neither translated from an upstream fixture nor merely synthesized, but
+      MEASURED against the run's own resolved test data before the plan was written. The same gap
+      exists at plan level, where `source.derived_from` has the same two values. Forced to pick,
+      every such assertion is recorded `evidence: intent`, so a reviewer filtering on the field sees
+      a uniformly speculative plan and systematically undercounts its grounding. `confidence: high`
+      is the only signal left, and it means something different.
+    expected: >-
+      Add a third value — `run-measured` (or `fixture-measured`) — to `AssertionIntent.evidence` and
+      to `source.derived_from`, meaning the value was obtained by measuring the run's own resolved
+      fixtures rather than read from upstream tests or inferred from intent. Nothing else in the
+      schema needs to change, and the existing two values keep their meaning.
+    evidence: >-
+      <run>/galaxy-test-plan.yml records the same complaint twice because the field cannot carry it:
+      `source.notes` argues that `derived_from: intent` understates the plan's grounding, and
+      warnings[] `fixture-measured-assertions-lack-an-evidence-class` states the consequence.
+      Roughly twenty assertions in the plan rest on direct measurement of the resolved fixtures by
+      phase 7 (per-sample SCF1 fragment counts, strandedness, mapping rate, annotation gene count)
+      or by phase 8 (DESeq2 log2 fold change and adjusted p-value per contrast), and all of them are
+      filed as `intent`.
+    status: open
+    issue: null
+  - id: an-interrupted-phase-leaves-its-declared-artifact-written-but-unvalidated
+    raised_by: freeform-summary-to-galaxy-test-plan
+    observed_in:
+      mold: freeform-summary-to-galaxy-test-plan
+      path: content/molds/freeform-summary-to-galaxy-test-plan/index.md
+      revision: 2
+      content_hash: 9c1d56e625a5dd26cb7a82082ac8f4eeb7db287a626bf00e73457c8dd491ad6d
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: research
+      label: foundry-feedback-ledger
+      locator: content/research/foundry-feedback-ledger/index.md
+      content_hash: null
+    kind: gap
+    severity: major
+    what: >-
+      A Mold that writes one large artifact and validates it at the end has a window in which the
+      artifact exists on disk and nothing records whether it conforms to its schema. This run
+      entered that window: phase 8's session was terminated after writing a 67 KB
+      `galaxy-test-plan.yml` and before running `foundry validate-galaxy-workflow-test-plan`, and
+      before its ledger pass. The run-lifecycle section addresses only run status — it says a hard
+      interruption leaves the run `running`, "which is distinguishable from success without a
+      recovery write" — and says nothing about the phase's declared OUTPUT. So `status: running` on
+      a phase is ambiguous in a way that matters: the artifact may be absent, present and valid,
+      present and invalid, or present and half-written, and the four look identical from the ledger.
+      A resuming agent, or a next phase that simply reads the artifact because it is there, has
+      nothing telling it the verify step never ran.
+    expected: >-
+      State in the run-lifecycle section that a phase left `running` may have written its declared
+      output artifacts in an UNVALIDATED state, and that whoever resumes or succeeds it must re-run
+      that phase's declared validation before treating those artifacts as input. Stronger: give the
+      phase row a field the skill writes when its own validation passes — `artifacts_validated:
+      true`, the exact analogue of `feedback_checked` and justified by the same argument the note
+      already makes for it, that a run which looked and found nothing must be distinguishable from
+      one that never looked.
+    evidence: >-
+      The terminated phase-8 session left `<run>/galaxy-test-plan.yml` complete and, as it turned
+      out, schema-valid, but nothing on disk said so; the finishing session had to re-run the
+      validator to find out. The same interruption also left the artifact citing a feedback entry id
+      (`test-plan-mold-ignores-available-concrete-workflow`) that did not exist in this ledger,
+      because the ledger pass is likewise an end-of-phase step — the artifact and the ledger were
+      inconsistent with each other and only the ledger's `running` status hinted at it.
+    status: open
+    issue: null
+  - id: cast-validation-fallback-resolves-an-unpinned-published-validator
+    raised_by: freeform-summary-to-galaxy-test-plan
+    observed_in:
+      mold: freeform-summary-to-galaxy-test-plan
+      path: content/molds/freeform-summary-to-galaxy-test-plan/index.md
+      revision: 2
+      content_hash: 9c1d56e625a5dd26cb7a82082ac8f4eeb7db287a626bf00e73457c8dd491ad6d
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: implementation
+      label: cast-mold caster — generated Validation section
+      locator: packages/build-cli/src/commands/cast-mold.ts
+      content_hash: null
+    kind: friction
+    severity: minor
+    what: >-
+      The caster emits a Validation instruction of the form "run `foundry <cmd> <artifact>` from
+      `@galaxy-foundry/gxwf-foundry`; if the command is not on PATH, run `npx --package
+      @galaxy-foundry/gxwf-foundry foundry <cmd> <artifact>`". The fallback names no version, so it
+      resolves whatever `latest` is on the registry at runtime, while the bundle already carries the
+      schema it was cast against, verbatim, under `references/schemas/`. Those two can disagree, and
+      when they do the fallback returns a confident green verdict against a contract the skill is
+      not bound by. In this run the fallback was the only available route — the checkout had no
+      installed dependencies and no package manager on PATH — and the published 0.1.2 schema had to
+      be diffed against the bundled copy by hand to know the verdict meant anything, which the
+      runtime notes ("do not read Foundry source files at runtime") discourage in the first place.
+    expected: >-
+      Record the validator package version in `_verify.json` at cast time and emit it in the
+      fallback (`npx --package @galaxy-foundry/gxwf-foundry@<version> ...`), so the fallback
+      validates against the same contract the bundle carries. Alternatively, or additionally, say in
+      the generated Validation line that `references/schemas/<name>.schema.json` in the bundle is the
+      binding contract and that a fallback verdict is only meaningful if the two agree.
+    evidence: >-
+      `_verify.json` for this Mold carries `validator_bin: foundry` and args, with no package
+      version anywhere in the bundle. The published schema happened to be byte-identical to
+      `references/schemas/galaxy-workflow-test-plan.schema.json` here, so the verdict stands, but
+      nothing in the bundle establishes that and nothing would have flagged it had they diverged.
+    status: open
+    issue: null
+  - id: tests-format-schema-rejects-two-shapes-the-iwc-corpus-uses
+    raised_by: implement-galaxy-workflow-test
+    observed_in:
+      mold: implement-galaxy-workflow-test
+      path: content/molds/implement-galaxy-workflow-test/index.md
+      revision: 8
+      content_hash: 966c486ccda2eb1e0f06afa674c5d6b85a7e7bfcc9b1545309e3ef8b1016f931
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: related-project
+      label: galaxy-tool-util-ts — tests-format schema / gxwf validate-tests
+      locator: https://github.com/jmchilton/galaxy-tool-util-ts
+    kind: defect
+    severity: major
+    what: >-
+      The tests-format schema rejects two shapes that production IWC workflow tests use and that
+      Galaxy accepts at run time. (1) The inner element of a `list:paired` job input written as
+      `class: Collection` + `type: paired` — the `Collection` `$def` is `additionalProperties:
+      false` with only `collection_type`, so `type` is an unknown property and the whole job input
+      fails `oneOf`. (2) A nested-collection output assertion whose outer `element_tests` entry
+      carries `elements:` without a `class: Collection` discriminator — the schema's `if/then` on
+      `class` routes it to the dataset-element model, which has no `elements` property. Run over
+      the pinned IWC corpus (fe41a79) with `gxwf validate-tests` from @galaxy-tool-util/cli 1.10.1,
+      31 of 122 committed `*-tests.yml` files fail, and the two clusters above account for the bulk
+      of them. This makes the static gate unusable as a conformance check against the corpus the
+      Foundry treats as normative, and it silently invalidates the corpus-derived recipes the
+      Mold's own packaged notes teach.
+    expected: >-
+      Accept `type` as an alias for `collection_type` on a nested `Collection` in a job block, and
+      allow `elements:` on a collection element assertion without requiring an explicit
+      `class: Collection`, matching what the Galaxy job-block loader and the test-format runner
+      actually accept. If the strict form is deliberate, the schema should say so and Galaxy's
+      Pydantic models (galaxyproject/galaxy, the source these are generated from) plus the IWC
+      corpus should be migrated together, rather than leaving a validator that fails a quarter of
+      the published corpus.
+    evidence: >-
+      Probed directly. A two-file probe differing only in `type: paired` versus
+      `collection_type: paired` gives 48 schema errors versus OK. Removing `class: Collection` from
+      one outer `element_tests` entry of this run's own test file gives
+      `/0/outputs/Trimmed reads/element_tests/AR0382_A: must NOT have additional properties`.
+      Corpus sweep at fe41a79: 91 pass, 31 fail; failures cluster on `/0/job/<label>/class`
+      (e.g. sars-cov-2-pe-illumina-wgs-variant-calling, three VGP Hi-C workflows,
+      generic-variant-calling-wgs-pe) and on `/0/outputs/<label>/element_tests`
+      (e.g. scrna-seq-fastq-to-matrix-10x-cellplex, metagenomic-raw-reads-amr-analysis).
+    status: open
+    issue: null
+  - id: iwc-test-data-conventions-teaches-a-nesting-shape-the-schema-gate-rejects
+    raised_by: implement-galaxy-workflow-test
+    observed_in:
+      mold: implement-galaxy-workflow-test
+      path: content/molds/implement-galaxy-workflow-test/index.md
+      revision: 8
+      content_hash: 966c486ccda2eb1e0f06afa674c5d6b85a7e7bfcc9b1545309e3ef8b1016f931
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: research
+      label: iwc-test-data-conventions
+      locator: content/research/iwc-test-data-conventions/index.md
+      content_hash: 1921e939703444604440e0768caca6e6b834a73dcfa964f450fa081143e008d3
+    kind: defect
+    severity: major
+    what: >-
+      Section 2e states normatively "Note: outer `collection_type: list:paired`, inner
+      `type: paired` (not `collection_type:`)", and section 2f's nested-output example omits the
+      `class: Collection` discriminator on the outer `element_tests` entry. Both forms are faithful
+      transcriptions of the IWC corpus and both are rejected by `references/schemas/
+      tests-format.schema.json`, which the same Mold packages and names as the gate its output must
+      pass. An agent that follows the note produces a file that fails the Mold's own step 4, with
+      48 unhelpful `oneOf` errors pointing at the whole job input rather than at the offending key.
+      The note is the only packaged guidance on these two shapes, so there is nothing else to fall
+      back to.
+    expected: >-
+      Give both shapes in each section, marked: the corpus form (`type: paired`; bare `elements:`)
+      and the schema-valid form (`collection_type: paired`; `class: Collection` then `elements:`),
+      with a one-line note that the validator accepts only the latter and a pointer to the upstream
+      entry `tests-format-schema-rejects-two-shapes-the-iwc-corpus-uses`. Until upstream converges,
+      a Foundry-authored test file should use the schema-valid form, and the note should say so
+      rather than leaving the reader to discover it from the validator.
+    evidence: >-
+      This run authored the reads input from section 2e verbatim; `gxwf validate-tests` 1.10.1
+      returned 48 errors. Switching the single key `type` to `collection_type` returned OK. The
+      same substitution is needed for the section 2f output form, confirmed by removing
+      `class: Collection` from one element of the finished file.
+    status: open
+    issue: null
+  - id: asserts-idioms-nested-element-tests-recipe-omits-the-class-discriminator
+    raised_by: implement-galaxy-workflow-test
+    observed_in:
+      mold: implement-galaxy-workflow-test
+      path: content/molds/implement-galaxy-workflow-test/index.md
+      revision: 8
+      content_hash: 966c486ccda2eb1e0f06afa674c5d6b85a7e7bfcc9b1545309e3ef8b1016f931
+      foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: research
+      label: planemo-asserts-idioms
+      locator: content/research/planemo-asserts-idioms/index.md
+      content_hash: 81b8feeccd891642572e587a494d1e4d3a1b369a19d92947626230494fd92beb
+    kind: gap
+    severity: minor
+    what: >-
+      Section 5 is the note an agent reaches for when writing collection-output assertions, and its
+      nested-collection rule — "outer `element_tests:` keyed by outer identifier; inner `elements:`
+      (note plural, no `_tests` suffix on the inner)" — is incomplete in the one way that matters
+      to the gate: the outer entry must also carry `class: Collection`, or the schema routes it to
+      the dataset-element model and rejects `elements` as an additional property. The section also
+      does not mention that an `asserts:` mapping cannot repeat a key, so any output needing two
+      `has_text` probes has to use the list form (`- that: has_text`) — which this run needed on
+      five outputs and which the section's own examples never show.
+    expected: >-
+      Add `class: Collection` to the nested example in section 5 and say why it is required. Add a
+      line to section 4 or 9 stating that repeated assertion families require the `- that: <family>`
+      list form, since the dict form silently loses all but the last occurrence in YAML.
+    evidence: >-
+      `Trimmed reads` in <run>/galaxy-workflow.gxwf-tests.yml is a `list:paired` output needing the
+      nested form; without `class: Collection` on the outer entry `gxwf validate-tests` reports
+      `must NOT have additional properties` at `/0/outputs/Trimmed reads/element_tests/AR0382_A`.
+      Four of this run's outputs carry between four and six assertions of which two or more share a
+      family, which the dict form cannot express.
+    status: open
+    issue: null
+  - id: tonative-shape-sniff-skips-normalization-on-list-form-format2
+    raised_by: validate-galaxy-workflow
+    observed_in:
+      mold: validate-galaxy-workflow
+      path: content/molds/validate-galaxy-workflow/index.md
+      revision: 5
+      content_hash: 74e3743fc376f33c1eb37832ab4869c327d48f87e015c7a38597cf4c4ca939cd
+      foundry_head: 79bf5c3ab98eec3a67948d8bdebb9dba7d8a2359
+    subject:
+      kind: related-project
+      label: "@galaxy-tool-util/schema - toNative normalization guard (_isNormalizedFormat2)"
+      locator: https://github.com/jmchilton/galaxy-tool-util-ts
+    kind: defect
+    severity: major
+    what: >-
+      `toNative` mistakes a raw format2 workflow for an already-normalized one whenever `inputs:` and
+      `steps:` are written in list form, skips normalization, and then aborts with an uncaught
+      `TypeError: step.in is not iterable` as soon as a step's `in:` uses the mapping form gxformat2
+      equally permits. `_isNormalizedFormat2` decides on three top-level facts that say nothing about
+      per-step shape - `class === "GalaxyWorkflow"`, `Array.isArray(inputs)`, `Array.isArray(steps)` -
+      so `normalizedFormat2`, whose `normalizeStepIn`/`normalizeStepOut` handle both spellings
+      correctly, is never called and `_extractConnections` iterates a mapping. The defect is in
+      `toNative`, not in the connection validator that surfaced it: `gxwf convert --to native` and
+      `ensureNative` crash on the same input with no connection flag involved. For this run the
+      consequence is that `gxwf validate --connections` - the only static gate covering connection
+      types, collection algebra and map-over - could not be run at all.
+    expected: >-
+      Normalize unconditionally. `normalizedFormat2` is idempotent and performs plain object shaping
+      rather than a schema decode, so the guard bought nothing; teaching it to inspect every step's
+      `in`/`out` would cost more than normalizing and would leave the same class of bug waiting on the
+      next field. Whatever the shape of the fix, a validator crashing on its own supported input
+      format gives a harness no way to distinguish a broken tool from a broken workflow. Submitted
+      upstream with a regression test as jmchilton/galaxy-tool-util-ts#179.
+    evidence: >-
+      First seen on gxwf 1.10.1 in this run's phase 10; reproduced unchanged on 1.12.0 (both
+      `@galaxy-tool-util/cli` and `@galaxy-tool-util/schema`), the current release as of 2026-09-17,
+      so it is not a stale-CLI artifact. Trigger is one corner of the shape matrix, established on
+      20-line workflows with a single `Filter1@1.1.1` step: list `inputs:` + list `steps:` + mapping
+      `in:` crashes; the same workflow with list-form `in:`, with map-form `inputs:`, or with map-form
+      `steps:` converts cleanly, because those spellings fail the sniff and get normalized. The
+      earlier claim in this entry that the flag breaks on every format2 workflow with a tool step was
+      too broad - it breaks on the dialect this Foundry emits. `gxwf convert <run>/galaxy-workflow.gxwf.yml
+      --to native` crashes identically with no `--connections`, at `runConvert` in
+      `cli/dist/commands/convert.js:83`. Upstream's own suite never crosses the guard: every existing
+      `toNative` test writes `inputs`/`steps` in map form. With the guard removed, all 4999
+      `packages/schema` tests pass and the three new list-form cases go from crash to green. Workaround
+      available to the Foundry without waiting on a release: emit `in:` in list form
+      (`- id: <port>` / `source: <ref>`).
+    status: filed
+    issue: https://github.com/jmchilton/galaxy-tool-util-ts/pull/179
+  - id: gxwf-strict-encoding-demands-the-state-key-its-validator-mishandles
+    raised_by: validate-galaxy-workflow
+    observed_in:
+      mold: validate-galaxy-workflow
+      path: content/molds/validate-galaxy-workflow/index.md
+      revision: 5
+      content_hash: 74e3743fc376f33c1eb37832ab4869c327d48f87e015c7a38597cf4c4ca939cd
+      foundry_head: 79bf5c3ab98eec3a67948d8bdebb9dba7d8a2359
+    subject:
+      kind: related-project
+      label: "@galaxy-tool-util/cli — gxwf validate --strict-encoding vs the tool-state validator"
+      locator: https://github.com/jmchilton/galaxy-tool-util-ts
+    kind: defect
+    severity: major
+    what: >-
+      gxwf's two validation paths demand opposite tool-state keys, so no format2 workflow can satisfy
+      both. `--strict-encoding` rejects `tool_state:` on every step with `uses "tool_state" instead
+      of "state" (format2 should use "state")` and exits 2, while the tool-state validator silently
+      drops a `{__class__: ConnectedValue}` placeholder under `state:` and honours it only under
+      `tool_state:` (this ledger's `gxwf-drops-connectedvalue-under-format2-state-key`). Moving to the
+      key `--strict-encoding` wants reintroduces that bug; staying on the key that works means
+      `--strict` can never be part of a Foundry gate. `gxwf convert --to format2` emits `tool_state:`,
+      so gxwf's own converter produces output its own `--strict-encoding` rejects.
+    expected: >-
+      Reconcile the two paths as one decision. If `state:` is the canonical format2 key, fix the
+      tool-state validator to honour ConnectedValue under it first, then keep the strict-encoding
+      diagnostic. If `tool_state:` is to remain accepted, `--strict-encoding` should not flag it, and
+      `gxwf convert --to format2` should emit whichever key the strict path blesses. Until then the
+      diagnostic actively steers authors toward the broken key.
+    evidence: >-
+      gxwf 1.10.1. `gxwf validate <run>/galaxy-workflow.gxwf.yml --json --strict-structure
+      --strict-encoding --cache-dir <cache>` exits 2 and emits the message for all 26 steps that
+      carry tool state (step 0 has none); the same file under default strictness reports zero
+      encoding errors and zero structure errors. The workflow uses `tool_state:` on 26 steps because
+      phase 6 established at iteration level that `state:` breaks the three
+      `iuc/compose_text_param/compose_text_param@0.1.1` steps. Companion to, not a duplicate of,
+      `gxwf-drops-connectedvalue-under-format2-state-key`: that entry is the validator dropping the
+      placeholder, this one is the strict gate requiring the key that triggers it. A maintainer
+      fixing one need not touch the other; triage may merge them into a single upstream issue.
+    status: open
+    issue: null
+  - id: gxwf-validate-json-output-is-not-machine-parseable
+    raised_by: validate-galaxy-workflow
+    observed_in:
+      mold: validate-galaxy-workflow
+      path: content/molds/validate-galaxy-workflow/index.md
+      revision: 5
+      content_hash: 74e3743fc376f33c1eb37832ab4869c327d48f87e015c7a38597cf4c4ca939cd
+      foundry_head: 79bf5c3ab98eec3a67948d8bdebb9dba7d8a2359
+    subject:
+      kind: related-project
+      label: "@galaxy-tool-util/cli — gxwf validate --json stdout contract"
+      locator: https://github.com/jmchilton/galaxy-tool-util-ts
+    kind: defect
+    severity: major
+    what: >-
+      `gxwf validate --json` does not put JSON, and only JSON, on stdout, so the documented
+      machine interface cannot be consumed by parsing stdout. Two separate breaches. (1) Every
+      uncached tool that fails to decode prints a multi-line `toolshed fetch failed (...) for <id>:`
+      block to stdout ahead of the JSON document - the full Effect schema type, roughly 55 lines for
+      seven such tools - so `JSON.parse(stdout)` throws and the report has to be located by scanning
+      backwards for a line that is exactly `{`. (2) Adding any strict flag makes gxwf abandon JSON
+      entirely: exit 2, plain-text diagnostics on stderr, and stdout completely empty, although
+      `--json` was passed.
+    expected: >-
+      With `--json`, write the report and nothing else to stdout, and route fetch/decode diagnostics
+      to stderr. Carry the strict-mode findings inside the JSON report (the schema already has
+      `structure_errors` and `encoding_errors` arrays for exactly this) and keep emitting it on the
+      strict failure path, signalling the verdict through the exit code rather than by withholding
+      the document. A harness cannot classify a failure it cannot parse.
+    evidence: >-
+      gxwf 1.10.1. Terminal validation of <run>/galaxy-workflow.gxwf.yml: stdout begins with the
+      decode-failure text for `__FLATTEN__` and continues for six more tools before the report; the
+      JSON body starts at line 57 of 273. The same command plus `--strict-structure
+      --strict-encoding` returns exit 2 with 0 bytes on stdout and the 26 encoding messages on
+      stderr. The packaged CLI reference states "JSON output should be treated as the preferred
+      cast-skill interface", which is the contract being broken.
+    status: open
+    issue: null
+  - id: gxwf-validate-never-checks-in-key-names
+    raised_by: validate-galaxy-workflow
+    observed_in:
+      mold: validate-galaxy-workflow
+      path: content/molds/validate-galaxy-workflow/index.md
+      revision: 5
+      content_hash: 74e3743fc376f33c1eb37832ab4869c327d48f87e015c7a38597cf4c4ca939cd
+      foundry_head: 79bf5c3ab98eec3a67948d8bdebb9dba7d8a2359
+    subject:
+      kind: related-project
+      label: "@galaxy-tool-util/cli — gxwf validate tool-state / step-input name checking"
+      locator: https://github.com/jmchilton/galaxy-tool-util-ts
+    kind: gap
+    severity: major
+    what: >-
+      `gxwf validate` never checks that a step's `in:` keys name real parameters of the pinned tool,
+      even when that tool is fully cached and its state validates. A step wiring a connection to a
+      port the tool does not have is reported `tool_state: OK` and counted in the validated total.
+      The same permissiveness runs the other way inside `tool_state:`: an unknown extra parameter is
+      accepted, and a required parameter that is simply absent is accepted. What the validator
+      actually checks is the type and value of the parameters that happen to be present. No
+      strictness flag changes this - not `--strict-structure`, not `--strict-state`, not `--strict`.
+      This matters most exactly where Galaxy's own syntax is easiest to get wrong: a conditional's
+      nested port must be qualified (`how|filter_source`), and the unqualified spelling is silently
+      accepted.
+    expected: >-
+      When the step's tool is resolved from the cache, check each `in:` key against the tool's input
+      tree - including conditional qualification (`cond|param`), repeat indexing (`name_<n>|param`)
+      and sections - and report an unknown port as an error, or at minimum under `--strict-state`.
+      Report a missing required parameter the same way. A validator that reports `20 validated` while
+      never having looked at a single port name overstates its own coverage to any harness reading
+      the summary.
+    evidence: >-
+      gxwf 1.10.1, measured directly. A minimal format2 workflow with a single `Filter1@1.1.1` step,
+      the tool present in the cache, and `in: {not_a_real_tool_input: tbl}` reports `Structural
+      validation: OK`, `tool_state: OK`, `Tool state: 1 validated, 0 skipped`, identically under
+      `--strict-structure --strict-state`. On <run>/galaxy-workflow.gxwf.yml, adding
+      `bogus_param_probe: "xyz"` to a validated Filter1 step leaves the summary at 20 ok / 0 fail /
+      7 skip, and deleting the required `cond` parameter also leaves it at 20 / 0 / 7; by contrast
+      `header_lines: "notanint"` on the same step does fail, which is what the check does cover.
+      This run's three `__FILTER_FROM_FILE__` steps depend on the qualified `how|filter_source`
+      spelling and nothing in the toolchain would have caught the unqualified one.
+    status: open
+    issue: null
+  - id: validate-mold-terminal-pass-has-no-cache-and-no-skip-vocabulary
+    raised_by: validate-galaxy-workflow
+    observed_in:
+      mold: validate-galaxy-workflow
+      path: content/molds/validate-galaxy-workflow/index.md
+      revision: 5
+      content_hash: 74e3743fc376f33c1eb37832ab4869c327d48f87e015c7a38597cf4c4ca939cd
+      foundry_head: 79bf5c3ab98eec3a67948d8bdebb9dba7d8a2359
+    subject:
+      kind: mold
+      label: validate-galaxy-workflow
+      locator: content/molds/validate-galaxy-workflow/index.md
+      content_hash: 74e3743fc376f33c1eb37832ab4869c327d48f87e015c7a38597cf4c4ca939cd
+    kind: gap
+    severity: major
+    what: >-
+      The Mold owns the run's last automated gate and its procedure never mentions the tool cache,
+      never mentions skips, and gives the artifact a three-valued status - `pass`, `fail`,
+      `not-run` - with no value for the outcome this gate actually produces. Two consequences, both
+      hit in this run. (1) The invocation the procedure implies, `gxwf validate <file> --json`, omits
+      `--cache-dir` and returns `Tool state: 0 validated, 27 skipped` with exit code 0: a green that
+      checked nothing, on the terminal gate, with no warning anywhere in the bundle. (2) When the
+      cache is supplied, seven steps still skip permanently, and the Mold offers no way to say so -
+      `pass` overstates it, `not-run` understates it - and no route to discharge a skip, although one
+      exists and is cheap. The Mold's one instruction on this, "A `not-run` status is never reported
+      as a pass", guards the case that cannot happen quietly and not the one that can.
+    expected: >-
+      Three changes to the procedure. Declare the tool cache as part of the contract and make
+      `--cache-dir` explicit in the invocation, stating that omitting it turns every tool step into
+      a skip and still exits 0. Make the artifact's status carry coverage: either a fourth value for
+      a pass with unvalidated steps, or a required `validated`/`skipped` split alongside `status`,
+      so a downstream reader cannot cite the green without the number. And give the skip a discharge
+      route rather than leaving it to eyeball review: a skipped step's tool can be fetched from a
+      Galaxy instance at `GET /api/tools/<tool_id>?io_details=true` and its `in:` keys and tool_state
+      parameter names checked against the real input tree, which is what this phase did by hand and
+      what the procedure nowhere describes. Sibling of
+      `advance-draft-mold-needs-a-tool-cache-it-never-declares` and
+      `advance-draft-mold-treats-a-skipped-tool-state-as-green`, which found the same two holes in
+      the per-step loop Mold; this is the terminal gate, where they cost more.
+    evidence: >-
+      This run, phase 10. Only the harness brief - not anything in the cast bundle - carried the
+      `--cache-dir` requirement and the expected skip list. With the cache, `gxwf validate
+      <run>/galaxy-workflow.gxwf.yml --json --cache-dir <cache>` returns `ok: 20, fail: 0, skip: 7`
+      and exit 0; phase 6 iteration 26 recorded that the same command without it returns `0
+      validated, 27 skipped`, also exit 0. The seven skips are `__FLATTEN__`, `lparsons/cutadapt`,
+      three `__FILTER_FROM_FILE__` and two `iuc/deseq2`, none clearable by priming the cache (see
+      `collection-output-decode-is-a-flat-vs-nested-shape-mismatch-not-a-missing-field`). All seven
+      were discharged here against the live Galaxy tool API with zero mismatches, in one pass.
+    status: open
+    issue: null
+  - id: validate-cli-note-recommends-a-flag-that-crashes-and-omits-the-cache-trap
+    raised_by: validate-galaxy-workflow
+    observed_in:
+      mold: validate-galaxy-workflow
+      path: content/molds/validate-galaxy-workflow/index.md
+      revision: 5
+      content_hash: 74e3743fc376f33c1eb37832ab4869c327d48f87e015c7a38597cf4c4ca939cd
+      foundry_head: 79bf5c3ab98eec3a67948d8bdebb9dba7d8a2359
+    subject:
+      kind: cli-command
+      label: gxwf validate
+      locator: content/cli/gxwf/validate.md
+      content_hash: 1bf4b4c50e9987f63e65ad36f6deefe6e399fe009280d4bee8533d6c451acf1e
+    kind: defect
+    severity: major
+    what: >-
+      The note's Gotchas section warns about the one flag that weakens validation visibly and is
+      silent on the two ways it fails invisibly. It says `--no-tool-state` weakens validation, but
+      never says that omitting `--cache-dir` has the same effect and worse - every tool step becomes
+      a skip and the command still exits 0. `--cache-dir` appears only as a bare option line, "Tool
+      cache directory", with nothing about what happens without it. Separately, the note actively
+      recommends a flag that cannot run: "Use `--connections` when tool cache metadata is available
+      and data-shape compatibility matters, especially around collections and map-over", and its
+      Examples block lists `gxwf validate workflow.gxwf.yml --json --connections --strict` - a
+      command that at 1.10.1 crashes on any format2 workflow with a tool step, and would abandon
+      JSON even if it did not.
+    expected: >-
+      Add a Gotchas line making the cache trap explicit - without `--cache-dir` pointing at a
+      populated cache, `validate` reports every tool step as skipped and still exits 0, so the split
+      must be read rather than the exit code. Mark `--connections` as not working at 1.10.1 with a
+      pointer to the upstream defect, and drop or flag the `--connections --strict` example so the
+      note stops recommending a crash. Record which gxwf version the page was verified against; the
+      page carries none today, and `gxwf --version` self-reports 1.0.0 regardless.
+    evidence: >-
+      gxwf 1.10.1, this run's phase 10. Following the note's own recommendation was the first thing
+      attempted and it exited 1 with `TypeError: step.in is not iterable` and no report; see
+      `tonative-shape-sniff-skips-normalization-on-list-form-format2`. The `--strict` half of the same
+      example returns exit 2 with empty stdout; see
+      `gxwf-validate-json-output-is-not-machine-parseable`. The cache trap is the failure phase 6
+      iteration 26 hit on its first terminal validate: `0 validated, 27 skipped`, exit 0.
+    status: open
+    issue: null

@@ -1,0 +1,1005 @@
+# open-requirements-ledger — run auris-scf1 (paper-to-galaxy)
+# Started empty by freeform-summary-to-galaxy-interface, the first Mold of this run to carry it.
+entries:
+  - id: featurecounts-annotation-source-unnamed
+    status: resolved
+    raised_by: freeform-summary-to-galaxy-interface
+    unmet: "gene annotation for workflow input `Gene annotation GTF`"
+    missing: >-
+      The paper names the genome assembly (GCA_002759435.2, C. auris B8441) but never names a
+      GTF/GFF for it. featureCounts requires one and RNA STAR uses one for splice junctions.
+      NCBI RefSeq GFF and FungiDB B8441 GFF differ in gene ID space and attribute keys
+      (`gene_id` vs `ID`), which changes the featureCounts `-g` attribute, every downstream gene
+      identifier, and whether SCF1 appears as `B9J08_001458` at all. FungiDB and CGOB are cited in
+      the paper only for synteny inspection, not as the counting annotation. The interface fixes
+      the datatype as `gtf`; a GFF3 source would require a different datatype or a conversion step.
+    resolved_by: paper-to-test-data
+    supersedes: null
+    note: >-
+      Largest single gap for reproducing this analysis. Whoever picks a source must record which
+      one, because count values and gene IDs are not comparable across the two.
+
+      CARRIED FORWARD by advance-galaxy-draft-step at `Count reads per gene`, which is now
+      concrete and STILL DOES NOT CLOSE THIS. Both consumers are wired to the declared
+      `Gene annotation GTF` input (RNA STAR `sjdbGTFfile`, featureCounts
+      `anno|reference_gene_sets` under `anno_select: history`, case 2), so the PORTS are
+      settled. What this step adds to the entry is a second dependent binding:
+      `gff_feature_attribute: gene_id` (featureCounts `-g`), taken from the wrapper default and
+      from corpus transcriptomics/rnaseq-pe/rnaseq-pe at fe41a79. That is correct for a GTF and
+      wrong for a FungiDB B8441 GFF3, which keys on `ID` — and the failure mode is a complete,
+      plausible counts table of the WRONG identifiers, not an error. `gff_feature_type: exon`
+      has the same shape of exposure. So this entry now gates three things, not one: the input's
+      datatype, the `-g` attribute, and the gene ID space every downstream result is addressed
+      in. Naming the source settles all three at once; nothing else will.
+
+
+      CLOSED by paper-to-test-data. The annotation is NCBI's own GTF for the exact accession the
+      paper names: `GCA_002759435.2_Cand_auris_B8441_V2_genomic.gtf.gz` under
+      `https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/759/435/GCA_002759435.2_Cand_auris_B8441_V2/`
+      (md5 6e5b9528d48c0a8fc2c8588e6eeea929). It was downloaded and inspected, not merely cited.
+      It settles all three things this entry gated, in the direction the workflow already assumes:
+      it is a true GTF (`#gtf-version 2.2`), so the input's `gtf` datatype needs no conversion
+      step; its `gene_id` values ARE the paper's locus tags, so `gff_feature_attribute: gene_id`
+      is correct as bound and SCF1 resolves as `B9J08_001458` with no identifier translation
+      (PEKT02000003.1:864995-867292, + strand, single exon, 2298 bp); and it carries 6057 `exon`
+      features across 5586 distinct genes, so `gff_feature_type: exon` is correct too. The
+      FungiDB-GFF3 hazard this entry described is avoided by not using FungiDB — nothing about
+      that hazard was wrong, it simply does not arise for this source.
+
+  - id: rnaseq-strandedness-inferred-from-kit-name
+    status: resolved
+    raised_by: freeform-summary-to-galaxy-interface
+    unmet: "value for workflow parameter `featureCounts strandedness`"
+    missing: >-
+      The paper states only the library kit (Illumina Stranded Total RNA Prep with Ribo-Zero Plus).
+      Reverse-stranded (dUTP) is inferred from that kit name and is not stated anywhere in the
+      supplement. The interface exposes the parameter with default `reverse` so the inference is
+      visible and changeable rather than buried in a step default.
+    resolved_by: paper-to-test-data
+    supersedes: null
+    note: >-
+      Empirically checkable without new information: the promoted output
+      `featureCounts assignment summary` shows a large Unassigned_NoFeatures fraction when the
+      setting is wrong. A test-plan or run phase can close this from evidence.
+
+
+      CLOSED by paper-to-test-data, empirically rather than by argument. The entry itself named
+      the check; it was performed a step earlier than expected, on alignments rather than on a
+      featureCounts summary. 200,000 read pairs from each of AR0382_A, AR0387_A and tnSWI1_A were
+      aligned to GCA_002759435.2 with bwa-mem and each R1 that unambiguously overlapped a single
+      annotated gene was compared against that gene's strand. 98.4% / 98.4% / 98.2% map ANTISENSE.
+      That is the dUTP reverse-stranded signature and it is not a close call. `stranded - reverse`
+      → featureCounts `-s 2` is correct; the value is now measured, not inferred from the kit
+      name. The `featureCounts assignment summary` check this entry proposed remains valid as a
+      regression guard and is carried into the test plan as an assertion.
+
+  - id: sample-sheet-condition-to-deseq2-factor-wiring
+    status: resolved
+    raised_by: freeform-summary-to-galaxy-interface
+    unmet: "path from per-sample `condition` metadata to DESeq2's factor-level inputs"
+    missing: >-
+      The interface carries condition and replicate as `column_definitions` on a
+      `sample_sheet:paired` reads input. Galaxy does not propagate `column_definitions` or per-row
+      `columns` through map-over, so by the time featureCounts has produced counts the condition
+      metadata is gone and an explicit step must reattach it
+      (`__SAMPLE_SHEET_TO_TABULAR__` plus a filter/split, or the rules DSL) before DESeq2 can
+      receive one multi-data input per factor level.
+    resolved_by: freeform-summary-to-galaxy-data-flow
+    supersedes: null
+    note: >-
+      Named fallback if the wiring proves unbuildable: replace the sample-sheet input with a
+      `list:paired` reads collection plus a `data` input `Sample metadata table`
+      (tabular: sample_id, condition, replicate) and split on that table. Taking the fallback
+      changes workflow input 1 and must be reflected back into the interface brief, not applied
+      silently in the template.
+      Closed by the data-flow brief, section 4. The condition reaches DESeq2 by an
+      identifier-keyed split taken off the workflow input, where the column metadata still lives:
+      `__SAMPLE_SHEET_TO_TABULAR__` projects the sample sheet to a tabular (element identifier,
+      condition, replicate); a row filter plus column projection yields one identifier list per
+      factor level; `__FILTER_FROM_FILE__` filters the featureCounts collection to each level's
+      identifiers; each per-level counts sub-collection reduces into one DESeq2 multi-data factor
+      port. The map-over region and every promoted per-sample output are untouched, and the join
+      key is the element identifier, which Galaxy preserves across map-over. The route is
+      independent of how the DESeq2 contrasts are realized
+      (`deseq2-contrast-realization-unsettled`) and survives the named fallback intact: under the
+      fallback the tabular node simply disappears and the user-supplied metadata table lands in
+      its place, with the filter and collection-split nodes unchanged. Two narrower successors
+      carry what remains: `sample-sheet-to-tabular-identifier-column-unverified` (is the element
+      identifier emitted as a column) and `deseq2-factor-level-names-not-parameterized` (where the
+      per-level literal comes from). Rejected alternatives and why are recorded in the brief's
+      section 4.6 — notably filtering by element-identifier regex, which is unsafe here because
+      `AR0382_tnSWI1_A` contains the reference level's own identifier as a substring.
+
+  - id: sample-sheet-input-test-fixture-expressibility
+    status: resolved
+    raised_by: freeform-summary-to-galaxy-interface
+    unmet: "test-fixture form for the `sample_sheet:paired` workflow input"
+    missing: >-
+      Whether a `sample_sheet`-family workflow input — element identifiers plus per-row typed
+      `columns` and collection-level `column_definitions` — can be expressed in a Planemo/IWC
+      `-tests.yml` job block. If it cannot, the workflow's primary input is untestable as designed
+      and the fallback in `sample-sheet-condition-to-deseq2-factor-wiring` becomes mandatory.
+    resolved_by: paper-to-test-data
+    supersedes: null
+    note: >-
+      Not verified in this phase; no fixture syntax for sample-sheet inputs appears in the
+      references packaged with this Mold. Naturally closed by the test-plan phase.
+
+
+      CLOSED by paper-to-test-data: YES, it is expressible, and the `list:paired` fallback is not
+      required. Galaxy's job-block loader has an explicit branch for it —
+      `lib/galaxy/tool_util/cwl/util.py`, `replacement_collection()`:
+      `if collection_type.startswith("sample_sheet"): kwds["rows"] = value.get("rows")`, carried
+      to the collections API by `lib/galaxy/tool_util/client/staging.py`. The nested
+      `sample_sheet:paired` shape specifically is covered by
+      `test/unit/tool_util/test_cwl_util.py::test_galactic_job_json_sample_sheet_paired_collection`,
+      and an end-to-end worked example ships as
+      `lib/galaxy_test/workflow/collection_semantics_cat_sample_sheet.gxwf-tests.yml`.
+
+      Two things a test author must get right. (1) `rows` is a mapping of element identifier to a
+      POSITIONAL LIST of column values ordered to match `column_definitions` — authority is
+      `validate_row()` in
+      `lib/galaxy/model/dataset_collections/types/sample_sheet_util.py`, which rejects on
+      `len(row) != len(column_definitions)` then `zip(row, column_definitions)`. The dict form
+      appearing in Galaxy's own non-paired unit tests never reaches that validator and will not
+      work. (2) Neither `galactic_job_json` nor `staging.py` passes `column_definitions` when
+      creating the collection, although the API payload supports it, so a test-staged sample sheet
+      has collection-level `column_definitions: None`. This is NOT fatal: per-element `columns`
+      are still populated from `rows`, and the two `column_definitions_compatible()` call sites
+      are both in `DataCollectionToolParameter` option-building (UI dropdown filtering), which a
+      test bypasses by supplying the HDCA by id. The one real consequence is that
+      `__SAMPLE_SHEET_TO_TABULAR__` emits its header line only
+      `#if $include_headers and $input.collection.column_definitions` — harmless here because
+      `Project sample sheet to tabular` sets `include_headers: false`, but a later phase that
+      flips it to true will see the header silently vanish under test while it appears in the UI.
+      Concrete job block is in `test-data-refs.json` under `planemo_test_job_block`.
+
+  - id: deseq2-contrast-realization-unsettled
+    status: resolved
+    raised_by: freeform-summary-to-galaxy-interface
+    unmet: "step realization behind the two contrast outputs"
+    missing: >-
+      The paper reports two contrasts (tnSWI1 vs AR0382, AR0387 vs AR0382) and states the
+      significance thresholds, but writes no design formula. One factor, three levels, n = 2 is
+      inferred from the six deposited runs. Whether the two contrasts come from one DESeq2 run over
+      a three-level factor or two runs over two-level factors depends on the chosen wrapper's
+      contrast handling, which is not known at interface time.
+    resolved_by: compare-against-iwc-exemplar
+    supersedes: null
+    note: >-
+      The interface fixes only the output surface — two result tables and two filtered tables,
+      labelled per contrast. Either realization satisfies it.
+      Closed by the IWC exemplar comparison, section 3.2, against
+      transcriptomics/rnaseq-de/rnaseq-de-filtering-plotting at corpus fe41a79. Two DESeq2
+      nodes, each with a two-level factor, the reference-level counts collection feeding both:
+      H1 (AR0382, tnSWI1) and H2 (AR0382, AR0387). Evidence: the exemplar's DESeq2 step uses
+      `select_data.how: datasets_per_level` with a `rep_factorName_0.rep_factorLevel` repeat of
+      exactly two levels, each port consuming a whole collection through the wrapper's
+      multiple=true input; its `deseq_out` is a single dataset, not a collection, proved by the
+      single-dataset tools it feeds (deg_annotate, tp_cat, two Filter1 steps) and by the sibling
+      -tests.yml asserting has_text_matching on the derived output as a dataset; and the
+      workflow README bounds itself to "exactly 2 conditions with at least 2 replicates per
+      condition". One DESeq2 job therefore yields one results table, so the interface's two
+      distinctly labelled result tables require two jobs. A three-level factor is expressible
+      via the repeat but would still emit one `deseq_out`, which cannot satisfy a two-output
+      interface — so the output surface settles the arity regardless of the wrapper's
+      three-level contrast behaviour. Upstream wiring is unaffected, exactly as the data-flow
+      brief's section 4.4 predicted: nodes E, F1-F3 and G1-G3 are identical either way. One
+      consequence for the interface: under two DESeq2 nodes, `DESeq2 normalized counts`
+      (output 9) and `DESeq2 diagnostic plots` (output 14) are each produced twice while the
+      interface declares one of each. Promote from one designated run and say which, or relabel
+      per contrast; do not leave it implicit in the template.
+
+  - id: reference-genome-delivery-shape-unverified
+    status: open
+    raised_by: freeform-summary-to-galaxy-interface
+    unmet: "verified delivery shape for the C. auris B8441 reference genome"
+    missing: >-
+      The interface settles the genome as a history `fasta` dataset on portability grounds (a
+      remote-URL fixture resolves on any server; a CVMFS built-in index does not), with RNA STAR
+      building its index at run time. Whether usegalaxy.org carries a built-in index for
+      GCA_002759435.2 was not checked, and this run's phase roster contains no reference-data Mold
+      that owns the question.
+    resolved_by: null
+    supersedes: null
+    note: >-
+      Provisionally settled, not verified. A built-in index would be cheaper at run time but less
+      portable for tests; revisiting it changes workflow input 2.
+
+  - id: cutadapt-adapter-and-length-filter-unstated
+    status: open
+    raised_by: freeform-summary-to-galaxy-interface
+    unmet: "Cutadapt adapter sequence and minimum-length filter"
+    missing: >-
+      The paper gives only "Cutadapt with a Phred cutoff score of 20". No adapter sequence appears
+      anywhere in the supplement, and no minimum-length filter is stated. The interface reads the
+      step as quality trimming only (`-q 20`, baked in) and exposes no adapter input.
+    resolved_by: null
+    supersedes: null
+    note: >-
+      If a later phase adds adapter trimming it is adding method the paper does not describe, and
+      that addition has to be labelled as such rather than presented as a faithful port.
+      STILL OPEN after phase 6 iteration 8 concretized `Quality-trim reads`, and deliberately so.
+      The step pins lparsons/cutadapt 5.2+galaxy2 with all six adapter repeats written explicitly
+      empty (adapters / front_adapters / anywhere_adapters on R1, the adapters2 / front_adapters2 /
+      anywhere_adapters2 trio on R2) and `other_trimming_options.quality_cutoff: '20'`, which is
+      the one Cutadapt parameter the paper actually states. The unstated minimum-length filter is
+      now recorded concretely: the pinned wrapper's default is `filter_options.minimum_length: 1`,
+      which the XML flags as a deliberate wrapper-side departure from cutadapt's own default of 0
+      ("intentionally set to 1 ... to avoid hard to debug issues with downstream tools"). The step
+      writes that 1 out explicitly so a later wrapper bump cannot move it silently -- but it is the
+      WRAPPER's default, not the paper's parameter, and the corpus shows the value is genuinely
+      chosen per workflow (cutandrun at fe41a79 uses 15, the VGP workflows use 1). Closing this
+      entry requires a stated adapter and a stated length cut, neither of which exists in the
+      source.
+
+  - id: galaxy-tool-versions-unpinnable-from-source
+    status: open
+    raised_by: freeform-summary-to-galaxy-interface
+    unmet: "tool versions matching the published analysis"
+    missing: >-
+      The paper gives no version for any Galaxy step (FastQC, Cutadapt, RNA STAR, featureCounts,
+      DESeq2). Only non-Galaxy software is versioned (R 4.0.3, DescTools 0.99.49, survminer 0.4.9,
+      Fiji 1.52, CellProfiler 3.1.9). The constructed workflow will pin its own versions and can
+      reproduce the authors' method but never their software stack.
+    resolved_by: null
+    supersedes: null
+    note: >-
+      Unclosable from the source. Expected to be surrendered at the terminal and stated on the
+      workflow itself, so a reader does not mistake the run for a version-faithful reproduction.
+
+  - id: tnbcy1-contrast-not-carried
+    status: open
+    kind: dropped
+    raised_by: freeform-summary-to-galaxy-interface
+    units: "the tnBCY1 (B9J08_002818) vs AR0382 transcriptome comparison reported in Fig. S2"
+    because: >-
+      No tnBCY1 runs exist in BioProject PRJNA904261. Only three conditions were deposited
+      (AR0382, AR0387, AR0382 tnSWI1), across six runs SRR22376027–SRR22376032.
+    unmet: "one of the three transcriptome comparisons the paper reports"
+    missing: >-
+      The workflow can build only the two contrasts whose input data is public. A test that tries
+      to reproduce Fig. S2 has no input.
+    resolved_by: null
+    supersedes: null
+    note: >-
+      Cut by data availability, not by a design decision. Adding a fourth condition later needs
+      no interface change: the reads input is a sample sheet whose `condition` restrictions widen.
+
+  - id: pipeline-b-tdna-mapping-not-carried
+    status: open
+    kind: dropped
+    raised_by: freeform-summary-to-galaxy-interface
+    units: >-
+      the whole of Pipeline B — AtMT T-DNA insertion-site mapping: FastQC, Trimmomatic,
+      BWA-MEM against linearized pTO128 (seed 50, band width 2), extractSoftClipped,
+      BWA-MEM of the soft-clipped flanks against C. auris B8441 (5 computational steps,
+      2 deposited runs SRR22376033–SRR22376034)
+    because: >-
+      Two blockers, both recorded in the source summary's open questions (4 and 5) and neither
+      independently verified in this phase. (a) `extractSoftClipped` from SE-MEI
+      (github.com/dpryan79/SE-MEI) has no known Galaxy Tool Shed wrapper, so the pipeline cannot be
+      assembled from stock tools as written; substituting a samtools/awk soft-clip extraction would
+      change the method. (b) The pTO128 (pPZP-NAT) plasmid reference has no public accession in the
+      paper — it is cited to the prior AtMT method paper (ref. 52) — so step 3's reference is
+      unresolvable from the publication alone.
+    unmet: "the second of the paper's two sequencing analyses"
+    missing: >-
+      No T-DNA integration sites are produced by this run. The scope decision was taken by the
+      harness before this phase.
+    resolved_by: null
+    supersedes: null
+    note: >-
+      Uncited in the strict sense: no Tool Shed search for extractSoftClipped and no Addgene or
+      ref. 52 lookup for pTO128 was run in this phase; both reasons are carried from the source
+      summary. Treat as a debt, not a finding. If a later phase's discovery step contradicts either
+      reason, this entry's `because` is refuted and the entry must be reopened rather than left
+      standing.
+
+  - id: sample-sheet-to-tabular-identifier-column-unverified
+    status: resolved
+    raised_by: freeform-summary-to-galaxy-data-flow
+    step: sample_metadata_table
+    unmet: "confirmation that the sample-sheet-to-tabular bridge emits the element identifier"
+    missing: >-
+      The settled condition wiring joins the sample metadata table to the featureCounts collection
+      on element identifier, so node E's output must carry that identifier as a column. The
+      packaged note galaxy-sample-sheet-collections documents `__SAMPLE_SHEET_TO_TABULAR__` only as
+      iterating elements and tab-joining "for downstream tabular consumers"; it does not state the
+      output column set or ordering, and no other packaged reference covers it. Galaxy source was
+      not readable from inside this run.
+    resolved_by: advance-galaxy-draft-step
+    supersedes: null
+    note: >-
+      RESOLVED, affirmatively, by the tool summary itself. `__SAMPLE_SHEET_TO_TABULAR__` v1.0.0
+      caches cleanly from the Tool Shed API by bare id (unlike `__FLATTEN__`, whose collection
+      output defeats gxwf's summary decoder), and its packaged help states the contract
+      directly: "The first column is always the element identifier (sample name). The remaining
+      columns match the metadata fields defined in the sample sheet." With the optional
+      `include_headers` enabled the first header cell is literally `element_identifier`. So the
+      identifier IS emitted, as column 1, and the ordering this region assumed throughout --
+      (element identifier, condition, replicate), metadata in column_definitions order -- is
+      confirmed. All six provisional column bindings downstream (three Filter1 predicates on c2,
+      three Cut1 projections of c1) stand unchanged; the Apply Rules substitute node named in
+      the data-flow brief section 4.2 is not needed and was not built. The step is pinned with
+      `include_headers: false`, which also settles the three row filters' `header_lines` at 0 --
+      that binding is no longer blocked on this entry. Evidence is the wrapper's own documented
+      contract, not a corpus exemplar; `no-iwc-precedent-for-sample-sheet-workflow-input` is
+      unaffected and stays open.
+
+  - id: deseq2-factor-level-names-not-parameterized
+    status: resolved
+    raised_by: freeform-summary-to-galaxy-data-flow
+    step: select_level_L
+    unmet: "a source for the two non-reference condition level literals"
+    missing: >-
+      The condition split needs one literal condition value per factor level to filter the sample
+      metadata table (AR0382, AR0387, tnSWI1). The interface exposes only `Reference condition
+      level` (input 4, default AR0382). The two contrast levels have no parameter, so as the
+      interface stands they would be baked into two filter steps — re-hard-coding into the steps
+      the three-level design that the sample-sheet input was chosen to keep out of the public
+      interface.
+    resolved_by: freeform-summary-to-galaxy-template
+    supersedes: null
+    note: >-
+      Two ways to settle it, both changing the interface's parameter surface rather than the
+      topology: expose two more text parameters (one per contrast level) alongside the existing
+      reference-level parameter, or accept the bake and state plainly in the interface that the
+      three level names are fixed in the steps. Whichever is chosen must be reflected back into
+      freeform-galaxy-interface.md section 2.3, not applied silently in the template.
+      Closed by the template on the first of those two options. The draft exposes two further
+      `text` workflow inputs, `First contrast condition level` (default tnSWI1) and
+      `Second contrast condition level` (default AR0387), alongside the existing
+      `Reference condition level` (default AR0382). Each feeds a `compose_text_param` step that
+      builds the row predicate for its level, so no level literal is baked into any step.
+      The deciding argument is symmetry: the reference level was already a parameter for exactly
+      this reason, and baking the other two would have left the interface half-generalized while
+      re-hard-coding into the steps the design the sample-sheet input was chosen to keep out of
+      the interface. The cost is two inputs the phase-2 brief does not declare, which is one facet
+      of the interface drift recorded in
+      `interface-brief-output-and-parameter-surface-drifted-from-draft`; that entry carries the
+      owed edit to freeform-galaxy-interface.md section 2.3, since this Mold does not own that
+      artifact. One caveat the draft states on both new inputs: the contrast output labels
+      (`... tnSWI1 vs AR0382`, `... AR0387 vs AR0382`) are the public API and are not derived
+      from these parameters, so changing a level value makes the labels stale.
+
+  - id: fold-change-threshold-linear-vs-deseq2-log2fc
+    status: resolved
+    raised_by: freeform-summary-to-galaxy-data-flow
+    step: filter_significant
+    unmet: "unit agreement between workflow input 7 and the DESeq2 result column it thresholds"
+    missing: >-
+      Workflow input 7 is `Minimum absolute fold change`, default 2.0, in linear units — the form
+      the paper states (|fold change| > 2). DESeq2 reports log2FoldChange. The significance filter
+      must therefore compare abs(log2FoldChange) > log2(threshold), which needs either a conversion
+      the filter expression may not support or a restatement of the parameter. Nothing in the
+      interface brief notes the mismatch.
+    resolved_by: compare-against-iwc-exemplar
+    supersedes: null
+    note: >-
+      Consequential if missed rather than merely untidy: comparing abs(log2FoldChange) > 2.0
+      applies a 4-fold cut and silently fails to reproduce the paper's gene lists, while still
+      producing a plausible-looking filtered table. Options are a log2 conversion node before the
+      filter, a filter expression that computes the conversion inline, or restating input 7 as a
+      log2 threshold (default 1.0) with its label changed — the last changes the interface.
+      Closed by the IWC exemplar comparison, section 2, on the third of those three options.
+      transcriptomics/rnaseq-de/rnaseq-de-filtering-plotting at corpus fe41a79 exposes
+      `log2 fold change threshold` as a float workflow input, default 1.0, documented as
+      "A log2 FC of 3 equals to an absolute fold change of 8 (2^3)", and filters with the raw
+      column and no conversion anywhere in the workflow: `abs(c3)>` concatenated with the
+      connected float. There is no linear fold-change parameter, no log2() call and no
+      conversion node in the corpus exemplar. So: restate interface input 7 as a log2 threshold
+      with default 1.0 — which is exactly the paper's |fold change| > 2 — and change its label;
+      teach the conversion in the doc string as the corpus does. Three implementation details
+      come with the answer. (a) Column indices are c3 for log2FC and c7 for adjusted p-value;
+      deg_annotate appends columns 8-13 and leaves 1-7 untouched, so the indices hold whether or
+      not an annotation step is added. (b) Filter1's predicate is a text parameter, so a numeric
+      workflow input cannot reach it directly: the corpus idiom is one iuc/compose_text_param
+      step per threshold concatenating a literal prefix (`c7<`, `abs(c3)>`) with the connected
+      float, making node I two Galaxy steps per filter rather than one. (c) The two thresholds
+      are two chained Filter1 steps, p-adj then log2FC, each with header_lines "1", not one
+      compound predicate. Restating input 7 changes the interface brief's section 2.3 and its
+      output-3 table entry; that edit must be made there, not silently in the template.
+
+  - id: fastqc-per-read-fanout-not-a-flat-list
+    status: resolved
+    raised_by: freeform-summary-to-galaxy-data-flow
+    step: qc_raw_reads
+    unmet: "agreement between the declared shape of outputs 1-2 and what map-over actually produces"
+    missing: >-
+      The interface declares `FastQC raw reads: text summary` and `: HTML report` as `list`
+      collections. FastQC consumes a single dataset, so mapping it over a `sample_sheet:paired`
+      input fans out over the inner paired axis as well — 12 jobs, and outputs nested one report
+      per read direction per sample, not six flat elements. As declared, outputs 1 and 2 are not
+      what the workflow computes.
+    resolved_by: compare-against-iwc-exemplar
+    supersedes: null
+    note: >-
+      The data-flow brief (section 7.1) recommends promoting the nested collection and correcting
+      the interface: per-read-direction QC is what a reader wants from raw-read QC, and it
+      preserves the element identifier space that every checkpoint assertion keys on. The
+      alternative is an explicit flatten node, which satisfies the declared `list` but rewrites
+      identifiers to a doubled vocabulary (`AR0382_A_forward`) for no analytical gain. Either way
+      the test plan must know which, because it changes every assertion on outputs 1 and 2.
+      Closed by the IWC exemplar comparison, section 3.3, in favour of the explicit flatten —
+      the option the data-flow brief rated as having no analytical gain. The brief's preference
+      was a reasonable call made with no corpus evidence available; the evidence now exists and
+      points the other way. transcriptomics/rnaseq-pe/rnaseq-pe at corpus fe41a79 puts an
+      explicit `__FLATTEN__` step with `join_identifier: _` between the list:paired reads input
+      and the per-fastq QC tool, and the consuming QC subworkflow declares its input as
+      `collection_type: list` — flat. This is published IWC convention rather than a workaround,
+      and it satisfies the interface's declared `list` shape for outputs 1 and 2 as originally
+      written, so no interface correction is needed. Consequences the test plan must key on: the
+      identifier vocabulary on outputs 1 and 2 doubles to twelve (AR0382_A_forward,
+      AR0382_A_reverse, and so on for each of the six samples), while outputs 3-8 keep the
+      six-element sample identifier space untouched, because the flatten is a side branch off the
+      workflow input and does not enter the map-over region. The data-flow brief's placeholder
+      transformation 5.5 is therefore required, not conditional.
+
+  - id: trimmed-reads-paired-reassembly-conditional
+    status: resolved
+    raised_by: freeform-summary-to-galaxy-data-flow
+    step: trim_reads
+    unmet: "the output collection shape of the paired-aware trimming step"
+    missing: >-
+      The interface declares `Trimmed reads` as `list:paired`. Whether the trimmer emits one
+      paired-inner collection per sample or two parallel single-ended collections (R1, R2) is
+      wrapper-dependent and was not resolvable in this phase, which pins no Tool Shed tools. If it
+      is the latter, the design needs a re-pair node between trimming and alignment, or the
+      alignment step must take two parallel collections in dot-product.
+    resolved_by: compare-against-iwc-exemplar
+    supersedes: null
+    note: >-
+      Conditional shape repair, not method: recorded in the data-flow brief as placeholder
+      transformation 5.6 so the template does not assume one reading. Naturally closed by the IWC
+      exemplar comparison or by tool discovery on the trimmer.
+      Closed by the IWC exemplar comparison, section 3.4: one paired-inner collection per sample,
+      no re-pair node. Neither transcriptomics exemplar uses Cutadapt — both use fastp — so the
+      evidence comes from epigenetics/cutandrun/cutandrun at corpus fe41a79, cited for the
+      wrapper's IO shape only and for nothing else, since CUT&RUN is a different domain.
+      toolshed.g2.bx.psu.edu/repos/lparsons/cutadapt/cutadapt/5.2+galaxy2 driven from a
+      list:paired collection with `library.type: paired_collection` declares outputs `out_pairs`
+      (type `input`, i.e. the input collection's own shape) and `report` — one paired collection
+      plus one report per element. Placeholder transformation 5.6 is therefore not needed and
+      node C takes a single collection input, as the data-flow brief's primary reading assumed.
+      The finding is consistent across both wrappers that could fill the trimmer slot:
+      transcriptomics/rnaseq-pe/rnaseq-pe's fastp emits `output_paired_coll` the same way. The
+      residual is version-scoped rather than structural — a future Cutadapt wrapper could change
+      its output set, so the per-step loop should confirm the output name against whatever
+      version it pins.
+
+  - id: mapped-outputs-carry-sample-sheet-outer-axis
+    status: open
+    raised_by: freeform-summary-to-galaxy-data-flow
+    unmet: "accurate declared collection types for the promoted per-sample outputs"
+    missing: >-
+      A tool mapped over a `sample_sheet`-family collection produces a `sample_sheet`-shaped output
+      without `column_definitions` (packaged note galaxy-sample-sheet-collections, "Mapping
+      rules"). The interface's output table calls outputs 1-8 `list` / `list:paired`. Behaviourally
+      that is accurate — such a collection maps, reduces and filters exactly like a list — but the
+      declared collection type string is not `list`, which matters to anything that type-checks,
+      including workflow test assertions on collection type.
+    resolved_by: null
+    supersedes: null
+    note: >-
+      No topology consequence; the fix is either a corrected type column in the interface brief or
+      an explicit statement that the promoted outputs are sample_sheet-shaped lists without column
+      metadata. Flagged primarily for the test-plan phase, which is where a wrong collection_type
+      assertion would surface as a confusing failure.
+
+
+      ADVANCED, NOT CLOSED, by implement-galaxy-workflow-test. The test file authors no `attributes:
+      {collection_type: ...}` assertion on any of the eight mapped outputs, as the test plan's `promoted-
+      collection-type-string-unverified` instructs. What it asserts instead is `element_count` plus a named
+      `element_tests` entry per identifier - twelve for the flattened FastQC outputs, six for every output on
+      the sample axis - which is shape-agnostic and pins the thing that actually matters, the identifier space
+      the condition split joins on. So no assertion in this run depends on the declared type string and nothing
+      here forces the question. It stays open as an interface-brief accuracy item, and the real type strings
+      should be read off the first successful invocation before anyone decides whether a collection_type
+      assertion is worth having.
+
+
+  - id: iwc-splits-rnaseq-de-at-the-count-table-boundary
+    status: open
+    raised_by: compare-against-iwc-exemplar
+    unmet: "agreement between this run's workflow scope and published IWC practice"
+    missing: >-
+      IWC has no single workflow spanning FastQC to DESeq2. At corpus fe41a79 the journey is
+      published as two workflows joined at the count-table boundary:
+      transcriptomics/rnaseq-pe/rnaseq-pe ends at per-sample count tables, and
+      transcriptomics/rnaseq-de/rnaseq-de-filtering-plotting begins there, taking pre-grouped
+      `list` collections of count tables as its workflow inputs. This run's design is one
+      workflow spanning both halves, which is why it needs an in-workflow condition split at all
+      — a workflow that starts from count tables can demand pre-grouped collections at its
+      interface and never reconstruct grouping internally.
+    resolved_by: null
+    supersedes: null
+    note: >-
+      Not a defect in either design, and not a reason to re-scope: the paper describes one
+      analysis and the run was asked to build it. Recorded because it is the root of the single
+      largest divergence from corpus practice (see
+      `no-iwc-precedent-for-sample-sheet-workflow-input`) and because any later
+      mature-galaxy-workflow-for-iwc pass will meet it as a packaging question — a reviewer may
+      ask why this is not two workflows. Whoever revisits it should weigh that the split also
+      costs reusability of the DE half, which is presumably why IWC made it.
+
+  - id: no-iwc-precedent-for-sample-sheet-workflow-input
+    status: open
+    raised_by: compare-against-iwc-exemplar
+    step: sample_metadata_table
+    unmet: "a worked corpus precedent for the sample-sheet condition split"
+    missing: >-
+      Searched across all of `workflows/` at corpus fe41a79: `sample_sheet` as a collection type
+      appears in zero workflows; `__SAMPLE_SHEET_TO_TABULAR__` appears in zero workflows;
+      `column_definitions` appears only as the literal `null` that newer Galaxy serializes onto
+      ordinary collection inputs, never with a value. `__FILTER_FROM_FILE__` does appear, in six
+      workflows, but none in transcriptomics and none for a condition split. So the second half
+      of the data-flow brief's section 4.2 route is a real used Galaxy idiom while the
+      sample-sheet half is unprecedented in published IWC practice, and no corpus fixture
+      declares a sample-sheet collection either.
+    resolved_by: null
+    supersedes: null
+    note: >-
+      Absence of precedent is not refutation, and nothing in the corpus contradicts the route —
+      the phase-3 reasoning stands on its own. What changes is the risk profile: this is the one
+      region of the workflow with no worked example to pattern-match against, and two open
+      entries ride on it (`sample-sheet-to-tabular-identifier-column-unverified`,
+      `sample-sheet-input-test-fixture-expressibility`). Guidance for the template, from the
+      comparison notes section 3.1: build the split as a clearly delimited region with the
+      phase-2 fallback (a `data` input `Sample metadata table`) reachable by deleting one node,
+      so that if either open entry resolves against the sample sheet the cost is a deletion
+      rather than a redesign. Worth knowing for the record that IWC made the opposite trade
+      deliberately — it pushes grouping into the interface as two pre-grouped count collections,
+      which is the same shape the interface brief's section 2.1 rejected for hard-coding the
+      design into the public API.
+
+  - id: star-history-reference-wiring-has-no-corpus-precedent
+    status: resolved
+    raised_by: compare-against-iwc-exemplar
+    step: align_reads
+    unmet: "worked wiring for the RNA STAR history-reference conditional branch"
+    missing: >-
+      Every RNA STAR step in the corpus at fe41a79 — there are exactly two, in
+      transcriptomics/rnaseq-pe/rnaseq-pe and transcriptomics/rnaseq-sr/rnaseq-sr — uses
+      `refGenomeSource.geneSource: indexed`, selecting a built-in `genomeDir` through a
+      `restrictOnConnections: true` string parameter with `sjdbGTFfile` supplied from the
+      history. Their test jobs pass a plain genome string (`Reference genome: sacCer3`). The
+      interface settles input 2 as a history FASTA, which is the right call for C. auris B8441
+      since no public server indexes it, but that is a different `__current_case__` in the
+      iuc/rgrnastar wrapper with a different set of required sub-parameters, and the corpus has
+      no example of it.
+    resolved_by: advance-galaxy-draft-step
+    supersedes: null
+    note: >-
+      RESOLVED, affirmatively, from the wrapper rather than from the corpus — which is what the
+      original note asked for. iuc/rgrnastar/rna_star @ 2.7.11b+galaxy1 caches and summarizes
+      cleanly (all ten of its outputs are plain `data`, so the collection-output decode failure
+      that blocks `__FLATTEN__` and lparsons/cutadapt does not apply here), and its schema
+      answers every part of the question. `refGenomeSource.geneSource` publishes exactly two
+      options, `indexed` and `history`; the HISTORY branch is real, is `__current_case__: 1`, and
+      carries `genomeFastaFiles` (gx_data, formats fasta/fasta.gz, optional false),
+      `genomeSAindexNbases` (integer, min 2 max 16, default 14), its own TWO-case
+      `GTFconditional`, and `diploidconditional` (Yes=0 / No=1, default No). So the two TODO
+      ports resolve to `refGenomeSource|genomeFastaFiles` and
+      `refGenomeSource|GTFconditional|sjdbGTFfile`; the exemplar's
+      `refGenomeSource|GTFconditional|genomeDir` exists only under `indexed` and is correctly
+      absent. Under history, GTFconditional's option order (without-gtf, with-gtf) is the
+      REVERSE of its `<when>` order (with-gtf, without-gtf), so `with-gtf` is case 0 — a case
+      index that cannot be read off the dropdown. That the case index follows `<when>` document
+      order is not assumed: `gxwf convert --to format2` over
+      transcriptomics/rnaseq-pe/rnaseq-pe.ga at fe41a79 emits `geneSource: indexed` with
+      `__current_case__: 0` and `GTFselect: without-gtf-with-gtf` with `__current_case__: 1`,
+      matching the indexed branch's `<when>` order (with-gtf, without-gtf-with-gtf, without-gtf)
+      and not its option order. Cross-read against rg_rnaStar.xml and macros.xml at tools-iuc
+      main, which carries @TOOL_VERSION@ 2.7.11b / @VERSION_SUFFIX@ 1 — this exact version.
+      Two consequences worth carrying: the history branch builds its index in-job via
+      `STAR --runMode genomeGenerate` into tempstargenomedir, confirming the data-flow brief's
+      no-separate-index-node call; and `output_log` and `mapped_reads` carry no `<filter>`
+      whatsoever in `<outputs>`, so the promoted `STAR mapping summary` cannot be suppressed by
+      any parameter choice here. The step now validates for real against the cache
+      (`12 ok, 0 fail, 2 skip`), not by skip. `reference-genome-delivery-shape-unverified` is
+      untouched and STAYS OPEN — this entry establishes that the history route WORKS, never
+      that it is preferable to a built-in index nobody checked for.
+      `featurecounts-annotation-source-unnamed` also stays open: the GTF PORT is now wired, the
+      GTF SOURCE is still unnamed by the paper.
+
+  - id: star-genome-length-drives-sa-index-parameter
+    status: open
+    raised_by: advance-galaxy-draft-step
+    step: "Splice-aware alignment"
+    unmet: "a measured length for the reference actually wired into `Reference genome FASTA`"
+    missing: >-
+      `genomeSAindexNbases` exists ONLY in the RNA STAR history branch — it configures the
+      in-job `--runMode genomeGenerate` that this workflow's history-FASTA delivery choice
+      introduces, so it is not a mapping parameter the paper's "default parameters" could have
+      covered. The wrapper's own help carries STAR's formula verbatim: "For small genomes, the
+      parameter --genomeSAindexNbases must be scaled down to min(14, log2(GenomeLength)/2 - 1)".
+      The step binds `'10'`, from min(14, log2(12.5e6)/2 - 1) = min(14, 10.79). The 12.5 Mb is
+      the GCA_002759435.2 assembly record's length as carried through this run's briefs; nothing
+      in this run measured the dataset that will actually be wired.
+    resolved_by: null
+    supersedes: null
+    note: >-
+      Silent-degradation class, not a hard gate: the wrapper default of 14 is the documented
+      seg-fault-at-mapping hazard for a genome this small (the wrapper's own test data uses 5),
+      and a value too small merely costs search speed. Two ways this becomes wrong: a different
+      reference is supplied at run time (a mammalian genome would want 14 back), or the B8441
+      FASTA in hand differs materially in length from the assembly record. Settle it by reading
+      the length of the actual dataset, or by reading STAR's own recommendation out of the
+      promoted `STAR mapping summary` / job stderr on the first real run — STAR prints the
+      recommended value when the supplied one is too large. Tied to
+      `reference-genome-delivery-shape-unverified`: if that resolves to a built-in index, this
+      parameter disappears with the branch.
+
+
+      ADVANCED, NOT CLOSED, by paper-to-test-data. The entry asked for a measured length of the
+      reference actually wired in. The reference this run will wire is now pinned — NCBI
+      `GCA_002759435.2_Cand_auris_B8441_V2_genomic.fna.gz`, md5 a008b270d3aaa04736a8bb7daf3f6dd5 —
+      and it was downloaded and measured: 12,365,959 bp across 15 contigs. min(14,
+      log2(12365959)/2 - 1) = min(14, 10.78), so the bound `'10'` is correct for this dataset.
+      What keeps the entry open is exactly the exposure it already named: the parameter is
+      correct for the reference the TEST supplies, and a user who supplies a different genome at
+      run time still gets a silently wrong value. The first real STAR run should confirm from the
+      promoted `STAR mapping summary`.
+
+  - id: deseq2-normalized-counts-and-plots-promoted-per-contrast
+    status: resolved
+    raised_by: freeform-summary-to-galaxy-template
+    step: "Differential expression: first contrast vs reference"
+    unmet: >-
+      a decision on the two DESeq2 outputs the interface declares once and two DESeq2 jobs
+      produce twice
+    missing: >-
+      `deseq2-contrast-realization-unsettled` closed on two DESeq2 nodes, which makes
+      `DESeq2 normalized counts` (interface output 9) and `DESeq2 diagnostic plots` (interface
+      output 14) each produced twice while the interface declares one of each. The IWC comparison
+      flagged the consequence and instructed the template not to leave it implicit: promote from
+      one designated run and say which, or relabel per contrast.
+    resolved_by: freeform-summary-to-galaxy-template
+    supersedes: null
+    note: >-
+      Settled by relabelling per contrast. The draft promotes four outputs where the interface
+      declared two: `DESeq2 normalized counts: tnSWI1 vs AR0382`,
+      `DESeq2 normalized counts: AR0387 vs AR0382`, `DESeq2 diagnostic plots: tnSWI1 vs AR0382`
+      and `DESeq2 diagnostic plots: AR0387 vs AR0382`, taking the workflow to sixteen outputs.
+      This is not a tie broken on taste. Each DESeq2 job sees only its own four samples, so its
+      size factors, normalized values and PCA/dispersion plots are computed over that subset: the
+      two normalized-count tables are different tables, not two copies of one. Promoting either
+      and calling it "the" normalized counts would be wrong rather than merely arbitrary, and
+      dropping one would discard a real artifact while leaving the surviving one silently
+      contrast-scoped. Relabelling also makes the four outputs symmetric with the result and
+      filtered-gene tables, which are already labelled per contrast.
+      One consequence for the test plan: the paper's sanity check that SCF1 sits in the top 2.5%
+      of AR0382 expression can be asserted against either normalized-counts table, because both
+      carry the two AR0382 replicates. Assert it on one and say which.
+      The owed edit to freeform-galaxy-interface.md section 3 rides on
+      `interface-brief-output-and-parameter-surface-drifted-from-draft`; labels are the public API
+      and this is a breaking change to be made once, before any test is written.
+
+  - id: interface-brief-output-and-parameter-surface-drifted-from-draft
+    status: open
+    raised_by: freeform-summary-to-galaxy-template
+    unmet: >-
+      agreement between freeform-galaxy-interface.md and the settled draft's public input and
+      output surface
+    missing: >-
+      Phases 4 and 5 changed the interface in four places that the phase-2 brief still states in
+      its original form. The brief is the artifact the test plan reads for labels, and labels are
+      the API, so the drift has to be visible rather than inferred by diffing two artifacts.
+      (a) Interface input 7 `Minimum absolute fold change` (float, linear, default 2.0) is in the
+      draft `log2 fold change threshold` (float, log2 units, default 1.0) — closed on corpus
+      evidence by `fold-change-threshold-linear-vs-deseq2-log2fc`.
+      (b) Interface input 5 `featureCounts strandedness` (free text, allowed values named only in
+      prose) is in the draft `Strandedness` (text restricted to `stranded - forward` /
+      `stranded - reverse` / `unstranded`, default `stranded - reverse`) feeding a
+      `map_param_value` bridge with `on_unmapped: fail` — the corpus idiom adopted per the IWC
+      comparison section 3.6.
+      (c) Two inputs the brief does not declare at all: `First contrast condition level` and
+      `Second contrast condition level` — see `deseq2-factor-level-names-not-parameterized`.
+      (d) Fourteen declared outputs become sixteen — see
+      `deseq2-normalized-counts-and-plots-promoted-per-contrast`.
+    resolved_by: null
+    supersedes: null
+    note: >-
+      Bookkeeping, not a design gap: every one of the four changes is itself settled and recorded,
+      and the draft is the current statement of the interface. What is unmet is that no Mold in
+      this run's roster owns freeform-galaxy-interface.md after phase 2, so the edits have no
+      writer. Recorded here so the test-plan phase reads labels off the draft rather than off the
+      stale brief, and so a later maturation pass knows which artifact was authoritative. Closable
+      by editing the brief's sections 2.3 and 3, or by declaring the draft authoritative for the
+      interface and saying so in the brief.
+
+  - id: deseq2-result-table-header-presence-unverified
+    status: resolved
+    raised_by: freeform-summary-to-galaxy-template
+    step: "Filter with p-adj threshold: first contrast"
+    unmet: "the `header_lines` binding for the four Filter1 steps of the significance chains"
+    missing: >-
+      The corpus exemplar binds `header_lines: "1"` on both of its Filter1 steps, but it filters a
+      table that has been through `deg_annotate` and then `tp_cat`, and the tp_cat step exists
+      precisely to concatenate a separately generated single-line header onto the DESeq2 output.
+      That strongly implies the raw `deseq_out` is headerless. This workflow omits the annotation
+      pair — the paper names no annotation step and the interface's tool set is closed — so its
+      Filter1 steps consume `deseq_out` directly and the corpus binding cannot be copied across.
+      Whether the pinned iuc/deseq2 wrapper writes a header row on `deseq_out` is not established
+      by anything this run read.
+    resolved_by: advance-galaxy-draft-step
+    supersedes: null
+    note: >-
+      Consequential if missed rather than untidy, which is why it is a ledger entry and not only a
+      `_plan_state` line. Binding "1" against a headerless table silently drops the first gene
+      row of every filtered result; binding "0" against a headed table passes the header line into
+      a numeric comparison, where Filter1 discards it with a warning rather than an error. Either
+      way the workflow produces a plausible table. The same binding applies to the three row
+      filters in the condition-split region, where the unknown is the header behaviour of
+      `__SAMPLE_SHEET_TO_TABULAR__` rather than of DESeq2 — a different producer, the same class
+      of silent loss, tracked there by
+      `sample-sheet-to-tabular-identifier-column-unverified`. Closable by a summarize-galaxy-tool
+      pass on iuc/deseq2 during the per-step loop, or by inspecting the first real run's output.
+      SETTLED in the per-step loop, at the step that pins the producer
+      (`Differential expression: first contrast vs reference`, iuc/deseq2/deseq2 @
+      2.11.40.8+galaxy4, changeset 05f9e54d7e81): `deseq_out` carries NO header row, so all four
+      significance filters bind `header_lines: '0'` — the same value the three condition-split row
+      filters already use, for an unrelated reason. Three independent lines of evidence, all at
+      the pinned version. (1) The wrapper's own `deseq2.R` writes the result table with
+      `write.table(out_df, file = opt$outfile, sep = "\t", quote = FALSE, row.names = FALSE,
+      col.names = FALSE)` — `col.names = FALSE`, at both of the two call sites that write a result
+      table (the single-contrast path and the `many_contrasts` loop). The same script writes
+      `counts_out` with `col.names = NA`, so the normalized-counts table DOES carry a header:
+      one tool, opposite answers for its two tabular outputs, which is exactly why this could not
+      be settled by analogy. (2) `deseq2.xml`'s test assertions for `deseq_out` match a data row
+      first (`FBgn0003360\t1933.9504…\t-2.8399…`) with `has_n_lines n="3999"` and assert no
+      header, while `vst_out` and `counts_out` assertions in the same test block DO assert a
+      sample-name header line. (3) The corpus chain explains its own "1": rnaseq-de MANUFACTURES
+      the header it later skips — `tp_text_file_with_recurring_lines` emits the single line
+      `GeneID__tc__Base mean__tc__log2(FC)…`, `tp_sed_tool` turns `__tc__` into tabs, and `tp_cat`
+      (labelled `Annotate DESeq2 table`) concatenates it on top of the deg_annotate output; only
+      then do its two Filter1 steps bind `header_lines: "1"`. That "1" is about the manufactured
+      header, not about `deseq_out`, which confirms rather than contradicts the reading above.
+      One rider the four filters inherit: the c3 = log2FC / c7 = padj column contract holds only
+      while `lfc_shrinkage_type` is `none` — `get_result_output_columns()` drops the `stat` column
+      under any shrinkage, moving padj to c6. The DESeq2 steps pin `none` explicitly for that
+      reason.
+  - id: cross-step-invariants-survive-only-in-the-draft
+    status: open
+    raised_by: advance-galaxy-draft-step
+    step: "Differential expression: first contrast vs reference / second contrast vs reference; the four significance filters"
+    unmet: "a durable record, in the runnable artifact, of the two cross-step couplings that keep the filter predicates pointing at the right columns"
+    missing: >-
+      Two couplings hold this workflow together and neither is expressible in gxformat2 nor
+      checked by any gate. (1) `advanced_options.lfc_shrinkage_type: none` on BOTH DESeq2 nodes
+      is what makes `deseq_out` a 7-column table, so `c3` = log2FoldChange and `c7` = padj — the
+      columns the `compose_text_param` bridges hard-code as `"abs(c3)>"` and `"c7<"` in four
+      OTHER steps. Under any other shrinkage the `stat` column is dropped, padj moves to c6, and
+      `"c7<"` silently filters on nothing. (2) `header_lines: '0'` on all four significance
+      filters, against a corpus exemplar that binds `'1'` — the exemplar manufactures the header
+      it then skips, this workflow does not. `'1'` would discard row 1 of a padj-sorted table,
+      i.e. *SCF1*, the paper's finding. Both were established by hand and recorded only in YAML
+      comments above the steps in `galaxy-workflow-draft.gxwf.yml`. `gxwf draft-extract`
+      re-serializes from a parsed model and destroys every comment, so
+      `galaxy-workflow.gxwf.yml` — the artifact the test, validate, run and any later maturation
+      phase actually consume — carries no trace of either. The values themselves are correct in
+      the extract (verified at iteration 26); what is missing is any reason a later editor would
+      know not to change them.
+    resolved_by: null
+    supersedes: null
+    note: >-
+      Not closable inside the per-step loop: the loop's only writable surface is the draft, and
+      the draft's comments are exactly what the extract drops. Closable by (a) folding both
+      couplings into the step `doc:` strings of the two DESeq2 nodes and the four filters — `doc:`
+      survives extraction and is visible in the Galaxy editor — or (b) making the test plan assert
+      the column contract directly (a test on `deseq_out` that the padj column is c7, or on a
+      filtered table that its top row survived), which converts a silent invariant into a failing
+      test. (a) is the cheap one and should be done before the draft is discarded; (b) is the one
+      that would actually hold. Filed upstream as `draft-extract-destroys-yaml-comments` in
+      `foundry-feedback.ledger.yml`; that is the tool-side gap, this entry is the run-side
+      obligation it leaves behind.
+
+
+      ADVANCED, NOT CLOSED, by freeform-summary-to-galaxy-test-plan. Route (b) was taken and it
+      lands unevenly across the two invariants. INVARIANT 1 is now fully detectable: both test cases
+      assert `has_n_columns: 7` on BOTH `DESeq2 results:` tables, and case 1 asserts it again on both
+      `Significant genes:` tables, so any shrinkage setting other than `none` on either node drops
+      the `stat` column and fails the assertion before the `c7<` predicate can silently filter on
+      nothing. A `not_has_text: baseMean` assertion on both raw tables covers the headerless premise
+      the same predicates rest on. INVARIANT 2 is only partly detectable, and the plan says so in
+      warnings[] `reference-level-filter-regression-undetectable`: of the seven Filter1 steps binding
+      `header_lines: '0'`, a regression is visible on two — `Select first-contrast samples` and
+      `Select second-contrast samples`, where the leaked metadata row would add a fifth sample column
+      to that contrast's normalized-counts table, which both cases assert against. On `Select
+      reference-level samples` the leaked row IS `AR0382_A`, which the `c2=='AR0382'` predicate keeps
+      anyway, so the output is byte-identical and no assertion can see it. On the four significance
+      filters the leaked row is row 1 of a padj-sorted table, which passes both filters on its own
+      merits, so the regression is invisible at workflow level. Route (a) — folding both couplings
+      into the `doc:` strings of the two DESeq2 nodes and the seven filters, which survives
+      `draft-extract` — was NOT done and remains the cheap half of this entry. It is now the only
+      protection the three undetectable reference-level and significance filters have. Do it before
+      `galaxy-workflow-draft.gxwf.yml` is discarded.
+
+
+      FURTHER ADVANCED by implement-galaxy-workflow-test, on the invariant-2 half only. The normalized-counts
+      header width is no longer an assumption: deseq2.R at the pinned 2.11.40.8+galaxy4 writes `counts_out` with
+      `write.table(..., col.names = NA)`, which emits a header padded with a leading blank field, so a four-
+      sample contrast has exactly five tab-separated fields on line 1. Both test cases now assert
+      `has_n_columns: 5` on both normalized-counts tables, and case 1 keeps the SCF1 data-row field-count
+      assertion alongside it. A `header_lines: '1'` regression on either contrast-selecting Filter1 leaks a
+      fifth sample column and fails both. The three undetectable filters - `Select reference-level samples` and
+      the four significance filters - are unchanged, and route (a), folding both couplings into the `doc:`
+      strings that survive `draft-extract`, is still not done and is still the only protection they have.
+
+
+      RE-VERIFIED AT THE TERMINAL GATE by validate-galaxy-workflow, still not closed. Both couplings
+      hold in `galaxy-workflow.gxwf.yml` as assembled: `advanced_options.lfc_shrinkage_type: 'none'`
+      on both DESeq2 nodes (neither selects `many_contrasts`/`split_output`; both are
+      `select_data.how: datasets_per_level`), and `header_lines: '0'` as the string `'0'` on all
+      seven Filter1 steps (8, 12, 16, 23, 24, 25, 26 — the Filter1 count is exactly seven). Two
+      refinements to the entry's own statement of invariant 1, from reading the assembled artifact.
+      The `"c7<"` predicate is hard-coded in ONE `compose_text_param` bridge, step 21, consumed by
+      two Filter1 steps (23 and 25); the second bridge, step 22, is `"abs(c3)>"`, consumed by 24 and
+      26. Since `stat` sits at c5, dropping it moves padj from c7 to c6 but leaves log2FoldChange at
+      c3 — so the shrinkage coupling protects the padj predicate specifically, and the `abs(c3)>`
+      bridge is not exposed to it. Route (a) remains not done and the terminal artifact confirms
+      where the hole is: the four significance filters' `doc:` strings do name their `c7<` /
+      `abs(c3)>` predicates and the three condition-split filters' docs do say "headerless", but
+      NEITHER DESeq2 node's `doc:` mentions shrinkage at all, and no filter doc says why
+      `header_lines` is `'0'`. An editor changing `lfc_shrinkage_type` has nothing in the runnable
+      artifact to warn them. `galaxy-workflow-draft.gxwf.yml` still holds the rationale in the YAML
+      comments `draft-extract` strips; do not discard it before the `doc:` strings are written.
+
+  - id: scf1-fold-change-magnitude-disagrees-with-paper
+    status: open
+    raised_by: paper-to-test-data
+    unmet: "reconciliation of the paper's ~29-fold SCF1 figure with the deposited read data"
+    missing: >-
+      The paper states a ~29-fold SCF1 expression difference between AR0382 and AR0387. Direct
+      measurement of the deposited runs disagrees on magnitude by roughly an order of magnitude:
+      aligned fragments over the SCF1 exon at 200,000 read pairs per sample give 414 and 391 in
+      the two AR0382 replicates against 2 and 1 in AR0387 (~270-fold), and exact 31-mer matching
+      against the SCF1 CDS over 5.2 M reads gives 1942.7 vs 12.3 per million (~158-fold).
+      Direction and significance are not in doubt; only the ratio is. Candidates not
+      distinguished here: the 29-fold may be the RT-qPCR assay rather than the RNA-seq, a shrunk
+      rather than raw log2FC, or a different normalization. Reference bias is ruled out as the
+      explanation — AR0387 IS the B8441 reference strain, so its SCF1 reads cannot be undercounted;
+      if anything AR0382's divergent allele is undercounted, which makes the true ratio larger,
+      not smaller.
+    resolved_by: null
+    supersedes: null
+    note: >-
+      Consequence for the test plan, and the reason this is filed rather than glossed: no
+      assertion may pin the paper's 29-fold figure. `test-data-refs.json` asserts direction and
+      significance only (`log2FoldChange < -2`, `padj < 0.05`), which both the paper and the data
+      support. Settling this needs the paper's source data (Data S1) or the authors, not more
+      compute.
+
+
+      REINFORCED by freeform-summary-to-galaxy-test-plan, and one candidate explanation is now the
+      leading one. The disagreement was previously measured only on raw counts and k-mer matches;
+      phase 8 ran an actual differential-expression model — pydeseq2, two separate two-level n=2
+      analyses with NO LFC shrinkage, mirroring the workflow's two DESeq2 nodes, on a strand-aware
+      count matrix built from phase 7's six BAMs. AR0387 vs AR0382 gives SCF1 log2FC -7.95 at padj
+      4.1e-18, i.e. ~247-fold, consistent with the ~270-fold raw fragment ratio and not with the
+      paper's ~29-fold. tnSWI1 vs AR0382 gives log2FC -6.93 at padj 2.1e-31. Because that run applied
+      no shrinkage, it does not rule out the "shrunk rather than raw log2FC" candidate — log2(29) =
+      4.86 against an unshrunk 7.95 is exactly the direction and roughly the magnitude a shrinkage
+      estimator would move a gene whose counts are near zero in one group, so that candidate is now
+      the most plausible of the three and the RT-qPCR candidate is not excluded either. This matters
+      for the workflow, not just the paper: the workflow pins `lfc_shrinkage_type: none`, so ITS
+      log2FoldChange for SCF1 will be the unshrunk ~-8 and will never reproduce the paper's figure by
+      construction. Do not treat that as a defect when the first real invocation lands. Caveat on all
+      of the above: pydeseq2 is not the R DESeq2 the Galaxy wrapper runs, and the counts came from
+      bwa-mem rather than RNA STAR plus featureCounts -s 2; see
+      `deseq2-statistics-unverified-against-the-galaxy-wrapper`.
+
+  - id: test-fixtures-not-hosted
+    status: open
+    raised_by: paper-to-test-data
+    unmet: "a resolvable URL for each of the 12 read fixtures"
+    missing: >-
+      The 200,000-read-pair subsets were generated and hashed but not published. They exist only
+      in the producing session's scratchpad and do not survive it. At ~61 MB compressed for 12
+      files they are too large to commit alongside the workflow, so the IWC idiom applies: host
+      them (Zenodo or equivalent) and reference them by URL. `test-data-refs.json` carries
+      `<FIXTURE_BASE>` as the placeholder in `planemo_test_job_block`.
+    resolved_by: null
+    supersedes: null
+    note: >-
+      Not a research gap — the recipe is deterministic and the artifact pins it. Regenerate by
+      streaming each ENA FASTQ and taking `head -n 800000`, then verify against the
+      `md5_uncompressed` value recorded per file (hash the UNCOMPRESSED `.fastq`; gzip output is
+      not byte-stable across gzip versions). The reference genome and annotation need no hosting:
+      both are pinned to stable NCBI FTP URLs with md5s and are staged with `decompress: true`.
+
+
+      ADVANCED, NOT CLOSED, by implement-galaxy-workflow-test. All twelve 200,000-read-pair fixtures were
+      regenerated in this phase with the recorded recipe (`curl -L <ENA url> | gzip -dc | head -n 800000`) and
+      every one verified byte-for-byte against its `md5_uncompressed` in test-data-refs.json before compression,
+      so the recipe and the hashes are now proven reproducible rather than merely recorded. They live at
+      `<run>/test-data/*.fastq.gz` (59 MB) and `galaxy-workflow.gxwf-tests.yml` addresses them as local `path:`
+      entries, each with the SHA-1 of the `.gz` artifact as produced here. A twelve-file 25,000-read-pair set
+      for the smoke case was derived from the verified 200k files by taking their first 100,000 lines, at
+      `<run>/test-data/smoke-25k/` (6.7 MB). The test therefore runs against real data in this run directory and
+      nowhere else: the fixtures are still unhosted and do not survive the run, which is the whole of what
+      remains unmet. Publishing them is now a mechanical step - upload the exact `.gz` bytes, replace each
+      `path:` with the published `location:`, and leave the SHA-1 values unchanged, because they pin those
+      bytes. Keep the uncompressed md5s in test-data-refs.json as the regeneration check; the SHA-1s are the
+      fetch-integrity check and the two answer different questions.
+
+
+  - id: deseq2-statistics-unverified-against-the-galaxy-wrapper
+    status: open
+    raised_by: freeform-summary-to-galaxy-test-plan
+    step: "Differential expression: first contrast vs reference / second contrast vs reference"
+    unmet: "confirmation that the workflow's own DESeq2 node reproduces the differential-expression result the test plan asserts"
+    missing: >-
+      Every differential-expression figure this run has is from a different implementation than the
+      workflow runs. Phase 8 measured SCF1's log2 fold change and adjusted p-value with pydeseq2 over
+      a strand-aware count matrix built from phase 7's six bwa-mem BAMs, as two separate two-level
+      n=2 analyses with no LFC shrinkage — tnSWI1 vs AR0382 log2FC -6.93 / padj 2.1e-31, AR0387 vs
+      AR0382 log2FC -7.95 / padj 4.1e-18. The workflow runs the Galaxy DESeq2 wrapper, i.e. R DESeq2,
+      over RNA STAR plus featureCounts -s 2. pydeseq2 is a faithful reimplementation, but it is not
+      the same implementation and the counts are not the same counts, so the exact values will
+      differ. What is unverified is not the biology — the separation is ~200-fold at the counts level
+      and the padj margins are 18 and 31 orders of magnitude — but that the workflow's own node
+      produces a row for B9J08_001458 clearing `padj < 0.05` and `|log2FC| > 1` into each significant
+      table with `log2FoldChange <= -2`, which is what the test plan asserts, and that the raw table
+      really is the 7-column shape both cases assert `has_n_columns: 7` on.
+    resolved_by: null
+    supersedes: null
+    note: >-
+      Closable by the first successful invocation and nothing cheaper; phase 11 (run-workflow-test)
+      is where it lands, and phase 9 should not try to settle it by adding assertions. The plan is
+      already written so that this can only bite as a margin question rather than a value question:
+      no assertion anywhere pins an exact statistic, and the recorded measurements are stated as
+      headroom over thresholds (~5 and ~6 log2 units over the -2 floor; 31 and 18 orders of magnitude
+      over the 0.05 cut). Three things to check against the first invocation while it is open — the
+      sign and magnitude of SCF1's c3 in both contrasts, that c7 is padj and not something else, and
+      whether R DESeq2's independent filtering keeps SCF1 in the padj-carrying set at this depth as
+      pydeseq2 did (2393 and 1376 genes retained). Recorded in the plan as warnings[]
+      `deseq2-statistics-measured-with-pydeseq2-not-r`.
+
+  - id: collection-algebra-never-statically-checked
+    status: open
+    raised_by: validate-galaxy-workflow
+    step: whole workflow; acutely steps 0-3, 5, 10/14/18, 19-20
+    unmet: any static confirmation that the workflow's collection shapes and map-over structure are compatible end to end
+    missing: >-
+      Terminal validation could not run the one check that covers this. `gxwf validate --connections`
+      — the flag whose entire purpose is connection-type compatibility, collection algebra and
+      map-over — aborts with `TypeError: step.in is not iterable` before emitting any report, on a
+      format2 workflow written the way this one is: list-form `inputs:`/`steps:` with mapping-form
+      `in:`, which gxwf's `toNative` mistakes for an already-normalized workflow and therefore never
+      normalizes. Reproduced on a 20-line minimal case and unchanged on gxwf 1.12.0, so it is a gxwf
+      defect and not a property of this workflow (filed as
+      `tonative-shape-sniff-skips-normalization-on-list-form-format2`; fix submitted as
+      jmchilton/galaxy-tool-util-ts#179). Two routes could still close this without an upstream
+      release: rewriting the workflow's `in:` blocks in list form, or running `--connections` against
+      a patched gxwf. What the default validation does cover is per-step tool state on the 20
+      decodable steps, and nothing about how shapes compose.
+      The map-over structure is the load-bearing part of this design and none of it is proven: the
+      `sample_sheet:paired` input fanning through `__FLATTEN__` into FastQC's per-fastq axis; the
+      paired collection entering Cutadapt at `library|input_1` and leaving as `out_pairs` into RNA
+      STAR's `singlePaired|input`; three `__FILTER_FROM_FILE__` reductions over `Count reads per
+      gene/output_short`; and the workflow's only true reduction, where each DESeq2 node's
+      multiple=true `countsFile` ports consume whole 2-element collections and the per-sample axis
+      collapses.
+    resolved_by: null
+    supersedes: null
+    note: >-
+      Not a defect claim against the workflow — every `in:` source resolves, every `in:` key name and
+      tool_state parameter name was checked by hand against the real tool input trees for all 27
+      steps (the 20 cached tools from the gxwf cache, the 7 undecodable ones fetched from
+      `GET /api/tools/<id>?io_details=true`) with zero mismatches, and every select and boolean value
+      on the previously unchecked steps is legal. What is unmet is that shape COMPOSITION has no
+      static witness, and cannot get one until gxwf is fixed. Closable only by the first successful
+      invocation. Phase 11 should read `GET /api/invocations/{id}/step_jobs_summary` per step rather
+      than only the terminal invocation state: a shape mismatch surfaces as invocation message
+      `collection_failed`, or as an unexpected job count on a mapped step, and a workflow can report
+      `completed` while a mapped step ran the wrong number of jobs. Two adjacent exposures ride along
+      and are settled by the same run: whether the target Galaxy supports the `sample_sheet:paired`
+      input with `column_definitions` and `__SAMPLE_SHEET_TO_TABULAR__` at all (see
+      `no-iwc-precedent-for-sample-sheet-workflow-input` and the filed
+      `galaxy-test-staging-drops-sample-sheet-column-definitions`), which would fail at request-time
+      validation or input materialization rather than in any tool's stderr; and the element
+      identifiers `__FLATTEN__` produces, since step 0 carries no tool_state and `join_identifier`
+      therefore takes the wrapper default, while the sample-sheet element identifiers are declared
+      the spine of this workflow.

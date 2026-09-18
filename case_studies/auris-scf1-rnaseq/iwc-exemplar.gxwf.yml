@@ -1,0 +1,535 @@
+# Nearest IWC exemplar(s) — bounded subgraphs
+#
+# Corpus:      https://github.com/galaxyproject/iwc
+# Corpus HEAD: fe41a79 (galaxyproject/iwc main, shallow clone taken 2026-09-16)
+# Produced by: gxwf convert <workflow>.ga --to format2 --compact, then bounded to the
+#              relevant subgraph and stripped of tool_state keys that carry no structural
+#              signal. Load-bearing tool_state is kept verbatim.
+#
+# THIS FILE IS A READING AID, NOT A RUNNABLE WORKFLOW. Steps have been removed and
+# tool_state elided; every elision is marked with a `# [elided]` comment. For the full
+# exemplars, convert the corpus files named in each document header.
+#
+# The subject workflow (C. auris Scf1 RNA-seq DE: FastQC -> Cutadapt -> RNA STAR ->
+# featureCounts -> DESeq2 -> significance filter) spans a journey that IWC publishes as
+# TWO workflows joined at the count-table boundary. Both halves are given below.
+# See iwc-comparison-notes.md for the structural diff and the ranking.
+
+---
+# ============================================================================
+# DOCUMENT 1 — PRIMARY EXEMPLAR (High confidence) for the DE tail (nodes H, I)
+#
+# IWC workflow ID: transcriptomics/rnaseq-de/rnaseq-de-filtering-plotting
+# Release:         0.12
+# Steps covered:   Differential Analysis, the two compose_text_param parameter
+#                  bridges, Annotate DESeq2 table, Filter with p-adj threshold,
+#                  Filter with log2 FC threshold
+# Steps dropped:   volcano plot, both heatmaps, the normalized-counts join/cut
+#                  chain, and the recurring-header generator (visualization tail;
+#                  the subject brief exposes no counterpart)
+#
+# This is the document that settles `fold-change-threshold-linear-vs-deseq2-log2fc`
+# and `deseq2-contrast-realization-unsettled`.
+# ============================================================================
+class: GalaxyWorkflow
+label: RNA-Seq Differential Expression Analysis with Visualization
+doc: >-
+  Identifies differentially expressed genes between exactly two experimental conditions
+  from count tables. [elided: full doc string]
+inputs:
+  # NOTE: the condition grouping lives in the INTERFACE, as two pre-grouped `list`
+  # collections of per-sample count tables. There is no metadata-driven split anywhere
+  # in this workflow. Contrast with the subject's data-flow brief section 4.
+  - id: Counts from changed condition
+    type: collection
+    collection_type: list
+    optional: false
+    doc: Counts from experimental condition or changed condition.
+  - id: Counts from reference condition
+    type: collection
+    collection_type: list
+    optional: false
+    doc: Counts from reference condition or base condition.
+  - id: Count files have header
+    type: boolean
+    optional: false
+    doc: >-
+      featureCounts count files have a header line; RNA-STAR count files do not.
+  - id: Gene Annotaton
+    type: data
+    optional: false
+    doc: The same annotation GTF used for mapping and counting
+  - id: Adjusted p-value threshold
+    type: float
+    optional: false
+    default: 0.05
+  # *** THE log2FC ANSWER ***
+  # IWC states the effect-size threshold in log2 units at the interface. It does NOT
+  # expose a linear fold change and convert internally. Default 1.0 == linear 2-fold,
+  # which is exactly the subject paper's |FC| > 2 criterion.
+  - id: log2 fold change threshold
+    type: float
+    optional: false
+    default: 1
+    doc: >-
+      log2 fold change threshold to filter for highly regulated genes.
+      A log2 FC of 3 equals to an absolute fold change of 8 (2^3).
+outputs:
+  - id: DESeq2 Plots
+    outputSource: Differential Analysis/plots
+  - id: DESeq2 Normalized Counts
+    outputSource: Differential Analysis/counts_out
+  - id: Annotated DESeq2 results table
+    outputSource: Annotate DESeq2 table/out_file1
+  - id: Significantly differentially expressed genes
+    outputSource: Filter with log2 FC threshold/out_file1
+steps:
+  # --- Node H equivalent: ONE DESeq2 job == ONE contrast ---------------------
+  # `how: datasets_per_level` with a `rep_factorLevel` repeat: each level port takes a
+  # COLLECTION of per-sample count files, reduced into the tool's multiple=true input.
+  # Exactly two levels here, and `deseq_out` is a single dataset (proved downstream: it
+  # feeds deg_annotate / tp_cat / Filter1, all single-dataset tools, and the sibling
+  # -tests.yml asserts has_text_matching on it as a dataset, not as a collection).
+  - id: Differential Analysis
+    label: Differential Analysis
+    tool_id: toolshed.g2.bx.psu.edu/repos/iuc/deseq2/deseq2/2.11.40.8+galaxy4
+    tool_version: 2.11.40.8+galaxy4
+    tool_shed_repository:
+      changeset_revision: 05f9e54d7e81
+      name: deseq2
+      owner: iuc
+      tool_shed: toolshed.g2.bx.psu.edu
+    in:
+      - id: header
+        source: Count files have header
+      - id: output_options|alpha_ma
+        source: Adjusted p-value threshold
+      - id: select_data|rep_factorName_0|rep_factorLevel_0|countsFile
+        source: Counts from changed condition
+      - id: select_data|rep_factorName_0|rep_factorLevel_1|countsFile
+        source: Counts from reference condition
+    out:
+      - id: deseq_out
+        hide: true
+    tool_state:
+      # [elided] advanced_options, batch_factors, tximport
+      output_options:
+        output_selector:
+          - pdf
+          - normCounts
+        alpha_ma:
+          __class__: ConnectedValue
+      select_data:
+        how: datasets_per_level
+        __current_case__: 1
+        rep_factorName:
+          - __index__: 0
+            factorName: DEFactor
+            rep_factorLevel:
+              - __index__: 0
+                factorLevel: MainFactor
+                countsFile:
+                  __class__: ConnectedValue
+              - __index__: 1
+                factorLevel: BaseFactor
+                countsFile:
+                  __class__: ConnectedValue
+
+  # --- Annotation: gene positions / biotype / symbol onto the results table --
+  # Appends columns 8-13; columns 1-7 (GeneID, BaseMean, log2FC, StdErr, Wald, pval,
+  # padj) are unchanged, so the c3 / c7 filter indices below hold with or without it.
+  - id: _unlabeled_step_11
+    tool_id: toolshed.g2.bx.psu.edu/repos/iuc/deg_annotate/deg_annotate/1.1.0+galaxy1
+    tool_version: 1.1.0+galaxy1
+    in:
+      - id: annotation
+        source: Gene Annotaton
+      - id: input_table
+        source: Differential Analysis/deseq_out
+    out:
+      - id: output
+        hide: true
+    tool_state:
+      advanced_parameters:
+        gff_feature_type: exon
+        gff_feature_attribute: gene_id
+        gff_transcript_attribute: transcript_id
+        gff_attributes: gene_biotype, gene_name
+      mode: degseq
+      # [elided] chromInfo, ConnectedValue stubs
+
+  - id: Annotate DESeq2 table
+    label: Annotate DESeq2 table
+    tool_id: toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_cat/9.11+galaxy0
+    tool_version: 9.11+galaxy0
+    in:
+      # [elided] `inputs` comes from a generated single-line header dataset
+      - id: queries_0|inputs2
+        source: _unlabeled_step_11
+    out:
+      - id: out_file1
+        change_datatype: tabular
+        rename: Annotated DESeq2 results
+
+  # --- PARAMETER -> FILTER EXPRESSION BRIDGE --------------------------------
+  # `Filter1` takes its predicate as a TEXT parameter, so a numeric workflow input
+  # cannot reach it directly. The corpus idiom is one compose_text_param step per
+  # filter: a literal prefix plus the connected float. Two steps per threshold.
+  - id: _unlabeled_step_8
+    tool_id: toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param/0.1.1
+    tool_version: 0.1.1
+    in:
+      - id: components_1|param_type|component_value
+        source: Adjusted p-value threshold
+    out:
+      - id: out1
+        hide: true
+    tool_state:
+      components:
+        - __index__: 0
+          param_type:
+            select_param_type: text
+            __current_case__: 0
+            component_value: c7<          # c7 == P-adj
+        - __index__: 1
+          param_type:
+            select_param_type: float
+            __current_case__: 2
+            component_value:
+              __class__: ConnectedValue
+
+  - id: _unlabeled_step_10
+    tool_id: toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param/0.1.1
+    tool_version: 0.1.1
+    in:
+      - id: components_1|param_type|component_value
+        source: log2 fold change threshold
+    out:
+      - id: out1
+        hide: true
+    tool_state:
+      components:
+        - __index__: 0
+          param_type:
+            select_param_type: text
+            __current_case__: 0
+            component_value: abs(c3)>     # c3 == log2(FC); NO conversion applied
+        - __index__: 1
+          param_type:
+            select_param_type: float
+            __current_case__: 2
+            component_value:
+              __class__: ConnectedValue
+
+  # --- Node I equivalent: TWO CHAINED Filter1 STEPS, not one ----------------
+  - id: Filter with p-adj threshold
+    label: Filter with p-adj threshold
+    tool_id: Filter1
+    tool_version: 1.1.1
+    in:
+      - id: cond
+        source: _unlabeled_step_8/out1
+      - id: input
+        source: Annotate DESeq2 table/out_file1
+    out:
+      - id: out_file1
+        hide: true
+        rename: Genes filtered with adj p-value threshold
+    tool_state:
+      header_lines: "1"
+
+  - id: Filter with log2 FC threshold
+    label: Filter with log2 FC threshold
+    tool_id: Filter1
+    tool_version: 1.1.1
+    in:
+      - id: cond
+        source: _unlabeled_step_10/out1
+      - id: input
+        source: Filter with p-adj threshold/out_file1
+    out:
+      - id: out_file1
+        rename: Genes filtered with adj p-value and log2(FC) thresholds
+    tool_state:
+      header_lines: "1"
+tags:
+  - transcriptomics
+  - RNAseq
+license: MIT
+release: "0.12"
+
+---
+# ============================================================================
+# DOCUMENT 2 — SECONDARY EXEMPLAR (Medium confidence) for the map-over head
+#              (nodes A-D)
+#
+# IWC workflow ID: transcriptomics/rnaseq-pe/rnaseq-pe
+# Steps covered:   __FLATTEN__, fastp (the trimmer slot), RNA STAR, the
+#                  map_param_value strandedness bridge, featureCounts, and the
+#                  `More QC` subworkflow reduced to its Falco (FastQC-equivalent) step
+# Steps dropped:   Cufflinks, StringTie, all coverage/bigwig generation, MultiQC,
+#                  Picard / RSeQC / idxstats QC, the reference-genome text bridge
+#                  (the subject brief has no counterpart for any of these)
+#
+# This is the document that settles `fastqc-per-read-fanout-not-a-flat-list` and
+# supplies the strandedness-parameter idiom.
+# ============================================================================
+class: GalaxyWorkflow
+label: "RNA-Seq Analysis: Paired-End Read Processing and Quantification"
+inputs:
+  - id: Collection paired FASTQ files
+    type: collection
+    collection_type: list:paired
+    optional: false
+    doc: Should be a list of paired-end RNA-seq fastqs
+  # Built-in STAR index selected by name. `restrictOnConnections: true` narrows the
+  # option list to the genomes STAR actually has indexed on the server.
+  # The subject's C. auris B8441 has no such entry — see iwc-comparison-notes.md.
+  - id: Reference genome
+    type: string
+    optional: false
+    restrictOnConnections: true
+  - id: GTF file of annotation
+    type: data
+    optional: false
+  - id: Strandedness
+    type: string
+    optional: false
+    restrictions:
+      - stranded - forward
+      - stranded - reverse
+      - unstranded
+outputs:
+  - id: Mapped Reads
+    outputSource: "STAR: map and count and coverage splitted/mapped_reads"
+  - id: Counts Table
+    outputSource: _unlabeled_step_25/Counts Table   # [elided] relabel step
+steps:
+  # --- *** THE FastQC FAN-OUT ANSWER *** ------------------------------------
+  # IWC does NOT promote a nested collection from per-fastq QC. It flattens the
+  # list:paired collection FIRST, with an explicit join_identifier, and runs the
+  # single-dataset QC tool over the resulting flat `list`. Element identifiers
+  # become <sample>_forward / <sample>_reverse.
+  - id: _unlabeled_step_11
+    tool_id: __FLATTEN__
+    tool_version: 1.0.0
+    in:
+      - id: input
+        source: Collection paired FASTQ files
+    out:
+      - id: output
+        hide: true
+    tool_state:
+      input:
+        __class__: ConnectedValue
+      join_identifier: _
+
+  # --- Trimmer slot. rnaseq-pe uses fastp, the subject's paper names Cutadapt. ---
+  # Both emit ONE paired-inner collection when driven by a list:paired input:
+  # fastp -> output_paired_coll; Cutadapt (lparsons/cutadapt, library.type
+  # `paired_collection`) -> out_pairs + report. See the Cutadapt excerpt below.
+  - id: remove adapters + bad quality bases
+    label: remove adapters + bad quality bases
+    tool_id: toolshed.g2.bx.psu.edu/repos/iuc/fastp/fastp/1.3.6+galaxy0
+    tool_version: 1.3.6+galaxy0
+    in:
+      - id: single_paired|paired_input
+        source: Collection paired FASTQ files
+      # [elided] adapter_sequence1 / adapter_sequence2 from optional string inputs
+    out:
+      - id: output_paired_coll
+        hide: true
+      - id: report_json
+        hide: true
+    tool_state:
+      filter_options:
+        quality_filtering_options:
+          disable_quality_filtering: false
+          qualified_quality_phred: "30"
+      # [elided] duplicated_reads, read_mod_options, output_options
+
+  # --- Aligner. ENCODE long-RNA parameter set, INDEXED reference. -----------
+  - id: "STAR: map and count and coverage splitted"
+    label: "STAR: map and count and coverage splitted"
+    tool_id: toolshed.g2.bx.psu.edu/repos/iuc/rgrnastar/rna_star/2.7.11b+galaxy1
+    tool_version: 2.7.11b+galaxy1
+    tool_shed_repository:
+      changeset_revision: 55c9ac3aa8f4
+      name: rgrnastar
+      owner: iuc
+      tool_shed: toolshed.g2.bx.psu.edu
+    in:
+      - id: refGenomeSource|GTFconditional|genomeDir
+        source: Reference genome
+      - id: refGenomeSource|GTFconditional|sjdbGTFfile
+        source: GTF file of annotation
+      - id: singlePaired|input
+        source: remove adapters + bad quality bases/output_paired_coll
+    out:
+      - id: output_log            # Log.final.out — the assertable text behind the BAM
+        hide: true
+      - id: reads_per_gene
+        hide: true
+        rename: Reads per gene from STAR
+      - id: mapped_reads
+        rename: Mapped Reads
+      # [elided] signal_unique_str1/2, signal_uniquemultiple_str1/2, splice_junctions
+    tool_state:
+      refGenomeSource:
+        geneSource: indexed         # <-- every STAR step in IWC uses `indexed`
+        __current_case__: 0
+        GTFconditional:
+          GTFselect: without-gtf-with-gtf
+          __current_case__: 1
+          genomeDir:
+            __class__: ConnectedValue
+          sjdbGTFfile:
+            __class__: ConnectedValue
+          sjdbGTFfeatureExon: exon
+          sjdbOverhang: "100"
+      # [elided] full ENCODE algo.params block (seed / align / junction settings)
+
+  # --- User-facing strandedness string -> per-tool parameter value ----------
+  # One map_param_value step per consumer (featureCounts, Cufflinks, StringTie).
+  # Keeps ONE user-facing vocabulary while each wrapper gets its own encoding.
+  - id: Get featureCounts strandedness parameter
+    label: Get featureCounts strandedness parameter
+    tool_id: toolshed.g2.bx.psu.edu/repos/iuc/map_param_value/map_param_value/0.2.0
+    tool_version: 0.2.0
+    in:
+      - id: input_param_type|input_param
+        source: Strandedness
+    out:
+      - id: output_param_text
+    tool_state:
+      # [elided] the value_map repeat: 'unstranded'->0, 'stranded - forward'->1,
+      # 'stranded - reverse'->2
+      output_param_type: text
+      unmapped:
+        on_unmapped: fail
+        __current_case__: 1
+
+  - id: _unlabeled_step_21
+    tool_id: toolshed.g2.bx.psu.edu/repos/iuc/featurecounts/featurecounts/2.1.1+galaxy1
+    tool_version: 2.1.1+galaxy1
+    tool_shed_repository:
+      changeset_revision: 37d067694d40
+      name: featurecounts
+      owner: iuc
+      tool_shed: toolshed.g2.bx.psu.edu
+    in:
+      - id: alignment
+        source: "STAR: map and count and coverage splitted/mapped_reads"
+      - id: anno|reference_gene_sets
+        source: GTF file of annotation
+      - id: strand_specificity
+        source: Get featureCounts strandedness parameter/output_param_text
+      - id: when
+        source: Use featureCounts for generating count tables
+    out:
+      - id: output_short           # subject interface output 7
+        hide: true
+      - id: output_summary         # subject interface output 8
+        hide: true
+    tool_state:
+      anno:
+        anno_select: history       # GTF from the history, same dataset as STAR's
+        __current_case__: 2
+        reference_gene_sets:
+          __class__: ConnectedValue
+        gff_feature_type: exon
+        gff_feature_attribute: gene_id
+        summarization_level: false
+      format: tabdel_short
+      pe_parameters:
+        paired_end_status: PE_fragments
+        __current_case__: 2
+        exclude_chimerics: true
+      # [elided] extended_parameters, read_filtering_parameters
+    when: $(inputs.when)
+
+  # --- QC subworkflow, reduced to the per-fastq QC step --------------------
+  - id: More QC
+    label: More QC
+    run:
+      class: GalaxyWorkflow
+      label: RNA-seq-QC
+      inputs:
+        - id: FASTQ collection
+          type: collection
+          collection_type: list      # <-- FLAT, because of __FLATTEN__ upstream
+          optional: false
+      outputs:
+        - id: Falco text output
+          outputSource: _unlabeled_step_3/text_file
+      steps:
+        # Falco is a drop-in FastQC reimplementation; same single-dataset input,
+        # same html_file + text_file output pair the subject promotes as outputs 1-2.
+        - id: _unlabeled_step_3
+          tool_id: toolshed.g2.bx.psu.edu/repos/iuc/falco/falco/1.3.2+galaxy0
+          tool_version: 1.3.2+galaxy0
+          in:
+            - id: input_file
+              source: FASTQ collection
+          out:
+            - id: html_file
+              hide: true
+            - id: text_file
+              hide: true
+      # [elided] gtftobed12, samtools view/idxstats, Picard MarkDuplicates,
+      # RSeQC read_distribution and geneBody_coverage, and their three other inputs
+    in:
+      - id: FASTQ collection
+        source: _unlabeled_step_11        # the FLATTEN output
+      - id: STAR BAM
+        source: "STAR: map and count and coverage splitted/mapped_reads"
+      - id: reference_annotation_gtf
+        source: GTF file of annotation
+      - id: when
+        source: Generate additional QC reports
+    when: $(inputs.when)
+
+---
+# ============================================================================
+# DOCUMENT 3 — TOOL-LEVEL EVIDENCE ONLY (cross-domain, NOT a domain exemplar)
+#
+# IWC workflow ID: epigenetics/cutandrun/cutandrun
+# Steps covered:   the Cutadapt step only
+#
+# Cited for one fact the subject needs and the transcriptomics exemplars cannot
+# supply, because neither uses Cutadapt: the output shape of the IUC Cutadapt
+# wrapper when mapped over a list:paired collection. This settles
+# `trimmed-reads-paired-reassembly-conditional`. CUT&RUN is a different domain
+# and this document must not be read as a structural exemplar for anything else.
+# ============================================================================
+class: GalaxyWorkflow
+label: CUT&RUN / CUT&TAG analysis
+inputs:
+  - id: PE fastq input
+    type: collection
+    collection_type: list:paired
+    optional: false
+steps:
+  - id: Cutadapt (remove adapter + bad quality bases)
+    label: Cutadapt (remove adapter + bad quality bases)
+    tool_id: toolshed.g2.bx.psu.edu/repos/lparsons/cutadapt/cutadapt/5.2+galaxy2
+    tool_version: 5.2+galaxy2
+    in:
+      - id: library|input_1
+        source: PE fastq input
+      # [elided] library|r1|adapters_0|... and library|r2|adapters2_0|... adapter
+      #          sequences, wired from two text parameter inputs
+    out:
+      # ONE paired collection out, shape `input` (i.e. same as the input collection),
+      # plus one report per element. No re-pair node is needed downstream.
+      - id: out_pairs
+      - id: report
+        rename: cutadapt report
+    tool_state:
+      library:
+        type: paired_collection
+        __current_case__: 2
+        input_1:
+          __class__: ConnectedValue
+        pair_adapters: false
+        # [elided] r1 / r2 adapter repeats

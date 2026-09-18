@@ -1,0 +1,980 @@
+class: GalaxyWorkflow
+label: C. auris Scf1 RNA-seq differential expression (Santana et al. 2023)
+doc: |-
+  Bulk RNA-seq differential expression for Candida auris adhesion mutants, reconstructed from the supplementary Materials and Methods of Santana et al. 2023 (Science 381:1461-1467). FastQC -> Cutadapt -> RNA STAR -> featureCounts -> DESeq2 -> significance filter, over 6 paired-end runs (BioProject PRJNA904261): 2 biological replicates each of the high-adhesion parent AR0382, the low-adhesion clinical isolate AR0387, and the AR0382 tnSWI1 insertional mutant. Two contrasts, both against AR0382. Reference genome is C. auris B8441, NCBI assembly GCA_002759435.2.
+  VERSION FIDELITY IS NOT CLAIMABLE. The paper names six tools and gives no version for any of them; only its non-Galaxy software is versioned. This workflow pins its own tool versions and reproduces the authors' method, never their software stack.
+  THE COUNTING ANNOTATION IS NOT THE PAPER'S. No GTF/GFF source is named anywhere in the supplement. Whoever supplies the annotation input determines the gene ID space, and therefore whether SCF1 appears as B9J08_001458 at all.
+tags:
+  - transcriptomics
+  - RNAseq
+inputs:
+  - id: RNA-seq reads (sample sheet)
+    type: collection
+    collection_type: sample_sheet:paired
+    format:
+      - fastqsanger.gz
+    optional: false
+    column_definitions:
+      - name: condition
+        type: string
+        optional: false
+        restrictions:
+          - AR0382
+          - AR0387
+          - tnSWI1
+        description: Experimental condition. AR0382 is the high-adhesion parent and the reference level for both contrasts.
+      - name: replicate
+        type: string
+        optional: false
+        restrictions:
+          - A
+          - B
+        description: Biological replicate label.
+    doc: "Six paired-end runs, 2 x 50 bp, Illumina NextSeq 2000 (PRJNA904261 / SRP409192). Element identifiers are the deposited sample names and are the spine of this workflow: AR0382_A, AR0382_B, AR0387_A, AR0387_B, AR0382_tnSWI1_A, AR0382_tnSWI1_B. They must survive map-over unchanged -- the condition split joins on them."
+  - id: Reference genome FASTA
+    type: data
+    format:
+      - fasta
+    optional: false
+    doc: C. auris B8441, NCBI assembly GCA_002759435.2 (Cand_auris_B8441_V2). Delivered as a history dataset rather than a built-in index because no public Galaxy server indexes this genome; RNA STAR builds its index inside each mapped job (~12.5 Mb, six builds).
+  - id: Gene annotation GTF
+    type: data
+    format:
+      - gtf
+    optional: false
+    doc: NOT NAMED BY THE PAPER. Consumed twice -- RNA STAR splice junctions and featureCounts gene assignment -- so the choice is load-bearing for both. NCBI RefSeq GFF and FungiDB GFF for this assembly differ in gene ID space and attribute keys. If the chosen source is GFF3 rather than GTF, this input's format changes or a conversion step is inserted ahead of both consumers.
+  - id: Reference condition level
+    type: text
+    default: AR0382
+    optional: false
+    doc: The condition value both contrasts are taken against. Must match a `condition` value in the sample sheet exactly.
+  - id: First contrast condition level
+    type: text
+    default: tnSWI1
+    optional: false
+    doc: "Condition value for the first contrast (paper: the AR0382 tnSWI1 insertional mutant). Changing it makes the `... tnSWI1 vs AR0382` output labels stale -- the labels are the public API and are not derived from this parameter."
+  - id: Second contrast condition level
+    type: text
+    default: AR0387
+    optional: false
+    doc: "Condition value for the second contrast (paper: the low-adhesion clinical isolate AR0387). Same label caveat as the first contrast level."
+  - id: Strandedness
+    type: text
+    default: stranded - reverse
+    optional: false
+    restrictions:
+      - stranded - forward
+      - stranded - reverse
+      - unstranded
+    doc: "INFERRED, NOT STATED. The paper names only the library kit (Illumina Stranded Total RNA Prep with Ribo-Zero Plus), which is reverse-stranded (dUTP) in Illumina's standard chemistry. The empirical check is the promoted featureCounts assignment summary: a wrong setting shows up as a large Unassigned_NoFeatures fraction."
+  - id: Adjusted p-value threshold
+    type: float
+    default: 0.05
+    optional: false
+    doc: "Stated by the paper: adjusted p-value < 0.05. Applied to DESeq2 column c7."
+  - id: log2 fold change threshold
+    type: float
+    default: 1
+    optional: false
+    doc: log2 fold change threshold. A log2 FC of 1 equals an absolute fold change of 2 (2^1), which is exactly the paper's |fold change| > 2 criterion; a log2 FC of 3 equals 8. Stated in log2 units because DESeq2 reports log2FoldChange and the filter compares the raw column with no conversion -- the corpus idiom (rnaseq-de at fe41a79). A linear 2.0 compared against abs(c3) would silently apply a 4-fold cut.
+outputs:
+  - id: "FastQC raw reads: text summary"
+    outputSource: Read quality report/text_file
+    doc: "Twelve elements, not six: the reads are flattened per read direction before QC, so identifiers are <sample>_forward / <sample>_reverse."
+  - id: "FastQC raw reads: HTML report"
+    outputSource: Read quality report/html_file
+  - id: Cutadapt trimming report
+    outputSource: Quality-trim reads/report
+  - id: Trimmed reads
+    outputSource: Quality-trim reads/out_pairs
+  - id: STAR alignments (BAM)
+    outputSource: Splice-aware alignment/mapped_reads
+  - id: STAR mapping summary
+    outputSource: Splice-aware alignment/output_log
+    doc: Log.final.out -- the assertable text behind the binary BAM.
+  - id: Gene counts per sample
+    outputSource: Count reads per gene/output_short
+    doc: "The strongest deterministic checkpoint in this workflow: exact per-gene integer counts, addressable by gene id, keyed by the six sample element identifiers."
+  - id: featureCounts assignment summary
+    outputSource: Count reads per gene/output_summary
+    doc: Assigned / Unassigned_NoFeatures / Unassigned_Ambiguous totals -- also the direct read-out of whether Strandedness was set right.
+  - id: "DESeq2 normalized counts: tnSWI1 vs AR0382"
+    outputSource: "Differential expression: first contrast vs reference/counts_out"
+  - id: "DESeq2 normalized counts: AR0387 vs AR0382"
+    outputSource: "Differential expression: second contrast vs reference/counts_out"
+  - id: "DESeq2 results: tnSWI1 vs AR0382"
+    outputSource: "Differential expression: first contrast vs reference/deseq_out"
+    doc: Full result table. Expect SCF1 = B9J08_001458 present with a negative log2FC, and the strongest / most significant dysregulation in the table.
+  - id: "DESeq2 results: AR0387 vs AR0382"
+    outputSource: "Differential expression: second contrast vs reference/deseq_out"
+    doc: Full result table. Expect SCF1 the most down-regulated gene, ~29-fold per the paper.
+  - id: "Significant genes: tnSWI1 vs AR0382"
+    outputSource: "Filter with log2 FC threshold: first contrast/out_file1"
+  - id: "Significant genes: AR0387 vs AR0382"
+    outputSource: "Filter with log2 FC threshold: second contrast/out_file1"
+  - id: "DESeq2 diagnostic plots: tnSWI1 vs AR0382"
+    outputSource: "Differential expression: first contrast vs reference/plots"
+  - id: "DESeq2 diagnostic plots: AR0387 vs AR0382"
+    outputSource: "Differential expression: second contrast vs reference/plots"
+steps:
+  - id: Flatten reads for per-fastq QC
+    label: Flatten reads for per-fastq QC
+    tool_id: __FLATTEN__
+    tool_version: 1.0.0
+    doc: "Tier: Resolved. sample_sheet:paired -> flat list of 12 fastq, identifiers <sample>_forward / <sample>_reverse. Side branch off the workflow input: it does not enter the map-over region, so the per-sample outputs keep the six-element sample identifier space untouched."
+    in:
+      input: RNA-seq reads (sample sheet)
+    out:
+      - id: output
+        hide: true
+    state:
+      join_identifier: _
+  - id: Read quality report
+    label: Read quality report
+    tool_id: toolshed.g2.bx.psu.edu/repos/devteam/fastqc/fastqc
+    tool_version: 0.74+galaxy1
+    tool_shed_repository:
+      changeset_revision: 2c64fded1286
+      name: fastqc
+      owner: devteam
+      tool_shed: toolshed.g2.bx.psu.edu
+    doc: "Tier: Resolved. Mapped over the FLATTENED 12-element list, not the six-element sample axis: FastQC takes one dataset at a time (`input_file` is a single `data` param), which is what the `__FLATTEN__` node upstream exists to produce. Twelve jobs, identifiers <sample>_forward / <sample>_reverse. Both outputs are promoted -- the text summary is the assertable checkpoint (per-module PASS/WARN/FAIL lines, total-sequence counts) behind the user-facing HTML binary."
+    in:
+      input_file: Flatten reads for per-fastq QC/output
+    out:
+      - id: text_file
+      - id: html_file
+    tool_state:
+      input_file:
+        __class__: ConnectedValue
+      adapters:
+        __class__: RuntimeValue
+      contaminants:
+        __class__: RuntimeValue
+      limits:
+        __class__: RuntimeValue
+      kmers: "7"
+      min_length: null
+      nogroup: false
+  - id: Quality-trim reads
+    label: Quality-trim reads
+    tool_id: toolshed.g2.bx.psu.edu/repos/lparsons/cutadapt/cutadapt
+    tool_version: 5.2+galaxy2
+    tool_shed_repository:
+      changeset_revision: f6168dd17f82
+      name: cutadapt
+      owner: lparsons
+      tool_shed: toolshed.g2.bx.psu.edu
+    doc: 'Tier: Resolved. Map-over, one job per sample row (6 jobs). Under library.type: paired_collection the wrapper emits ONE paired-inner collection (`out_pairs`, declared `type="paired"` with `format_source="library|input_1"`), so mapping it over the list:paired input yields list:paired again and no re-pair node is needed before RNA STAR.'
+    in:
+      library|input_1: RNA-seq reads (sample sheet)
+    out:
+      - id: out_pairs
+      - id: report
+    tool_state:
+      library:
+        type: paired_collection
+        __current_case__: 2
+        input_1:
+          __class__: ConnectedValue
+        r1:
+          adapters: []
+          front_adapters: []
+          anywhere_adapters: []
+        r2:
+          adapters2: []
+          front_adapters2: []
+          anywhere_adapters2: []
+        pair_adapters: false
+      other_trimming_options:
+        quality_cutoff: "20"
+      filter_options:
+        minimum_length: "1"
+      output_selector:
+        - report
+  - id: Splice-aware alignment
+    label: Splice-aware alignment
+    tool_id: toolshed.g2.bx.psu.edu/repos/iuc/rgrnastar/rna_star
+    tool_version: 2.7.11b+galaxy1
+    tool_shed_repository:
+      changeset_revision: d8d32326fbfb
+      name: rgrnastar
+      owner: iuc
+      tool_shed: toolshed.g2.bx.psu.edu
+    doc: "Tier: Resolved. Map-over, one job per sample row (6 jobs); the FASTA and GTF are data inputs wired into a mapped step, so they broadcast into every job. Each job builds its own temporary STAR index from the history FASTA (`--runMode genomeGenerate` into tempstargenomedir), which is why there is no separate index node to wire."
+    in:
+      singlePaired|input: Quality-trim reads/out_pairs
+      refGenomeSource|genomeFastaFiles: Reference genome FASTA
+      refGenomeSource|GTFconditional|sjdbGTFfile: Gene annotation GTF
+    out:
+      - id: mapped_reads
+      - id: output_log
+    tool_state:
+      singlePaired:
+        sPaired: paired_collection
+        __current_case__: 2
+        input:
+          __class__: ConnectedValue
+      refGenomeSource:
+        geneSource: history
+        __current_case__: 1
+        genomeFastaFiles:
+          __class__: ConnectedValue
+        genomeSAindexNbases: "10"
+        GTFconditional:
+          GTFselect: with-gtf
+          __current_case__: 0
+          sjdbGTFfile:
+            __class__: ConnectedValue
+          sjdbGTFfeatureExon: exon
+          sjdbOverhang: "49"
+          quantmode_output:
+            quantMode: "-"
+            __current_case__: 0
+        diploidconditional:
+          diploid: "No"
+          __current_case__: 1
+      twopass:
+        twopassMode: None
+        __current_case__: 0
+        twopass_read_subset: ""
+        sj_precalculated: ""
+      chimOutType: ""
+      oformat:
+        outSAMattributes:
+          - NH
+          - HI
+          - AS
+          - nM
+          - ch
+        HI_offset: "1"
+        outSAMprimaryFlag: OneBestScore
+        outSAMmapqUnique: "60"
+        wasp_conditional:
+          waspOutputMode: ""
+          __current_case__: 1
+      filter:
+        basic_filters: []
+        output_params2:
+          output_select2: "no"
+          __current_case__: 1
+      algo:
+        params:
+          settingsType: default
+          __current_case__: 0
+      perf:
+        outBAMsortingBinsN: "50"
+        winAnchorMultimapNmax: "50"
+      outWig:
+        outWigType: None
+        __current_case__: 0
+        outWigStrand: "false"
+  - id: Get featureCounts strandedness parameter
+    label: Get featureCounts strandedness parameter
+    tool_id: toolshed.g2.bx.psu.edu/repos/iuc/map_param_value/map_param_value
+    tool_version: 0.2.0
+    tool_shed_repository:
+      changeset_revision: 022a635f2283
+      name: map_param_value
+      owner: iuc
+      tool_shed: toolshed.g2.bx.psu.edu
+    doc: "Tier: Resolved. Single job; featureCounts is the only consumer. Maps the user-facing strandedness string onto featureCounts' numeric -s encoding (0 unstranded / 1 forward / 2 reverse). The VALUE it maps is still inferred from the library kit name rather than stated by the paper: open-requirements `rnaseq-strandedness-inferred-from-kit-name` stays OPEN. Concretizing how the parameter is expressed says nothing about confidence in the value flowing through it."
+    in:
+      input_param_type|input_param: Strandedness
+    out:
+      - id: output_param_text
+        hide: true
+    tool_state:
+      input_param_type:
+        type: text
+        __current_case__: 0
+        input_param:
+          __class__: ConnectedValue
+        mappings:
+          - __index__: 0
+            from: stranded - forward
+            to: "1"
+          - __index__: 1
+            from: stranded - reverse
+            to: "2"
+          - __index__: 2
+            from: unstranded
+            to: "0"
+      output_param_type: text
+      unmapped:
+        on_unmapped: fail
+        __current_case__: 1
+  - id: Count reads per gene
+    label: Count reads per gene
+    tool_id: toolshed.g2.bx.psu.edu/repos/iuc/featurecounts/featurecounts
+    tool_version: 2.1.1+galaxy1
+    tool_shed_repository:
+      changeset_revision: 37d067694d40
+      name: featurecounts
+      owner: iuc
+      tool_shed: toolshed.g2.bx.psu.edu
+    doc: "Tier: Resolved. Map-over, one job per sample row (6 jobs); the GTF is a data input wired into a mapped step, so it broadcasts into every job. Counts fragments against `exon` features grouped by `gene_id`, emitting the two-column gene-id/count table the DESeq2 per-level ports consume, plus the assignment summary that reads out whether the strandedness setting was right."
+    in:
+      alignment: Splice-aware alignment/mapped_reads
+      anno|reference_gene_sets: Gene annotation GTF
+      strand_specificity: Get featureCounts strandedness parameter/output_param_text
+    out:
+      - id: output_short
+      - id: output_summary
+    tool_state:
+      alignment:
+        __class__: ConnectedValue
+      anno:
+        anno_select: history
+        __current_case__: 2
+        reference_gene_sets:
+          __class__: ConnectedValue
+        gff_feature_type: exon
+        gff_feature_attribute: gene_id
+        summarization_level: false
+      format: tabdel_short
+      include_feature_length_file: false
+      pe_parameters:
+        paired_end_status: PE_fragments
+        __current_case__: 2
+        check_distance_enabled:
+          P: "false"
+          __current_case__: 1
+        only_both_ends: false
+        exclude_chimerics: true
+      strand_specificity:
+        __class__: ConnectedValue
+      read_filtering_parameters:
+        mapping_quality: "0"
+        splitonly: ""
+        primary: false
+        ignore_dup: false
+      extended_parameters:
+        multifeatures:
+          multifeat: ""
+          __current_case__: 0
+        exon_exon_junction_read_counting_enabled:
+          count_exon_exon_junction_reads: ""
+          __current_case__: 1
+        long_reads: false
+        by_read_group: false
+        largest_overlap: false
+        min_overlap: "1"
+        frac_overlap: "0"
+        frac_overlap_feature: "0"
+        read_extension_5p: "0"
+        read_extension_3p: "0"
+        read_reduction: ""
+        R: false
+  - id: Project sample sheet to tabular
+    label: Project sample sheet to tabular
+    tool_id: __SAMPLE_SHEET_TO_TABULAR__
+    tool_version: 1.0.0
+    doc: "Tier: Resolved. Single job, no map-over. Reads the workflow input directly -- the only edge in this workflow that reads column_definitions, and the only place the condition metadata still exists. Emits six headerless rows, three columns: element identifier, condition, replicate. Hidden because it is plumbing, but it is the single most useful thing to look at when the split misbehaves -- promote it to a workflow output temporarily when debugging rather than reasoning about it blind."
+    in:
+      input: RNA-seq reads (sample sheet)
+    out:
+      - id: output
+        hide: true
+    tool_state:
+      input:
+        __class__: ConnectedValue
+      include_headers: false
+  - id: Build reference-level row predicate
+    label: Build reference-level row predicate
+    tool_id: toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param
+    tool_version: 0.1.1
+    tool_shed_repository:
+      changeset_revision: e188c9826e0f
+      name: compose_text_param
+      owner: iuc
+      tool_shed: toolshed.g2.bx.psu.edu
+    doc: "Tier: Resolved. Single job. Composes the Filter1 predicate `c2=='<level>'` (e.g. `c2=='AR0382'`) and feeds the `cond` port of `Select reference-level samples`. Kept as a separate step rather than templated across the three levels: the three factor-level ports of the two DESeq2 jobs are structurally distinct and must not be collapsed. c2 is the condition column under the assumed (identifier, condition, replicate) ordering -- correct it together with the other five column bindings in this region once the sample-sheet-to-tabular output columns are known."
+    in:
+      components_1|param_type|component_value: Reference condition level
+    out:
+      - id: out1
+        hide: true
+    tool_state:
+      components:
+        - param_type:
+            select_param_type: text
+            component_value: c2=='
+        - param_type:
+            select_param_type: text
+            component_value:
+              __class__: ConnectedValue
+        - param_type:
+            select_param_type: text
+            component_value: "'"
+  - id: Select reference-level samples
+    label: Select reference-level samples
+    tool_id: Filter1
+    tool_version: 1.1.1
+    doc: "Tier: Resolved. Single job, no map-over. Row filter on the headerless sample metadata table: keeps the rows whose condition column (c2) matches the reference level, via the predicate built upstream. Output is the two-row slice for that level, feeding the element-identifier projection. Hidden because it is plumbing; promote it temporarily alongside `Project sample sheet to tabular` when the split misbehaves."
+    in:
+      cond: Build reference-level row predicate/out1
+      input: Project sample sheet to tabular/output
+    out:
+      - id: out_file1
+        hide: true
+    tool_state:
+      cond:
+        __class__: ConnectedValue
+      input:
+        __class__: ConnectedValue
+      header_lines: "0"
+  - id: Reference-level identifier list
+    label: Reference-level identifier list
+    tool_id: Cut1
+    tool_version: 1.0.2
+    doc: "Tier: Resolved. Single job, no map-over. Projects the element-identifier column (c1) out of the reference-level row slice, producing the one-column identifier list that `Counts for the reference level` matches the counts collection against. The projection is not cosmetic: __FILTER_FROM_FILE__ matches on file content, so handing it the full three-column table would match nothing and yield an empty collection rather than an error. Hidden because it is plumbing."
+    in:
+      input: Select reference-level samples/out_file1
+    out:
+      - id: out_file1
+        hide: true
+    tool_state:
+      columnList: c1
+      delimiter: T
+      input:
+        __class__: ConnectedValue
+  - id: Counts for the reference level
+    label: Counts for the reference level
+    tool_id: __FILTER_FROM_FILE__
+    tool_version: 1.1.0
+    doc: "Tier: Resolved. Single job, no map-over. Membership sync: filters the featureCounts collection down to the elements whose identifiers appear in the reference-level identifier list. Element identifier is the only key Galaxy preserves across map-over, so this join is what makes the condition split work. Expect a 2-element sub-collection. Consumed by BOTH DESeq2 nodes as their reference factor level. Hidden because it is plumbing for those nodes."
+    in:
+      input: Count reads per gene/output_short
+      how|filter_source: Reference-level identifier list/out_file1
+    out:
+      - id: output_filtered
+        hide: true
+      - id: output_discarded
+        hide: true
+    tool_state:
+      how:
+        how_filter: remove_if_absent
+        __current_case__: 0
+        filter_source:
+          __class__: ConnectedValue
+      input:
+        __class__: ConnectedValue
+  - id: Build first-contrast row predicate
+    label: Build first-contrast row predicate
+    tool_id: toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param
+    tool_version: 0.1.1
+    tool_shed_repository:
+      changeset_revision: e188c9826e0f
+      name: compose_text_param
+      owner: iuc
+      tool_shed: toolshed.g2.bx.psu.edu
+    doc: "Tier: Resolved. Single job. Composes the Filter1 predicate `c2=='<level>'` (e.g. `c2=='tnSWI1'`) and feeds the `cond` port of `Select first-contrast samples`. Kept as a separate step rather than templated across the three levels: the three factor-level ports of the two DESeq2 jobs are structurally distinct and must not be collapsed. c2 is the condition column under the assumed (identifier, condition, replicate) ordering -- correct it together with the other five column bindings in this region once the sample-sheet-to-tabular output columns are known."
+    in:
+      components_1|param_type|component_value: First contrast condition level
+    out:
+      - id: out1
+        hide: true
+    tool_state:
+      components:
+        - param_type:
+            select_param_type: text
+            component_value: c2=='
+        - param_type:
+            select_param_type: text
+            component_value:
+              __class__: ConnectedValue
+        - param_type:
+            select_param_type: text
+            component_value: "'"
+  - id: Select first-contrast samples
+    label: Select first-contrast samples
+    tool_id: Filter1
+    tool_version: 1.1.1
+    doc: "Tier: Resolved. Single job, no map-over. Row filter on the headerless sample metadata table: keeps the rows whose condition column (c2) matches the first-contrast level, via the predicate built upstream. Output is the two-row slice for that level, feeding the element-identifier projection. Hidden because it is plumbing; promote it temporarily alongside `Project sample sheet to tabular` when the split misbehaves."
+    in:
+      cond: Build first-contrast row predicate/out1
+      input: Project sample sheet to tabular/output
+    out:
+      - id: out_file1
+        hide: true
+    tool_state:
+      cond:
+        __class__: ConnectedValue
+      input:
+        __class__: ConnectedValue
+      header_lines: "0"
+  - id: First-contrast identifier list
+    label: First-contrast identifier list
+    tool_id: Cut1
+    tool_version: 1.0.2
+    doc: "Tier: Resolved. Single job, no map-over. Projects the element-identifier column (c1) out of the first-contrast row slice, producing the one-column identifier list that `Counts for the first contrast level` matches the counts collection against. The projection is not cosmetic: __FILTER_FROM_FILE__ matches on file content, so handing it the full three-column table would match nothing and yield an empty collection rather than an error. Hidden because it is plumbing."
+    in:
+      input: Select first-contrast samples/out_file1
+    out:
+      - id: out_file1
+        hide: true
+    tool_state:
+      columnList: c1
+      delimiter: T
+      input:
+        __class__: ConnectedValue
+  - id: Counts for the first contrast level
+    label: Counts for the first contrast level
+    tool_id: __FILTER_FROM_FILE__
+    tool_version: 1.1.0
+    doc: "Tier: Resolved. Single job, no map-over. Membership sync: filters the featureCounts collection down to the elements whose identifiers appear in the first-contrast identifier list. Element identifier is the only key Galaxy preserves across map-over, so this join is what makes the whole condition split work. Expect a 2-element sub-collection. Hidden because it is plumbing for the DESeq2 node."
+    in:
+      input: Count reads per gene/output_short
+      how|filter_source: First-contrast identifier list/out_file1
+    out:
+      - id: output_filtered
+        hide: true
+      - id: output_discarded
+        hide: true
+    tool_state:
+      how:
+        how_filter: remove_if_absent
+        __current_case__: 0
+        filter_source:
+          __class__: ConnectedValue
+      input:
+        __class__: ConnectedValue
+  - id: Build second-contrast row predicate
+    label: Build second-contrast row predicate
+    tool_id: toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param
+    tool_version: 0.1.1
+    tool_shed_repository:
+      changeset_revision: e188c9826e0f
+      name: compose_text_param
+      owner: iuc
+      tool_shed: toolshed.g2.bx.psu.edu
+    doc: "Tier: Resolved. Single job. Composes the Filter1 predicate `c2=='<level>'` (e.g. `c2=='AR0387'`) and feeds the `cond` port of `Select second-contrast samples`. Kept as a separate step rather than templated across the three levels: the three factor-level ports of the two DESeq2 jobs are structurally distinct and must not be collapsed. c2 is the condition column under the assumed (identifier, condition, replicate) ordering -- correct it together with the other five column bindings in this region once the sample-sheet-to-tabular output columns are known."
+    in:
+      components_1|param_type|component_value: Second contrast condition level
+    out:
+      - id: out1
+        hide: true
+    tool_state:
+      components:
+        - param_type:
+            select_param_type: text
+            component_value: c2=='
+        - param_type:
+            select_param_type: text
+            component_value:
+              __class__: ConnectedValue
+        - param_type:
+            select_param_type: text
+            component_value: "'"
+  - id: Select second-contrast samples
+    label: Select second-contrast samples
+    tool_id: Filter1
+    tool_version: 1.1.1
+    doc: "Tier: Resolved. Single job, no map-over. Row filter on the headerless sample metadata table: keeps the rows whose condition column (c2) matches the second-contrast level, via the predicate built upstream. Output is the two-row slice for that level, feeding the element-identifier projection. Hidden because it is plumbing; promote it temporarily alongside `Project sample sheet to tabular` when the split misbehaves."
+    in:
+      cond: Build second-contrast row predicate/out1
+      input: Project sample sheet to tabular/output
+    out:
+      - id: out_file1
+        hide: true
+    tool_state:
+      cond:
+        __class__: ConnectedValue
+      input:
+        __class__: ConnectedValue
+      header_lines: "0"
+  - id: Second-contrast identifier list
+    label: Second-contrast identifier list
+    tool_id: Cut1
+    tool_version: 1.0.2
+    doc: "Tier: Resolved. Single job, no map-over. Projects the element-identifier column (c1) out of the second-contrast row slice, producing the one-column identifier list that `Counts for the second contrast level` matches the counts collection against. The projection is not cosmetic: __FILTER_FROM_FILE__ matches on file content, so handing it the full three-column table would match nothing and yield an empty collection rather than an error. Hidden because it is plumbing."
+    in:
+      input: Select second-contrast samples/out_file1
+    out:
+      - id: out_file1
+        hide: true
+    tool_state:
+      columnList: c1
+      delimiter: T
+      input:
+        __class__: ConnectedValue
+  - id: Counts for the second contrast level
+    label: Counts for the second contrast level
+    tool_id: __FILTER_FROM_FILE__
+    tool_version: 1.1.0
+    doc: "Tier: Resolved. Single job, no map-over. Membership sync: filters the featureCounts collection down to the elements whose identifiers appear in the second-contrast identifier list. Element identifier is the only key Galaxy preserves across map-over, so this join is what makes the whole condition split work. Expect a 2-element sub-collection. Hidden because it is plumbing for the DESeq2 node."
+    in:
+      input: Count reads per gene/output_short
+      how|filter_source: Second-contrast identifier list/out_file1
+    out:
+      - id: output_filtered
+        hide: true
+      - id: output_discarded
+        hide: true
+    tool_state:
+      how:
+        how_filter: remove_if_absent
+        __current_case__: 0
+        filter_source:
+          __class__: ConnectedValue
+      input:
+        __class__: ConnectedValue
+  - id: "Differential expression: first contrast vs reference"
+    label: "Differential expression: first contrast vs reference"
+    tool_id: toolshed.g2.bx.psu.edu/repos/iuc/deseq2/deseq2
+    tool_version: 2.11.40.8+galaxy4
+    tool_shed_repository:
+      changeset_revision: 05f9e54d7e81
+      name: deseq2
+      owner: iuc
+      tool_shed: toolshed.g2.bx.psu.edu
+    doc: "Tier: Resolved. THE WORKFLOW'S ONLY REDUCTION: each factor-level port consumes a whole 2-element counts collection through the wrapper's multiple=true data input, so the per-sample axis collapses here. One job, no map-over. Paper contrast: tnSWI1 vs AR0382, taken as level-1-vs-level-2 so log2FC is signed tnSWI1-relative. Sees only its own four samples, which is why its normalized counts and plots are promoted under contrast-specific labels rather than as the workflow's."
+    in:
+      select_data|rep_factorName_0|rep_factorLevel_0|factorLevel: First contrast condition level
+      select_data|rep_factorName_0|rep_factorLevel_0|countsFile: Counts for the first contrast level/output_filtered
+      select_data|rep_factorName_0|rep_factorLevel_1|factorLevel: Reference condition level
+      select_data|rep_factorName_0|rep_factorLevel_1|countsFile: Counts for the reference level/output_filtered
+      output_options|alpha_ma: Adjusted p-value threshold
+    out:
+      - id: deseq_out
+      - id: counts_out
+      - id: plots
+    tool_state:
+      advanced_options:
+        esf_cond:
+          esf: ""
+          __current_case__: 0
+        fit_type: "1"
+        outlier_replace_off: false
+        outlier_filter_off: false
+        auto_mean_filter_off: false
+        prefilter_conditional:
+          prefilter: ""
+          __current_case__: 1
+        use_beta_priors: false
+        lfc_shrinkage_type: none
+      batch_factors:
+        __class__: RuntimeValue
+      header: true
+      output_options:
+        output_selector:
+          - pdf
+          - normCounts
+        alpha_ma:
+          __class__: ConnectedValue
+      select_data:
+        how: datasets_per_level
+        __current_case__: 1
+        rep_factorName:
+          - __index__: 0
+            factorName: condition
+            rep_factorLevel:
+              - __index__: 0
+                factorLevel:
+                  __class__: ConnectedValue
+                countsFile:
+                  __class__: ConnectedValue
+              - __index__: 1
+                factorLevel:
+                  __class__: ConnectedValue
+                countsFile:
+                  __class__: ConnectedValue
+      tximport:
+        tximport_selector: count
+        __current_case__: 1
+  - id: "Differential expression: second contrast vs reference"
+    label: "Differential expression: second contrast vs reference"
+    tool_id: toolshed.g2.bx.psu.edu/repos/iuc/deseq2/deseq2
+    tool_version: 2.11.40.8+galaxy4
+    tool_shed_repository:
+      changeset_revision: 05f9e54d7e81
+      name: deseq2
+      owner: iuc
+      tool_shed: toolshed.g2.bx.psu.edu
+    doc: "Tier: Resolved. REDUCTION, as for the first contrast: each factor-level port consumes a whole 2-element counts collection through the wrapper's multiple=true data input, so the per-sample axis collapses here. One job, no map-over. Paper contrast: AR0387 vs AR0382, taken as level-1-vs-level-2 so log2FC is signed AR0387-relative. Sees only its own four samples -- the two AR0387 replicates and the two AR0382 replicates -- which is why its normalized counts and plots are promoted under contrast-specific labels rather than as the workflow's. Its normalized counts are NOT interchangeable with the first contrast's: size factors are estimated over a different sample set."
+    in:
+      select_data|rep_factorName_0|rep_factorLevel_0|factorLevel: Second contrast condition level
+      select_data|rep_factorName_0|rep_factorLevel_0|countsFile: Counts for the second contrast level/output_filtered
+      select_data|rep_factorName_0|rep_factorLevel_1|factorLevel: Reference condition level
+      select_data|rep_factorName_0|rep_factorLevel_1|countsFile: Counts for the reference level/output_filtered
+      output_options|alpha_ma: Adjusted p-value threshold
+    out:
+      - id: deseq_out
+      - id: counts_out
+      - id: plots
+    tool_state:
+      advanced_options:
+        esf_cond:
+          esf: ""
+          __current_case__: 0
+        fit_type: "1"
+        outlier_replace_off: false
+        outlier_filter_off: false
+        auto_mean_filter_off: false
+        prefilter_conditional:
+          prefilter: ""
+          __current_case__: 1
+        use_beta_priors: false
+        lfc_shrinkage_type: none
+      batch_factors:
+        __class__: RuntimeValue
+      header: true
+      output_options:
+        output_selector:
+          - pdf
+          - normCounts
+        alpha_ma:
+          __class__: ConnectedValue
+      select_data:
+        how: datasets_per_level
+        __current_case__: 1
+        rep_factorName:
+          - __index__: 0
+            factorName: condition
+            rep_factorLevel:
+              - __index__: 0
+                factorLevel:
+                  __class__: ConnectedValue
+                countsFile:
+                  __class__: ConnectedValue
+              - __index__: 1
+                factorLevel:
+                  __class__: ConnectedValue
+                countsFile:
+                  __class__: ConnectedValue
+      tximport:
+        tximport_selector: count
+        __current_case__: 1
+  - id: Build adjusted p-value predicate
+    label: Build adjusted p-value predicate
+    tool_id: toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param
+    tool_version: 0.1.1
+    tool_shed_repository:
+      changeset_revision: e188c9826e0f
+      name: compose_text_param
+      owner: iuc
+      tool_shed: toolshed.g2.bx.psu.edu
+    doc: "Tier: Resolved. Single job. Composes the Filter1 predicate `c7<<threshold>` (e.g. `c7<0.05`) and feeds the `cond` port of BOTH contrasts' p-adj filter steps; the predicate text is identical for the two chains, so one job serves both. c7 is the adjusted p-value column of the raw DESeq2 result table."
+    in:
+      components_1|param_type|component_value: Adjusted p-value threshold
+    out:
+      - id: out1
+        hide: true
+    tool_state:
+      components:
+        - param_type:
+            select_param_type: text
+            component_value: c7<
+        - param_type:
+            select_param_type: float
+            component_value:
+              __class__: ConnectedValue
+  - id: Build log2 fold-change predicate
+    label: Build log2 fold-change predicate
+    tool_id: toolshed.g2.bx.psu.edu/repos/iuc/compose_text_param/compose_text_param
+    tool_version: 0.1.1
+    tool_shed_repository:
+      changeset_revision: e188c9826e0f
+      name: compose_text_param
+      owner: iuc
+      tool_shed: toolshed.g2.bx.psu.edu
+    doc: "Tier: Resolved. Single job. Composes the Filter1 predicate `abs(c3)><threshold>` (e.g. `abs(c3)>1.0`) and feeds the `cond` port of BOTH contrasts' log2FC filter steps; the predicate text is identical for the two chains, so one job serves both. c3 is the log2FoldChange column of the raw DESeq2 result table, and the comparison is against that RAW column -- the threshold parameter is already in log2 units, so there is no log2() call and no conversion step anywhere in this workflow."
+    in:
+      components_1|param_type|component_value: log2 fold change threshold
+    out:
+      - id: out1
+        hide: true
+    tool_state:
+      components:
+        - param_type:
+            select_param_type: text
+            component_value: abs(c3)>
+        - param_type:
+            select_param_type: float
+            component_value:
+              __class__: ConnectedValue
+  - id: "Filter with p-adj threshold: first contrast"
+    label: "Filter with p-adj threshold: first contrast"
+    tool_id: Filter1
+    tool_version: 1.1.1
+    doc: "Tier: Resolved. Single job, no map-over. First link of the first contrast's chain: keeps the rows of the raw DESeq2 result table whose adjusted p-value clears the threshold, via the `c7<<threshold>` predicate built upstream. Hidden; the chain's endpoint (the log2FC link) is what gets promoted."
+    in:
+      cond: Build adjusted p-value predicate/out1
+      input: "Differential expression: first contrast vs reference/deseq_out"
+    out:
+      - id: out_file1
+        hide: true
+    tool_state:
+      cond:
+        __class__: ConnectedValue
+      input:
+        __class__: ConnectedValue
+      header_lines: "0"
+  - id: "Filter with log2 FC threshold: first contrast"
+    label: "Filter with log2 FC threshold: first contrast"
+    tool_id: Filter1
+    tool_version: 1.1.1
+    doc: "Tier: Resolved. Single job, no map-over. Second link of the first contrast's chain and its endpoint: keeps the rows of the p-adj-filtered table whose |log2 fold change| clears the threshold, via the `abs(c3)><threshold>` predicate built upstream. Promoted as `Significant genes: tnSWI1 vs AR0382`."
+    in:
+      cond: Build log2 fold-change predicate/out1
+      input: "Filter with p-adj threshold: first contrast/out_file1"
+    out:
+      - id: out_file1
+        rename: Genes filtered with adj p-value and log2(FC) thresholds
+    tool_state:
+      cond:
+        __class__: ConnectedValue
+      input:
+        __class__: ConnectedValue
+      header_lines: "0"
+  - id: "Filter with p-adj threshold: second contrast"
+    label: "Filter with p-adj threshold: second contrast"
+    tool_id: Filter1
+    tool_version: 1.1.1
+    doc: "Tier: Resolved. Single job, no map-over. First link of the second contrast's chain: keeps the rows of the raw DESeq2 result table whose adjusted p-value clears the threshold, via the `c7<<threshold>` predicate built upstream. Hidden; the chain's endpoint (the log2FC link) is what gets promoted."
+    in:
+      cond: Build adjusted p-value predicate/out1
+      input: "Differential expression: second contrast vs reference/deseq_out"
+    out:
+      - id: out_file1
+        hide: true
+    tool_state:
+      cond:
+        __class__: ConnectedValue
+      input:
+        __class__: ConnectedValue
+      header_lines: "0"
+  - id: "Filter with log2 FC threshold: second contrast"
+    label: "Filter with log2 FC threshold: second contrast"
+    tool_id: Filter1
+    tool_version: 1.1.1
+    doc: "Tier: Resolved. Single job, no map-over. Second link of the second contrast's chain and its endpoint: keeps the rows of the p-adj-filtered table whose |log2 fold change| clears the threshold, via the `abs(c3)><threshold>` predicate built upstream. Promoted as `Significant genes: AR0387 vs AR0382`."
+    in:
+      cond: Build log2 fold-change predicate/out1
+      input: "Filter with p-adj threshold: second contrast/out_file1"
+    out:
+      - id: out_file1
+        rename: Genes filtered with adj p-value and log2(FC) thresholds
+    tool_state:
+      cond:
+        __class__: ConnectedValue
+      input:
+        __class__: ConnectedValue
+      header_lines: "0"
+comments:
+  - type: frame
+    position:
+      - 0
+      - 0
+    size:
+      - 520
+      - 300
+    color: blue
+    title: Raw-read quality control
+    contains_steps:
+      - Flatten reads for per-fastq QC
+      - Read quality report
+  - type: frame
+    position:
+      - 560
+      - 0
+    size:
+      - 560
+      - 520
+    color: green
+    title: Trim, align and count (map-over, one job per sample)
+    contains_steps:
+      - Quality-trim reads
+      - Splice-aware alignment
+      - Count reads per gene
+  - type: frame
+    position:
+      - 560
+      - 560
+    size:
+      - 400
+      - 180
+    color: yellow
+    title: Map strandedness parameter
+    contains_steps:
+      - Get featureCounts strandedness parameter
+  - type: frame
+    position:
+      - 0
+      - 360
+    size:
+      - 520
+      - 900
+    color: red
+    title: Condition split from the sample sheet (no corpus precedent)
+    contains_steps:
+      - Project sample sheet to tabular
+      - Build reference-level row predicate
+      - Select reference-level samples
+      - Reference-level identifier list
+      - Counts for the reference level
+      - Build first-contrast row predicate
+      - Select first-contrast samples
+      - First-contrast identifier list
+      - Counts for the first contrast level
+      - Build second-contrast row predicate
+      - Select second-contrast samples
+      - Second-contrast identifier list
+      - Counts for the second contrast level
+  - type: markdown
+    position:
+      - 0
+      - 1280
+    size:
+      - 520
+      - 220
+    color: red
+    text: |
+      **Delimited region — the phase-2 alternative is one deletion away.**
+
+      Nothing in IWC at `fe41a79` uses a `sample_sheet` collection input or
+      `__SAMPLE_SHEET_TO_TABULAR__`, so this region has no worked precedent. To take the
+      recorded alternative: delete `Project sample sheet to tabular`, change the reads
+      input to `list:paired` (dropping `column_definitions`), add a `data` input
+      `Sample metadata table` (sample_id, condition, replicate), and repoint the three
+      `Select ...-level samples` steps at it. Every other step here, and the rest of the
+      workflow, is unchanged.
+  - type: frame
+    position:
+      - 1160
+      - 0
+    size:
+      - 460
+      - 420
+    color: turquoise
+    title: Differential expression (two contrasts, two jobs)
+    contains_steps:
+      - "Differential expression: first contrast vs reference"
+      - "Differential expression: second contrast vs reference"
+  - type: frame
+    position:
+      - 1160
+      - 460
+    size:
+      - 460
+      - 200
+    color: yellow
+    title: Build significance filter predicates
+    contains_steps:
+      - Build adjusted p-value predicate
+      - Build log2 fold-change predicate
+  - type: frame
+    position:
+      - 1160
+      - 700
+    size:
+      - 460
+      - 440
+    color: orange
+    title: Significance filtering (padj then log2FC, per contrast)
+    contains_steps:
+      - "Filter with p-adj threshold: first contrast"
+      - "Filter with log2 FC threshold: first contrast"
+      - "Filter with p-adj threshold: second contrast"
+      - "Filter with log2 FC threshold: second contrast"

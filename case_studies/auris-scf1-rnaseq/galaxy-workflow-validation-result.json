@@ -1,0 +1,208 @@
+{
+  "artifact": "galaxy-workflow-validation-result",
+  "phase": 10,
+  "skill": "validate-galaxy-workflow",
+  "workflow_path": "galaxy-workflow.gxwf.yml",
+  "validated_at": "2026-09-18",
+  "tool": {
+    "name": "gxwf",
+    "package": "@galaxy-tool-util/cli",
+    "package_version": "1.12.0",
+    "self_reported_version": "1.0.0",
+    "self_reported_version_note": "`gxwf --version` reports a stale 1.0.0; the installed package is 1.12.0. Still open as feedback `gxwf-version-flag-reports-stale-version` — re-confirmed on 1.12.0."
+  },
+  "command": "gxwf validate galaxy-workflow.gxwf.yml --json --cache-dir <run-cache>/gxwf-cache",
+  "command_notes": [
+    "`--cache-dir` is still load-bearing, but the failure mode moved. With a network, an EMPTY cache dir is now self-healing: gxwf fetched 13 unique tools and validated all 27 steps in 2.4s. The vacuous green is still reachable offline — `--offline` against an empty cache returns 27 of 27 `skip_tool_not_found` and exit 0. Read the split, never the exit code.",
+    "`--connections` still cannot be used: gxwf crashes before producing any report (diagnostic `gxwf-connections-crash`). The collection-algebra / map-over check did NOT run in this phase either.",
+    "`--strict-structure --strict-encoding` was run as a separate pass (diagnostic `format2-state-key-encoding`); `--strict-state` was also run and exits 0 now that nothing is skipped."
+  ],
+  "status": "pass",
+  "status_rationale": "gxwf 1.12.0 exits 0 with 27 of 27 steps tool-state validated, 0 failures, 0 structure errors and 0 encoding errors under default strictness. The 7 steps the 1.10.1 run could not check now decode and validate, so the `pass-with-unvalidated-steps` qualifier no longer applies. Two holes remain and are recorded below: connection validation still does not run at all, and a stray `in:` key on a step that carries `tool_state` is still not caught.",
+  "not_run_reason": null,
+  "coverage": {
+    "steps_total": 27,
+    "tool_state_validated": 27,
+    "tool_state_skipped": 0,
+    "tool_state_failed": 0,
+    "structure_errors": 0,
+    "encoding_errors_default_mode": 0,
+    "connection_check_ran": false,
+    "skipped_steps": [],
+    "skip_cause": null,
+    "cold_cache_behaviour": "Cache dir created empty for this run; gxwf populated it with 13 unique tool entries during validation. The 7 previously undecodable tools (__FLATTEN__, __FILTER_FROM_FILE__, cutadapt, deseq2) now decode."
+  },
+  "non_vacuity_evidence": [
+    "Negative control, re-measured on gxwf 1.12.0: injecting `header_lines: 'notanint'` into step 8 (Filter1) turns the summary into 26 ok / 1 fail with specific diagnostics (`Expected number, actual \"notanint\"`). The 27 validated steps are genuinely being checked.",
+    "Tolerance measured on 1.10.1 and not re-measured here: an unknown extra tool_state key (`bogus_param_probe`) and a dropped required parameter (`cond`) both still validated green under every strictness flag gxwf offers. The tool-state check verifies the values of the parameters present, not the completeness or legality of the parameter set.",
+    "Connection-key tolerance, measured on 1.12.0: a stray `in:` key validates green on any step that carries `tool_state` (diagnostic `in-key-check-masked-by-tool-state`)."
+  ],
+  "out_of_band_verification": {
+    "why": "On 1.10.1 gxwf validated nothing on 7 steps and checked no `in:` key on any step; both holes were closed by hand for phase 10. On 1.12.0 the first hole is gone (27 of 27 validated) and the second is half gone — see diagnostic `in-key-check-masked-by-tool-state`. The hand check below therefore still carries the `in:` key names for the 26 steps that declare `tool_state`.",
+    "in_key_names_vs_tool_schema": {
+      "method": "Every `in:` key and every tool_state parameter path was resolved against the real tool input tree (conditionals via test_param/cases, repeats via `<name>_<n>`, sections). The 20 cached tools came from the gxwf tool cache; the 7 uncached tools were fetched from `https://usegalaxy.org/api/tools/<id>?io_details=true`.",
+      "result": "27 of 27 steps clean. 0 mismatches on `in:` keys, 0 mismatches on tool_state parameter names, 0 illegal select-option or boolean values on the 7 previously unchecked steps.",
+      "significance": "This is the check no gate in this run performs. A wrong unqualified `filter_source:` in place of `how|filter_source` was measured to validate byte-identically green; confirmed independently here, with a bogus `in:` key (`not_a_real_tool_input`) on a fully-cached Filter1 step passing under `--strict-structure --strict-state`."
+    }
+  },
+  "cross_step_invariants": [
+    {
+      "id": "deseq2-lfc-shrinkage-none",
+      "statement": "`advanced_options.lfc_shrinkage_type: 'none'` on BOTH DESeq2 nodes. Any other value makes `get_result_output_columns()` drop the `stat` column, moving padj from c7 to c6 and making the `\"c7<\"` predicate filter on nothing, silently.",
+      "verdict": "HOLDS",
+      "evidence": "step 19 and step 20 both bind `advanced_options.lfc_shrinkage_type: 'none'`. Neither node selects `many_contrasts` / `split_output`; both are `select_data.how: datasets_per_level`.",
+      "enforced_by_a_gate": false,
+      "consumers": "One compose_text_param bridge hard-codes the padj predicate: step 21 `\"c7<\"`, consumed by Filter1 steps 23 and 25. The log2FC bridge (step 22, `\"abs(c3)>\"`, consumed by steps 24 and 26) is on c3, which sits ahead of `stat` and does not move under shrinkage — so this invariant protects the padj predicate specifically."
+    },
+    {
+      "id": "filter1-header-lines-zero",
+      "statement": "`header_lines: '0'` on ALL SEVEN Filter1 steps. DESeq2's `deseq_out` is written with `col.names = FALSE` and has no header; binding `'1'` silently discards the top row, which on a padj-sorted table is the most significant gene (SCF1, the paper's finding).",
+      "verdict": "HOLDS",
+      "evidence": "All 7 Filter1 steps (8, 12, 16, 23, 24, 25, 26) bind `header_lines: '0'` as the string `'0'`. Filter1 step count is exactly 7.",
+      "enforced_by_a_gate": false
+    },
+    {
+      "id": "filter-from-file-qualified-key",
+      "statement": "The three `__FILTER_FROM_FILE__` steps must carry the QUALIFIED `how|filter_source` key, not a bare `filter_source`.",
+      "verdict": "HOLDS",
+      "evidence": "Steps 10, 14 and 18 each carry `in: {input, how|filter_source}`. Confirmed against the live `__FILTER_FROM_FILE__` 1.1.0 schema from the Galaxy tool API: inputs are `input` (data_collection) and the conditional `how` (test param `how_filter`) with `filter_source` inside each case. The tool_state matches: `how.how_filter: remove_if_absent`, `__current_case__: 0`.",
+      "enforced_by_a_gate": false
+    }
+  ],
+  "structural_confirmation": {
+    "class": "GalaxyWorkflow",
+    "steps": 27,
+    "inputs": 9,
+    "outputs": 16,
+    "all_steps_have_in": true,
+    "unresolved_in_sources": 0,
+    "unresolved_output_sources": 0,
+    "all_outputs_labelled": true
+  },
+  "diagnostics": [
+    {
+      "id": "gxwf-connections-crash",
+      "severity": "warning",
+      "target": "the validation run itself, not the workflow",
+      "message": "`gxwf validate --connections` aborts with `TypeError: step.in is not iterable` at @galaxy-tool-util/schema/dist/workflow/normalized/toNative.js, inside `_extractConnections` reached from `_buildToolStep`. Unchanged on 1.12.0: exit 1, 0 bytes on stdout. The connection-type / collection-algebra / map-over check did not run.",
+      "workflow_is_at_fault": false,
+      "isolation": "Reproduced on 20-line minimal format2 workflows with a single cached Filter1 step, and unchanged on gxwf 1.12.0. Root cause is `_isNormalizedFormat2` in toNative: it infers \"already normalized\" from `class` plus array-valued `inputs`/`steps`, which says nothing about per-step shape, so a workflow written with list-form `inputs:`/`steps:` and mapping-form `in:` - this workflow's dialect - skips `normalizedFormat2` and reaches `_extractConnections` unnormalized. The same input crashes `gxwf convert --to native` with no connection flag involved; map-form `inputs:` or `steps:`, or list-form `in:`, convert cleanly.",
+      "routes_to": "gxwf (upstream). Filed as feedback `tonative-shape-sniff-skips-normalization-on-list-form-format2`; fix submitted as jmchilton/galaxy-tool-util-ts#179 (green, unmerged at the time of this run). Not in any release yet.",
+      "consequence_for_this_run": "Collection-shape compatibility is unproven by any static gate. See residual risk `collection-algebra-unchecked`."
+    },
+    {
+      "id": "format2-state-key-encoding",
+      "severity": "advisory",
+      "target": "all 26 tool steps (step 0 has no tool_state)",
+      "message": "Under `--strict-encoding`, gxwf reports `step N: uses \"tool_state\" instead of \"state\" (format2 should use \"state\")` for every one of the 26 steps that carry tool state, and exits 2. Re-measured unchanged on 1.12.0.",
+      "workflow_is_at_fault": false,
+      "why_not_a_defect_here": "`tool_state:` is forced. gxwf's own tool-state validator drops a `{__class__: ConnectedValue}` placeholder when the state is written under `state:` and honours it under `tool_state:` — filed in phase 6 as `gxwf-drops-connectedvalue-under-format2-state-key`. Switching to the key `--strict-encoding` demands would break the compose_text_param steps. `gxwf convert --to format2` also emits `tool_state:`, as does the IWC exemplar this run compared against.",
+      "routes_to": "gxwf (upstream). Filed as feedback `gxwf-strict-encoding-demands-the-state-key-its-validator-mishandles`.",
+      "consequence_for_this_run": "None at runtime. Galaxy and gxwf both accept `tool_state:`. Recorded so a later maturation pass does not read the strict-encoding failure as a workflow defect and 'fix' it into the broken key."
+    },
+    {
+      "id": "json-interface-unreliable",
+      "severity": "advisory",
+      "target": "the validation run itself",
+      "message": "PARTIALLY FIXED on 1.12.0. The ~55 lines of Effect schema text that used to precede the JSON document on stdout are gone: `--json` now yields a parseable document with a cold cache and a warm one alike. What survives is the strict-mode breach — `--json --strict-structure --strict-encoding` exits 2 with 0 bytes on stdout and plain text on stderr, so no harness can read a strict verdict as JSON.",
+      "workflow_is_at_fault": false,
+      "routes_to": "gxwf (upstream). Filed as feedback `gxwf-validate-json-output-is-not-machine-parseable`.",
+      "consequence_for_this_run": "None for the verdict. The default-mode report parsed directly this time; the strict pass still had to be read from stderr."
+    },
+    {
+      "id": "in-key-check-masked-by-tool-state",
+      "severity": "warning",
+      "target": "the gate's coverage of all 26 steps that carry tool_state",
+      "message": "gxwf 1.12.0 rejects an `in:` key that names no parameter of the pinned tool ONLY when the step carries no explicit `tool_state` block. When `tool_state` is present and names the real port, a stray connection key in `in:` validates green.",
+      "workflow_is_at_fault": false,
+      "isolation": "Two 15-line Filter1 workflows differing only by a `tool_state` block: without it the bogus key fails with `No parameter definition matching connection key`, with it the same bogus key returns `ok`. Reproduced on this workflow: renaming `Read quality report`'s `input_file:` connection to `not_a_real_tool_input` leaves all 27 steps `ok`, because its `tool_state` still carries `input_file: {__class__: ConnectedValue}`.",
+      "routes_to": "gxwf (upstream). Sharpens the existing feedback entry `gxwf-validate-never-checks-in-key-names`, which this run's evidence shows is only half fixed.",
+      "consequence_for_this_run": "The hand check recorded under `out_of_band_verification` is still the only thing covering `in:` key names on 26 of 27 steps."
+    }
+  ],
+  "residual_runtime_risks": [
+    {
+      "id": "collection-algebra-unchecked",
+      "risk": "No static check has confirmed collection-shape compatibility anywhere in the workflow, because `--connections` crashes. The map-over structure is the load-bearing part of this design: `sample_sheet:paired` in → `__FLATTEN__` → FastQC (per-fastq fan-out), the paired collection into Cutadapt `library|input_1` and on to RNA STAR `singlePaired|input`, three `__FILTER_FROM_FILE__` reductions on `Count reads per gene/output_short`, and the workflow's only reduction where DESeq2's multiple=true `countsFile` ports consume whole collections.",
+      "proved_or_disproved_by": "The first successful invocation. Per-step HDCA population and `step_jobs_summary` from `GET /api/invocations/{id}/step_jobs_summary`; a shape mismatch surfaces as invocation message `collection_failed` or as an unexpected job count on a mapped step.",
+      "severity": "major"
+    },
+    {
+      "id": "sample-sheet-collection-support",
+      "risk": "The workflow's primary input is `collection_type: sample_sheet:paired` with `column_definitions`, and step 6 is `__SAMPLE_SHEET_TO_TABULAR__`. Both are recent Galaxy features. gxwf accepted them structurally, which says nothing about whether the Galaxy instance planemo targets supports them. Related open requirement: `no-iwc-precedent-for-sample-sheet-workflow-input`; related filed feedback: `galaxy-test-staging-drops-sample-sheet-column-definitions`.",
+      "proved_or_disproved_by": "Phase 11. Failure would appear at request-time validation or input materialization, before useful invocation state — an API error or `dataset_failed`, not a tool stderr.",
+      "severity": "major"
+    },
+    {
+      "id": "deseq2-column-contract-at-runtime",
+      "risk": "The c3 = log2FoldChange / c7 = padj contract, and the headerless premise under it, are verified here only as authored bindings. That `deseq_out` really arrives 7-column and headerless from this wrapper at this version is a runtime fact.",
+      "proved_or_disproved_by": "Phase 11. The test plan already asserts `has_n_columns: 7` on both raw result tables and `not_has_text: baseMean`, so a regression fails the tests rather than filtering silently. Tracked by open requirement `deseq2-statistics-unverified-against-the-galaxy-wrapper`.",
+      "severity": "major"
+    },
+    {
+      "id": "star-index-parameter-for-a-substituted-reference",
+      "risk": "`genomeSAindexNbases: '10'` is correct for the 12,365,959 bp B8441 reference this run's tests supply, and silently wrong for any other genome a user wires in. Open requirement `star-genome-length-drives-sa-index-parameter`.",
+      "proved_or_disproved_by": "The promoted `STAR mapping summary` / job stderr on the first real run — STAR prints its own recommended value when the supplied one is too large.",
+      "severity": "minor"
+    },
+    {
+      "id": "strandedness-inferred-not-stated",
+      "risk": "`Strandedness` defaults to `stranded - reverse`, inferred from the library kit rather than stated by the paper. A wrong setting produces a plausible but wrong count matrix, not an error. Open requirement `cutadapt-adapter-and-length-filter-unstated` is adjacent.",
+      "proved_or_disproved_by": "The promoted `featureCounts assignment summary` on the first real run: a wrong setting shows a large `Unassigned_NoFeatures` fraction.",
+      "severity": "minor"
+    },
+    {
+      "id": "flatten-join-identifier-defaulted",
+      "risk": "Step 0 (`__FLATTEN__`) carries no tool_state at all, so `join_identifier` takes the wrapper default. That default determines the element identifiers FastQC's per-read outputs carry. The sample-sheet element identifiers are declared the spine of this workflow.",
+      "proved_or_disproved_by": "Phase 11: the element identifiers on the promoted `FastQC raw reads` outputs.",
+      "severity": "minor"
+    }
+  ],
+  "handoff_to_phase_11_12": [
+    "Collection algebra was NOT statically checked, on 1.12.0 either. `--connections` still crashes. Treat the first invocation as the first check of map-over shape, and read `step_jobs_summary` per step rather than only the terminal state.",
+    "The 7 formerly-skipped steps are now covered by the gate itself (27 of 27 validated on gxwf 1.12.0). The phase-10 hand check of their `in:` keys and state parameter names no longer needs re-doing after an edit for tool-state purposes.",
+    "`in:` key names on the 26 steps that carry `tool_state` are still NOT covered by any gate — gxwf's new connection-key check is masked by the presence of `tool_state`. The phase-10 hand check remains the only evidence there.",
+    "All three cross-step invariants hold in the assembled artifact. None is enforced by a gate, and the `doc:` half of `cross-step-invariants-survive-only-in-the-draft` is still not done: neither DESeq2 node's `doc:` mentions shrinkage, and none of the seven Filter1 `doc:` strings says why `header_lines` is '0'. The four significance filters do name the `c7<` / `abs(c3)>` predicates in their docs; the two DESeq2 nodes name nothing.",
+    "`galaxy-workflow-draft.gxwf.yml` still carries the invariant rationale in YAML comments that `draft-extract` strips. Do not discard it before the `doc:` strings are written.",
+    "A workflow-level green from this gate now covers 27 of 27 steps' tool state and no `in:` key name on any step that declares `tool_state`. Any later phase quoting 'validation passed' should quote that scope with it."
+  ],
+  "previous_run": {
+    "file": "galaxy-workflow-validation-result.json.gxwf-1.10.1.bak",
+    "gxwf": "1.10.1",
+    "validated_at": "2026-09-16",
+    "status": "pass-with-unvalidated-steps",
+    "note": "Superseded by this run. Kept because its 20/7 split is cited by open-requirements and feedback entries."
+  },
+  "resolved_since_previous_run": [
+    {
+      "feedback_entry": "collection-output-decode-is-a-flat-vs-nested-shape-mismatch-not-a-missing-field",
+      "resolution": "Fixed upstream between 1.10.1 and 1.12.0.",
+      "evidence": "Same workflow, same flags, cold cache: 20 validated / 7 skipped on 1.10.1 → 27 validated / 0 skipped on 1.12.0. Step 0 `__FLATTEN__` and both DESeq2 nodes report `ok`."
+    },
+    {
+      "feedback_entry": "gxwf-cannot-decode-collection-outputs-of-builtin-collection-operations",
+      "resolution": "Resolved with the entry above, which already superseded it.",
+      "evidence": "`__FLATTEN__` and `__FILTER_FROM_FILE__` both decode and validate on 1.12.0."
+    },
+    {
+      "feedback_entry": "gxwf-validate-json-output-is-not-machine-parseable",
+      "resolution": "PARTIAL — breach (1) only.",
+      "evidence": "`--json` now writes parseable JSON and nothing else to stdout, with both a warm and a cold cache; `json.load(stdout)` succeeds. Breach (2) survives: adding any strict flag still yields exit 2, 0 bytes on stdout and plain text on stderr."
+    },
+    {
+      "feedback_entry": "gxwf-validate-never-checks-in-key-names",
+      "resolution": "PARTIAL — and the remaining half is what this workflow needs.",
+      "evidence": "A bogus `in:` key on a step with NO `tool_state` now fails: `No parameter definition matching connection key \"not_a_real_port\"`. The same bogus key on a step that CARRIES a `tool_state` block naming the real port still validates green — isolated on two 15-line Filter1 workflows differing only by the presence of `tool_state`, and confirmed on this workflow by renaming step `Read quality report`'s `input_file:` connection to `not_a_real_tool_input` (27 of 27 still `ok`). 26 of this workflow's 27 steps carry `tool_state`, so the check does not cover them."
+    }
+  ],
+  "resolved_risks": [
+    {
+      "id": "seven-steps-never-schema-checked-by-a-gate",
+      "risk": "Steps 0, 2, 10, 14, 18, 19 and 20 will be unvalidated by gxwf on every future run of this gate, permanently — the decoder mismatch is not clearable by priming the cache. This phase checked them by hand against the live tool API and found them clean, but that check is not repeatable by a gate and will not be redone automatically after any later edit.",
+      "proved_or_disproved_by": "Nothing static, until the gxwf decoder is fixed. Phase 11's invocation is the first machine check these 7 steps get. A later maturation pass that edits any of them re-opens the hole.",
+      "severity": "major",
+      "resolved_on": "gxwf 1.12.0",
+      "resolution": "The decoder mismatch is fixed. All 7 steps now validate under the standard gate on every future run, and the hand check no longer has to be re-done after an edit."
+    }
+  ]
+}

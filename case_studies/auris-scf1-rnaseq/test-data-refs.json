@@ -1,0 +1,498 @@
+{
+  "schema": "test-data-refs",
+  "schema_version": 1,
+  "produced_by": "paper-to-test-data",
+  "run_slug": "auris-scf1",
+  "branch_path_selected": "paper-to-test-data",
+  "target_workflow": "galaxy-workflow.gxwf.yml",
+  "generated": "2026-09-16",
+  "source": {
+    "paper": "Santana DJ et al. 2023, Science 381(6665):1461-1467",
+    "doi": "10.1126/science.adf8972",
+    "pipeline": "Pipeline A - bulk RNA-seq differential expression",
+    "bioproject": "PRJNA904261",
+    "sra_study": "SRP409192",
+    "taxon": 498019
+  },
+  "verdict": {
+    "tier": "biology",
+    "summary": "The fixture reproduces the paper's central SCF1 finding in BOTH contrasts, not shape only. This is measured, not projected: a 200,000-read-pair head subset of each of the six deposited runs was aligned to GCA_002759435.2 with bwa-mem and counted against the NCBI GTF's exon features. SCF1 (B9J08_001458) carries 414/391 fragments in the two AR0382 replicates against 2/1 in AR0387 and 4/3 in tnSWI1 - a separation DESeq2 will call significant at n=2 with wide margin.",
+    "not_reproduced": [
+      "The paper's ~29-fold AR0387-vs-AR0382 magnitude. Measured raw fragment ratio at fixture depth is ~270-fold; see unresolved `scf1-fold-change-magnitude-disagrees-with-paper`.",
+      "The claim that SCF1 is THE single top gene ranked by |log2 fold change|. At this depth, and with the workflow's `lfc_shrinkage_type: none`, low-count genes take extreme unshrunk log2FC values and can outrank it. Rank by adjusted p-value is the safe form and is what the assertions use.",
+      "Fig. S2 / tnBCY1. No tnBCY1 run was ever deposited; no test input exists for it at any depth."
+    ],
+    "caveat": "Counts above come from bwa-mem (unspliced) plus a strand-agnostic exon-overlap counter, not from RNA STAR plus featureCounts with -s 2. They establish that the SIGNAL survives subsetting; they are not predictions of the workflow's exact integer counts. No assertion below pins an exact count."
+  },
+  "inputs": {
+    "RNA-seq reads (sample sheet)": {
+      "workflow_input_type": "collection",
+      "collection_type": "sample_sheet:paired",
+      "format": "fastqsanger.gz",
+      "column_definitions_order": [
+        "condition",
+        "replicate"
+      ],
+      "elements": [
+        {
+          "element_identifier": "AR0382_A",
+          "sra_run": "SRR22376032",
+          "condition": "AR0382",
+          "replicate": "A",
+          "source_reads_full": 26239060,
+          "source": {
+            "forward": {
+              "url": "https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR223/032/SRR22376032/SRR22376032_1.fastq.gz",
+              "md5": "8bbc89136c3e8f9692172ab245e1bb3c"
+            },
+            "reverse": {
+              "url": "https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR223/032/SRR22376032/SRR22376032_2.fastq.gz",
+              "md5": "195a5f65d3af18006a7a47fae8b43245"
+            }
+          },
+          "fixture": {
+            "forward": {
+              "basename": "AR0382_A_1.fastq.gz",
+              "md5_uncompressed": "638d1c0b75d9e688fc5ef9340f4cc3eb",
+              "approx_bytes_gz": 4620000
+            },
+            "reverse": {
+              "basename": "AR0382_A_2.fastq.gz",
+              "md5_uncompressed": "74178e6e71d82fd12edd7a1b578fa80c",
+              "approx_bytes_gz": 4625000
+            },
+            "read_pairs": 200000,
+            "hosting": "NOT HOSTED. Regenerate with `subsetting.recipe`, then publish (Zenodo or equivalent) and substitute the URL into `location`."
+          },
+          "measured_at_fixture_depth": {
+            "r1_primary_mapped": 198486,
+            "assigned_to_genes": 181378,
+            "genes_nonzero": 5101,
+            "genes_ge_10": 3112,
+            "scf1": 414,
+            "scf1_rank": 71
+          }
+        },
+        {
+          "element_identifier": "AR0382_B",
+          "sra_run": "SRR22376031",
+          "condition": "AR0382",
+          "replicate": "B",
+          "source_reads_full": 23724430,
+          "source": {
+            "forward": {
+              "url": "https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR223/031/SRR22376031/SRR22376031_1.fastq.gz",
+              "md5": "cc9d1404ad4a4d1932bb43333fdf310e"
+            },
+            "reverse": {
+              "url": "https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR223/031/SRR22376031/SRR22376031_2.fastq.gz",
+              "md5": "d34f7aee48c7e2bf0d43998e1edecd61"
+            }
+          },
+          "fixture": {
+            "forward": {
+              "basename": "AR0382_B_1.fastq.gz",
+              "md5_uncompressed": "1027b9ff9f53914d870ed99cec61e618",
+              "approx_bytes_gz": 4620000
+            },
+            "reverse": {
+              "basename": "AR0382_B_2.fastq.gz",
+              "md5_uncompressed": "2f49cc2d14949c0f415a500505a02a59",
+              "approx_bytes_gz": 4625000
+            },
+            "read_pairs": 200000,
+            "hosting": "NOT HOSTED. Regenerate with `subsetting.recipe`, then publish (Zenodo or equivalent) and substitute the URL into `location`."
+          },
+          "measured_at_fixture_depth": {
+            "r1_primary_mapped": 198505,
+            "assigned_to_genes": 181360,
+            "genes_nonzero": 5076,
+            "genes_ge_10": 3142,
+            "scf1": 391,
+            "scf1_rank": 73
+          }
+        },
+        {
+          "element_identifier": "AR0387_A",
+          "sra_run": "SRR22376030",
+          "condition": "AR0387",
+          "replicate": "A",
+          "source_reads_full": 25524969,
+          "source": {
+            "forward": {
+              "url": "https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR223/030/SRR22376030/SRR22376030_1.fastq.gz",
+              "md5": "eb20211e3ac46e4c06b7f304d8d69c22"
+            },
+            "reverse": {
+              "url": "https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR223/030/SRR22376030/SRR22376030_2.fastq.gz",
+              "md5": "a8be593535c43e2f618efaac05bbbeba"
+            }
+          },
+          "fixture": {
+            "forward": {
+              "basename": "AR0387_A_1.fastq.gz",
+              "md5_uncompressed": "75fea1effe836256ee8f1205a6281037",
+              "approx_bytes_gz": 4620000
+            },
+            "reverse": {
+              "basename": "AR0387_A_2.fastq.gz",
+              "md5_uncompressed": "1b5e3f732f9ebb2722a10110198cfef3",
+              "approx_bytes_gz": 4625000
+            },
+            "read_pairs": 200000,
+            "hosting": "NOT HOSTED. Regenerate with `subsetting.recipe`, then publish (Zenodo or equivalent) and substitute the URL into `location`."
+          },
+          "measured_at_fixture_depth": {
+            "r1_primary_mapped": 198586,
+            "assigned_to_genes": 179176,
+            "genes_nonzero": 5053,
+            "genes_ge_10": 2934,
+            "scf1": 2,
+            "scf1_rank": 4541
+          }
+        },
+        {
+          "element_identifier": "AR0387_B",
+          "sra_run": "SRR22376029",
+          "condition": "AR0387",
+          "replicate": "B",
+          "source_reads_full": 22010492,
+          "source": {
+            "forward": {
+              "url": "https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR223/029/SRR22376029/SRR22376029_1.fastq.gz",
+              "md5": "67c93fa57ef2d7bac8c309e1a86b1311"
+            },
+            "reverse": {
+              "url": "https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR223/029/SRR22376029/SRR22376029_2.fastq.gz",
+              "md5": "2a701a987851bbeb4870766f1a263e56"
+            }
+          },
+          "fixture": {
+            "forward": {
+              "basename": "AR0387_B_1.fastq.gz",
+              "md5_uncompressed": "46b3b7ee5daeeadd3e3aab3d5c89c3fd",
+              "approx_bytes_gz": 4620000
+            },
+            "reverse": {
+              "basename": "AR0387_B_2.fastq.gz",
+              "md5_uncompressed": "1d72c57ae5be084075022be86de3b3c3",
+              "approx_bytes_gz": 4625000
+            },
+            "read_pairs": 200000,
+            "hosting": "NOT HOSTED. Regenerate with `subsetting.recipe`, then publish (Zenodo or equivalent) and substitute the URL into `location`."
+          },
+          "measured_at_fixture_depth": {
+            "r1_primary_mapped": 198443,
+            "assigned_to_genes": 178899,
+            "genes_nonzero": 5042,
+            "genes_ge_10": 2890,
+            "scf1": 1,
+            "scf1_rank": 4775
+          }
+        },
+        {
+          "element_identifier": "AR0382_tnSWI1_A",
+          "sra_run": "SRR22376028",
+          "condition": "tnSWI1",
+          "replicate": "A",
+          "source_reads_full": 21590744,
+          "source": {
+            "forward": {
+              "url": "https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR223/028/SRR22376028/SRR22376028_1.fastq.gz",
+              "md5": "5cc6fb05f47fa6e9c519439afae0f487"
+            },
+            "reverse": {
+              "url": "https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR223/028/SRR22376028/SRR22376028_2.fastq.gz",
+              "md5": "e110cbb1ef1ae24810f57e226851a07b"
+            }
+          },
+          "fixture": {
+            "forward": {
+              "basename": "AR0382_tnSWI1_A_1.fastq.gz",
+              "md5_uncompressed": "15fc0849808eafcc468d4e25a87a8566",
+              "approx_bytes_gz": 4620000
+            },
+            "reverse": {
+              "basename": "AR0382_tnSWI1_A_2.fastq.gz",
+              "md5_uncompressed": "b1decf99a029e855e46837452e019e85",
+              "approx_bytes_gz": 4625000
+            },
+            "read_pairs": 200000,
+            "hosting": "NOT HOSTED. Regenerate with `subsetting.recipe`, then publish (Zenodo or equivalent) and substitute the URL into `location`."
+          },
+          "measured_at_fixture_depth": {
+            "r1_primary_mapped": 198245,
+            "assigned_to_genes": 180354,
+            "genes_nonzero": 5139,
+            "genes_ge_10": 3262,
+            "scf1": 4,
+            "scf1_rank": 4242
+          }
+        },
+        {
+          "element_identifier": "AR0382_tnSWI1_B",
+          "sra_run": "SRR22376027",
+          "condition": "tnSWI1",
+          "replicate": "B",
+          "source_reads_full": 29894351,
+          "source": {
+            "forward": {
+              "url": "https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR223/027/SRR22376027/SRR22376027_1.fastq.gz",
+              "md5": "7e0650d15a982323294839fdeda80e56"
+            },
+            "reverse": {
+              "url": "https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR223/027/SRR22376027/SRR22376027_2.fastq.gz",
+              "md5": "43b800cdb2648d22e01710ea06ae24a4"
+            }
+          },
+          "fixture": {
+            "forward": {
+              "basename": "AR0382_tnSWI1_B_1.fastq.gz",
+              "md5_uncompressed": "064e50e58ffabb652aa97ba14c976b57",
+              "approx_bytes_gz": 4620000
+            },
+            "reverse": {
+              "basename": "AR0382_tnSWI1_B_2.fastq.gz",
+              "md5_uncompressed": "1b2b6be866f978a441acd292253bba94",
+              "approx_bytes_gz": 4625000
+            },
+            "read_pairs": 200000,
+            "hosting": "NOT HOSTED. Regenerate with `subsetting.recipe`, then publish (Zenodo or equivalent) and substitute the URL into `location`."
+          },
+          "measured_at_fixture_depth": {
+            "r1_primary_mapped": 198468,
+            "assigned_to_genes": 180955,
+            "genes_nonzero": 5108,
+            "genes_ge_10": 3283,
+            "scf1": 3,
+            "scf1_rank": 4475
+          }
+        }
+      ]
+    },
+    "Reference genome FASTA": {
+      "workflow_input_type": "data",
+      "format": "fasta",
+      "assembly": "GCA_002759435.2 (Cand_auris_B8441_V2), C. auris B8441",
+      "url": "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/759/435/GCA_002759435.2_Cand_auris_B8441_V2/GCA_002759435.2_Cand_auris_B8441_V2_genomic.fna.gz",
+      "md5_gz": "a008b270d3aaa04736a8bb7daf3f6dd5",
+      "decompress": true,
+      "measured": {
+        "total_bp": 12365959,
+        "contigs": 15,
+        "largest_contig_bp": 3195935
+      },
+      "note": "Used whole. At 12.4 Mb it is small enough to be a test fixture unmodified, so no reference subsetting is needed and the gene ID space stays exactly the real one."
+    },
+    "Gene annotation GTF": {
+      "workflow_input_type": "data",
+      "format": "gtf",
+      "url": "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/759/435/GCA_002759435.2_Cand_auris_B8441_V2/GCA_002759435.2_Cand_auris_B8441_V2_genomic.gtf.gz",
+      "md5_gz": "6e5b9528d48c0a8fc2c8588e6eeea929",
+      "decompress": true,
+      "resolves_open_requirement": "featurecounts-annotation-source-unnamed",
+      "measured": {
+        "gtf_version": "2.2",
+        "lines": 33953,
+        "genes": 5586,
+        "exon_features": 6057,
+        "gene_id_example": "B9J08_001458",
+        "scf1_locus": "PEKT02000003.1:864995-867292(+), single exon, 2298 bp"
+      },
+      "why_defensible": "It is NCBI's own annotation of the exact accession the paper names - not a different assembly, not a different resource. It is a true GTF (#gtf-version 2.2), so the workflow's `format: gtf` needs no conversion step. Its gene_id values ARE the paper's B9J08_* locus tags, so SCF1 appears as B9J08_001458 with no identifier translation. It carries `exon` features, matching the step's `gff_feature_type: exon`. This makes the step's existing `gff_feature_attribute: gene_id` correct as bound - the FungiDB-GFF3 hazard the ledger recorded (keyed on `ID`) is avoided by not using FungiDB."
+    },
+    "Reference condition level": {
+      "value": "AR0382"
+    },
+    "First contrast condition level": {
+      "value": "tnSWI1"
+    },
+    "Second contrast condition level": {
+      "value": "AR0387"
+    },
+    "Strandedness": {
+      "value": "stranded - reverse",
+      "resolves_open_requirement": "rnaseq-strandedness-inferred-from-kit-name",
+      "evidence": "Measured, no longer inferred from the kit name. Of R1 reads unambiguously overlapping a single annotated gene, 98.4% / 98.4% / 98.2% (AR0382_A / AR0387_A / tnSWI1_A) map ANTISENSE to that gene. That is the dUTP reverse-stranded signature. featureCounts -s 2 is correct."
+    },
+    "Adjusted p-value threshold": {
+      "value": 0.05,
+      "source": "stated by the paper"
+    },
+    "log2 fold change threshold": {
+      "value": 1.0,
+      "source": "paper's |fold change| > 2, in log2 units"
+    }
+  },
+  "subsetting": {
+    "why": "Six runs at 22-30 M pairs each is ~6.5 GB of source FASTQ. Unusable as a fixture.",
+    "strategy": "Deterministic head subset - first 200,000 read pairs of each mate, taken in file order.",
+    "why_a_head_subset_is_valid_here": "Tested, not assumed. SCF1-matching reads were counted per 1,000,000-read block across the first 5 M reads of AR0382_A (1938, 1896, 2012, 1899, 1950) and AR0387_A (10, 12, 13, 14, 14). The rate is flat, so position in the file carries no bias for this transcript and no alignment-based region targeting is needed. The simpler, fully reproducible recipe is therefore also the correct one.",
+    "why_200k": "SCF1 is extremely highly expressed in AR0382 - rank ~71 of ~5,100 detected genes, the top 1.4%, which independently corroborates the paper's 'top 2.5%' background fact. At 200,000 pairs it still draws ~400 fragments there while AR0387 and tnSWI1 draw 1-4, and ~3,000 genes still clear 10 reads, which is ample for DESeq2 size factors and dispersion fitting. Below ~50,000 pairs the transcriptome-wide depth thins enough that DESeq2's independent filtering starts removing genes wholesale and the significant-gene tables can come back empty.",
+    "recipe": [
+      "for each run R in {SRR22376032,SRR22376031,SRR22376030,SRR22376029,SRR22376028,SRR22376027}:",
+      "  for mate m in {1,2}:",
+      "    curl -L <ENA url for R,m> | gzip -dc | head -n 800000 > <element_identifier>_<m>.fastq",
+      "    gzip -n <element_identifier>_<m>.fastq",
+      "Verify against `fixture.*.md5_uncompressed` on the UNCOMPRESSED .fastq (gzip output is not byte-stable across gzip versions).",
+      "Total: 12 files, ~61 MB compressed. Too large to commit; host and reference by URL."
+    ],
+    "total_fixture_bytes_gz": 55500000,
+    "shape_only_alternative": {
+      "read_pairs": 25000,
+      "total_bytes_gz": 7000000,
+      "committable": true,
+      "loses": "SCF1 falls to ~50 fragments in AR0382 and ~0 elsewhere; per-gene depth drops to ~4.5 reads/gene average. Workflow shape still exercises end to end, but the significant-gene tables may be empty and no SCF1 assertion is safe. Use only if hosting is impossible."
+    }
+  },
+  "sample_sheet_expressibility": {
+    "resolves_open_requirement": "sample-sheet-input-test-fixture-expressibility",
+    "answer": "YES - a sample_sheet:paired input is expressible in a Planemo/gxwf test job block. The phase-2 list:paired fallback is NOT required.",
+    "evidence": [
+      "galaxy/lib/galaxy/tool_util/cwl/util.py, replacement_collection(): `if collection_type.startswith(\"sample_sheet\"): kwds[\"rows\"] = value.get(\"rows\")` - the job-block loader has an explicit sample_sheet branch.",
+      "galaxy/lib/galaxy/tool_util/client/staging.py, create_collection_func(): carries `rows` through to the dataset_collections API.",
+      "galaxy/lib/galaxy_test/workflow/collection_semantics_cat_sample_sheet.gxwf-tests.yml - a real end-to-end gxwf test that drives a sample_sheet input from a job block.",
+      "galaxy/test/unit/tool_util/test_cwl_util.py::test_galactic_job_json_sample_sheet_paired_collection - exercises the NESTED sample_sheet:paired shape specifically, producing `src: new_collection` sub-collections of type `paired`."
+    ],
+    "rows_shape": {
+      "form": "mapping of element identifier -> POSITIONAL LIST of column values, ordered to match column_definitions",
+      "authority": "galaxy/lib/galaxy/model/dataset_collections/types/sample_sheet_util.py, validate_row(): rejects on `len(row) != len(column_definitions)` and then `zip(row, column_definitions)`.",
+      "warning": "test_cwl_util.py's non-paired unit tests write rows as a DICT ({'el1': {'condition': 'treatment'}}). That shape never reaches validate_row because those tests mock collection_create_func, and it will not validate against the real API. Use the list form."
+    },
+    "column_definitions_caveat": {
+      "fact": "Neither galactic_job_json nor staging.py passes `column_definitions` when creating the collection, though the API payload (CreateNewCollectionPayload) supports it. A test-staged sample sheet therefore has collection-level column_definitions = None.",
+      "is_it_fatal": "No. Per-element `columns` are still populated from `rows` (SampleSheetDatasetCollectionType.generate_elements sets them regardless), and validate_row short-circuits when column_definitions is absent. The two column_definitions_compatible() call sites are both in DataCollectionToolParameter option-building (match_collections / _classify_hdca) - UI dropdown filtering, not invocation-time validation. Supplying the HDCA by id, as a test does, bypasses them.",
+      "one_real_consequence": "__SAMPLE_SHEET_TO_TABULAR__ emits its header line only `#if $include_headers and $input.collection.column_definitions`. This workflow's `Project sample sheet to tabular` step sets `include_headers: false`, so it is unaffected. If a later phase flips that to true, the header will silently vanish under test while appearing in the UI."
+    }
+  },
+  "planemo_test_job_block": "# job: block for the workflow's -tests.yml. Substitute hosted URLs for <FIXTURE_BASE>.\nRNA-seq reads (sample sheet):\n  class: Collection\n  collection_type: sample_sheet:paired\n  rows:\n    AR0382_A: [AR0382, A]\n    AR0382_B: [AR0382, B]\n    AR0387_A: [AR0387, A]\n    AR0387_B: [AR0387, B]\n    AR0382_tnSWI1_A: [tnSWI1, A]\n    AR0382_tnSWI1_B: [tnSWI1, B]\n  elements:\n    - identifier: AR0382_A\n      class: Collection\n      type: paired\n      elements:\n        - identifier: forward\n          class: File\n          location: <FIXTURE_BASE>/AR0382_A_1.fastq.gz\n          filetype: fastqsanger.gz\n        - identifier: reverse\n          class: File\n          location: <FIXTURE_BASE>/AR0382_A_2.fastq.gz\n          filetype: fastqsanger.gz\n    - identifier: AR0382_B\n      class: Collection\n      type: paired\n      elements:\n        - identifier: forward\n          class: File\n          location: <FIXTURE_BASE>/AR0382_B_1.fastq.gz\n          filetype: fastqsanger.gz\n        - identifier: reverse\n          class: File\n          location: <FIXTURE_BASE>/AR0382_B_2.fastq.gz\n          filetype: fastqsanger.gz\n    - identifier: AR0387_A\n      class: Collection\n      type: paired\n      elements:\n        - identifier: forward\n          class: File\n          location: <FIXTURE_BASE>/AR0387_A_1.fastq.gz\n          filetype: fastqsanger.gz\n        - identifier: reverse\n          class: File\n          location: <FIXTURE_BASE>/AR0387_A_2.fastq.gz\n          filetype: fastqsanger.gz\n    - identifier: AR0387_B\n      class: Collection\n      type: paired\n      elements:\n        - identifier: forward\n          class: File\n          location: <FIXTURE_BASE>/AR0387_B_1.fastq.gz\n          filetype: fastqsanger.gz\n        - identifier: reverse\n          class: File\n          location: <FIXTURE_BASE>/AR0387_B_2.fastq.gz\n          filetype: fastqsanger.gz\n    - identifier: AR0382_tnSWI1_A\n      class: Collection\n      type: paired\n      elements:\n        - identifier: forward\n          class: File\n          location: <FIXTURE_BASE>/AR0382_tnSWI1_A_1.fastq.gz\n          filetype: fastqsanger.gz\n        - identifier: reverse\n          class: File\n          location: <FIXTURE_BASE>/AR0382_tnSWI1_A_2.fastq.gz\n          filetype: fastqsanger.gz\n    - identifier: AR0382_tnSWI1_B\n      class: Collection\n      type: paired\n      elements:\n        - identifier: forward\n          class: File\n          location: <FIXTURE_BASE>/AR0382_tnSWI1_B_1.fastq.gz\n          filetype: fastqsanger.gz\n        - identifier: reverse\n          class: File\n          location: <FIXTURE_BASE>/AR0382_tnSWI1_B_2.fastq.gz\n          filetype: fastqsanger.gz\nReference genome FASTA:\n  class: File\n  location: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/759/435/GCA_002759435.2_Cand_auris_B8441_V2/GCA_002759435.2_Cand_auris_B8441_V2_genomic.fna.gz\n  filetype: fasta\n  decompress: true\nGene annotation GTF:\n  class: File\n  location: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/759/435/GCA_002759435.2_Cand_auris_B8441_V2/GCA_002759435.2_Cand_auris_B8441_V2_genomic.gtf.gz\n  filetype: gtf\n  decompress: true\nReference condition level: AR0382\nFirst contrast condition level: tnSWI1\nSecond contrast condition level: AR0387\nStrandedness: stranded - reverse\nAdjusted p-value threshold: 0.05\nlog2 fold change threshold: 1.0\n",
+  "planemo_test_job_notes": [
+    "`decompress: true` is honoured only on the fetch-API staging path (cwl_util.py reads it into FileUploadTarget properties; staging.py passes it to the fetch payload). The reads must NOT set it - the workflow input declares fastqsanger.gz and the .gz must survive.",
+    "Element identifiers are the ENA library_name values and match the workflow input's documented spine exactly. They are load-bearing: the condition split joins the featureCounts collection back to the sample sheet on them."
+  ],
+  "expected_outputs": {
+    "safe": [
+      {
+        "output": "FastQC raw reads: text summary",
+        "assert": "collection of 12 elements, identifiers <sample>_forward / <sample>_reverse",
+        "basis": "structural"
+      },
+      {
+        "output": "Trimmed reads",
+        "assert": "list:paired of 6 elements",
+        "basis": "structural"
+      },
+      {
+        "output": "STAR mapping summary",
+        "assert": "has_text 'Uniquely mapped reads %'; uniquely-mapped fraction > 80%",
+        "basis": "measured - bwa-mem primary-mapped 198.2-198.6k of 200k R1 (>99%); STAR with the same reference will be lower but comfortably above 80%"
+      },
+      {
+        "output": "Gene counts per sample",
+        "assert": "6 elements; each has 5586 data rows; column 1 matches ^B9J08_[0-9]{6}$; has_text 'B9J08_001458'",
+        "basis": "measured - the NCBI GTF carries exactly 5586 distinct gene_id values"
+      },
+      {
+        "output": "featureCounts assignment summary",
+        "assert": "Assigned fraction > 70%; Unassigned_NoFeatures fraction < 20%",
+        "basis": "measured - 90-91% of primary-mapped R1 fell inside an annotated exon; this also functions as the strandedness read-out, since -s 1 would invert it"
+      },
+      {
+        "output": "DESeq2 results: tnSWI1 vs AR0382",
+        "assert": "has_text 'B9J08_001458'; 7 columns",
+        "basis": "structural"
+      },
+      {
+        "output": "DESeq2 results: AR0387 vs AR0382",
+        "assert": "has_text 'B9J08_001458'; 7 columns",
+        "basis": "structural"
+      },
+      {
+        "output": "Significant genes: tnSWI1 vs AR0382",
+        "assert": "non-empty; has_text 'B9J08_001458'",
+        "basis": "measured count separation 414/391 vs 4/3"
+      },
+      {
+        "output": "Significant genes: AR0387 vs AR0382",
+        "assert": "non-empty; has_text 'B9J08_001458'",
+        "basis": "measured count separation 414/391 vs 2/1"
+      }
+    ],
+    "biological": [
+      {
+        "claim": "SCF1 is significantly down-regulated in tnSWI1 vs AR0382",
+        "assert": "row B9J08_001458 in the significant-genes table has log2FoldChange < -2 and padj < 0.05",
+        "paper": "Fig. 1D / Fig. S5A - SCF1 the strongest, most significant dysregulation",
+        "basis": "measured fragment counts 414/391 (AR0382) vs 4/3 (tnSWI1) at fixture depth"
+      },
+      {
+        "claim": "SCF1 is significantly down-regulated in AR0387 vs AR0382",
+        "assert": "row B9J08_001458 has log2FoldChange < -2 and padj < 0.05",
+        "paper": "SCF1 the most down-regulated gene between the two wild-type isolates",
+        "basis": "measured fragment counts 414/391 vs 2/1"
+      },
+      {
+        "claim": "SCF1 is among the most significantly dysregulated genes in the AR0387 contrast",
+        "assert": "B9J08_001458 within the 10 smallest padj rows",
+        "note": "Rank by padj, never by |log2FC| - see verdict.not_reproduced."
+      },
+      {
+        "claim": "SCF1 is highly expressed in AR0382",
+        "assert": "SCF1's normalized count in the AR0382 columns sits in the top 5% of the table",
+        "paper": "top 2.5% of all genes",
+        "basis": "measured rank 71 and 73 of ~5,100 detected genes = top 1.4%; asserted at top 5% to leave headroom for the STAR/featureCounts difference"
+      }
+    ],
+    "not_assertable": [
+      {
+        "claim": "No significant dysregulation of the ALS or IFF/HYR adhesin families in the tnSWI1 contrast",
+        "why": "A negative claim over 12 named genes (B9J08_002582/_004498/_004112 ALS; _004100/_004109/_004098/_004110/_001531/_004892/_001155/_004451/_000675 IFF-HYR). At 200k pairs most of these sit at counts where DESeq2 simply lacks power, so their absence from the significant table is a depth artefact and not evidence for the paper's claim. Asserting it would be a fixture claiming an outcome it cannot produce.",
+        "would_need": "full-depth runs"
+      },
+      {
+        "claim": "~29-fold AR0382 vs AR0387",
+        "why": "see unresolved `scf1-fold-change-magnitude-disagrees-with-paper`"
+      }
+    ]
+  },
+  "unresolved": [
+    {
+      "id": "scf1-fold-change-magnitude-disagrees-with-paper",
+      "what": "The paper states a ~29-fold SCF1 expression difference between AR0382 and AR0387. Direct measurement at fixture depth gives ~270-fold on aligned fragments (414/391 vs 2/1) and ~158-fold on exact 31-mer read matching (1943 vs 12.3 per million). Direction and significance are not in doubt; the magnitude is off by roughly an order of magnitude. Candidate explanations not distinguished here: the paper's 29-fold may come from RT-qPCR rather than RNA-seq, from shrunk rather than raw log2FC, or from a different normalization. Note AR0387 IS the B8441 reference strain, so its SCF1 reads cannot be undercounted by reference bias - if anything AR0382's divergent allele is undercounted, which would make the true ratio larger still, not smaller.",
+      "consequence": "Do not assert the paper's 29-fold figure. Assert direction and significance only.",
+      "new": true
+    },
+    {
+      "id": "fixture-hosting-not-done",
+      "what": "The 12 fixture files were generated and hashed but not published. They live only in this session's scratchpad and will not survive it.",
+      "consequence": "Phase 9/11 must regenerate via `subsetting.recipe` and host before any test can run. The recipe is deterministic and the uncompressed md5s pin it.",
+      "new": true
+    },
+    {
+      "id": "deseq2-not-executed",
+      "what": "No DESeq2 run was performed. The significance claims are inferred from measured count separation, which at 414/391 vs 1-4 with n=2 is about as unambiguous as DESeq2 input gets, but they are inference.",
+      "consequence": "The first real workflow run settles them. Nothing here should be reported as a passed test.",
+      "new": true
+    },
+    {
+      "id": "counts-measured-with-bwa-not-star",
+      "what": "Counts came from bwa-mem plus a strand-agnostic exon-overlap counter, because STAR and featureCounts are not available in this environment.",
+      "consequence": "No assertion pins an exact integer count. All count-derived assertions are expressed as fractions, thresholds, or ranks.",
+      "new": true
+    }
+  ],
+  "open_requirements_effect": {
+    "closed": [
+      "featurecounts-annotation-source-unnamed",
+      "rnaseq-strandedness-inferred-from-kit-name",
+      "sample-sheet-input-test-fixture-expressibility"
+    ],
+    "advanced_not_closed": [
+      "star-genome-length-drives-sa-index-parameter"
+    ],
+    "opened": [
+      "scf1-fold-change-magnitude-disagrees-with-paper",
+      "test-fixtures-not-hosted"
+    ]
+  }
+}

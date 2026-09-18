@@ -1,0 +1,9 @@
+# Case-study test fixtures are large and regenerable; see each case study's test-data-refs.json.
+case_studies/*/test-data/
+
+# Local agent state
+.omc/
+
+# Jekyll build output
+_site/
+.jekyll-cache/

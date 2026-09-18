@@ -1,0 +1,50 @@
+{
+  "status": "hit",
+  "candidate": {
+    "tool_shed_url": "https://toolshed.g2.bx.psu.edu",
+    "owner": "devteam",
+    "repo": "fastqc",
+    "tool_id": "fastqc",
+    "trs_tool_id": "devteam~fastqc~fastqc",
+    "version": "0.74+galaxy1",
+    "changeset_revision": "2c64fded1286",
+    "score": 48.8606608468898,
+    "matched_terms": [
+      "fastqc"
+    ],
+    "match_fields": [
+      "tool_id",
+      "name",
+      "description"
+    ],
+    "rationale": "Exact match on XML tool id, tool name (FastQC) and description (Read Quality reports), owned by devteam. Score 48.9 is 1.7x the next hit. This is the wrapper the paper's named software corresponds to, and IWC at fe41a79 pins devteam/fastqc/fastqc 40 times across 8+ workflows, all at changeset 2c64fded1286 for 0.74+galaxy1."
+  },
+  "alternates": [
+    {
+      "tool_shed_url": "https://toolshed.g2.bx.psu.edu",
+      "owner": "iuc",
+      "repo": "falco",
+      "tool_id": "falco",
+      "trs_tool_id": "iuc~falco~falco",
+      "version": "1.3.2+galaxy0",
+      "changeset_revision": "219ffa24f789",
+      "score": 42.63873164124101,
+      "matched_terms": [
+        "falco"
+      ],
+      "match_fields": [
+        "tool_id",
+        "name",
+        "description"
+      ],
+      "rationale": "Drop-in FastQC reimplementation. Used by this run's corpus exemplar transcriptomics/rnaseq-pe/rnaseq-pe at IWC fe41a79 in exactly this slot, with the same input_file port and the same html_file + text_file output pair, which is why the step's _plan_context names it. NOT recommended: the paper names FastQC, and across IWC at fe41a79 devteam/fastqc/fastqc appears 40 times against falco's 4, so paper fidelity and corpus frequency agree. Score and pin resolved by a separate `tool-search falco` + tool-versions + tool-revisions pass; it does not surface in the `fastqc` query at all."
+    }
+  ],
+  "rationale": "Single dominant hit on exact tool name and id; newest listed version 0.74+galaxy1 resolves to exactly one changeset 2c64fded1286, which is also the changeset every IWC workflow at fe41a79 pins. Paper fidelity and corpus frequency agree on FastQC over the corpus exemplar's falco.",
+  "warnings": [
+    {
+      "code": "other",
+      "message": "Near-name collisions were triaged out, not duplicates of the recommended XML id: nml/fastqc_stats FastQC_Summary and estrain/sum_fastqc summarize FastQC output rather than producing it; duijker.d/naturalis_fastqc runFastQC and mhh-hematology/falcoamadeus are third-party reimplementations or forks. None publishes the devteam XML id `fastqc`."
+    }
+  ]
+}

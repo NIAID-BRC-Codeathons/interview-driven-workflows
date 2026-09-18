@@ -1,0 +1,927 @@
+# Galaxy workflow tests for galaxy-workflow.gxwf.yml
+#
+# Two cases:
+#   1. scf1-both-contrasts-200k -- the biological case. Six ENA runs at 200,000 read pairs.
+#   2. topology-smoke-25k       -- structural smoke test at 25,000 read pairs, no biology.
+#
+# READ FIXTURES. test-data/*.fastq.gz (200k) and test-data/smoke-25k/*.fastq.gz (25k) are
+# deterministic head subsets of the six PRJNA904261 runs, produced by
+#   curl -L <ENA url> | gzip -dc | head -n 800000   (200k pairs;  -n 100000 for 25k pairs)
+# and gzipped with `gzip -n`. Each 200k .fastq was verified byte-for-byte against the
+# UNCOMPRESSED md5 pinned in test-data-refs.json before compression -- all twelve matched --
+# and that md5 is the regeneration check, because gzip output is not byte-stable across gzip
+# versions. The 25k set was then derived locally as the first 100,000 lines of each VERIFIED
+# 200k .fastq, which is identical to re-streaming the ENA source with `head -n 100000`. The
+# SHA-1 values in the `hashes:` blocks below are of the .gz artifacts as produced here and
+# are the fetch-integrity check. Both are needed and they check different things. If these
+# fixtures are published (Zenodo), replace each `path:` with the published `location:` and
+# keep the SHA-1 unchanged -- it pins exactly these bytes.
+#
+# REFERENCE. Genome FASTA and GTF are pinned NCBI FTP URLs staged with `decompress: true`.
+# They carry NO `hashes:` block: test-data-refs.json pins md5s of the COMPRESSED files as
+# served, and whether a `hashes:` block on a `decompress: true` input checks the fetched or
+# the decompressed bytes was not established. Omitting is the resolution the test plan
+# names for that case (unresolved `hash-vs-decompress-ordering`).
+#
+# SETTLED HERE, FROM THE PINNED WRAPPER SOURCES (both are the versions this workflow pins).
+#   * featurecounts 2.1.1+galaxy1 builds output_short as `grep -v "^#" output | cut -f 1,7`,
+#     which strips only the "# Program:" comment and keeps the header row, renamed to the
+#     element identifier. output_short is therefore 1 header + one row per annotated gene.
+#     The NCBI GTF for GCA_002759435.2 carries exactly 5586 distinct gene_id values, all of
+#     them matching B9J08_[0-9]{6} -- hence has_n_lines n: 5587 and the annotation guard.
+#   * deseq2 2.11.40.8+galaxy4's deseq2.R writes counts_out with `col.names = NA`, so its
+#     header is padded with a leading blank field: 4 samples -> 5 tab-separated fields on
+#     line 1. has_n_columns n: 5 on both normalized-counts tables is therefore verified,
+#     not assumed, and the test plan's `normalized-counts-header-width-unverified` is closed.
+#   * Both wrappers name count columns by $file.element_identifier, so the normalized-counts
+#     header really does carry AR0382_A / AR0382_tnSWI1_A and the sample-name assertions
+#     below are well founded (test plan's `normalized-counts-column-naming-assumed`, closed).
+#
+# HEADER ASYMMETRY. deseq2.R writes `deseq_out` with col.names = FALSE (NO header, which is
+# why the significance filters bind header_lines: '0') and `counts_out` with col.names = NA
+# (header present, padded with a leading blank field). The assertions below respect that:
+# `not_has_text: baseMean` on the raw result tables, sample-name `has_text` on the
+# normalized-counts tables.
+#
+# NOT ASSERTED, DELIBERATELY. No rank claim (SCF1 is 5th/4th by padj and 2nd/1st by
+# |log2FC| in the two contrasts -- no rank-1 assertion is true in both, and tests-format
+# cannot express a rank anyway). No exact DESeq2 value, no exact per-gene count, not the
+# paper's ~29-fold magnitude, and not the negative ALS / IFF-HYR adhesin claim. See the
+# test plan's omissions[] for each refusal.
+- doc: >-
+    End-to-end run over all six deposited runs of PRJNA904261 (SRP409192), each subset to
+    the first 200,000 read pairs, against the NCBI GCA_002759435.2 (Cand_auris_B8441_V2)
+    reference and its own GTF. Exercises the whole DAG - flatten side-branch, FastQC,
+    Cutadapt, RNA STAR with a history reference, featureCounts, the sample-sheet condition
+    split, both DESeq2 reductions and both two-link significance chains - and asserts the
+    paper's central result: SCF1 (B9J08_001458) is significantly down-regulated in BOTH
+    contrasts against the AR0382 reference level. Membership in each significant-genes
+    table means padj < 0.05 AND |log2FC| > 1 by construction; the extra floor asserted
+    here is log2FC <= -2. No rank and no measured value is asserted anywhere: the
+    grounding measurements come from pydeseq2 over bwa-mem counts, not from this
+    workflow's R DESeq2 over featureCounts -s 2, so only margins survive the difference.
+  job:
+    RNA-seq reads (sample sheet):
+      class: Collection
+      collection_type: sample_sheet:paired
+      # rows is a mapping of element identifier -> POSITIONAL LIST of column values,
+      # ordered to match the input's column_definitions (condition, replicate).
+      # Not a dict of column-name -> value: validate_row() zips row against
+      # column_definitions and rejects on length mismatch.
+      rows:
+        AR0382_A: [AR0382, A]
+        AR0382_B: [AR0382, B]
+        AR0387_A: [AR0387, A]
+        AR0387_B: [AR0387, B]
+        AR0382_tnSWI1_A: [tnSWI1, A]
+        AR0382_tnSWI1_B: [tnSWI1, B]
+      elements:
+      - class: Collection
+        collection_type: paired
+        identifier: AR0382_A
+        elements:
+        - class: File
+          identifier: forward
+          path: test-data/AR0382_A_1.fastq.gz
+          filetype: fastqsanger.gz
+          hashes:
+          - hash_function: SHA-1
+            hash_value: 81847033e7a1bd1430efc68499b08ec2a3de619e
+        - class: File
+          identifier: reverse
+          path: test-data/AR0382_A_2.fastq.gz
+          filetype: fastqsanger.gz
+          hashes:
+          - hash_function: SHA-1
+            hash_value: bc59eb5c253f42454631792d59405a019c56dcfe
+      - class: Collection
+        collection_type: paired
+        identifier: AR0382_B
+        elements:
+        - class: File
+          identifier: forward
+          path: test-data/AR0382_B_1.fastq.gz
+          filetype: fastqsanger.gz
+          hashes:
+          - hash_function: SHA-1
+            hash_value: a11438bf4c886b081b887ca650642bf925014177
+        - class: File
+          identifier: reverse
+          path: test-data/AR0382_B_2.fastq.gz
+          filetype: fastqsanger.gz
+          hashes:
+          - hash_function: SHA-1
+            hash_value: ab93048b0e16a0729fb0e38ed206cf398ed798df
+      - class: Collection
+        collection_type: paired
+        identifier: AR0387_A
+        elements:
+        - class: File
+          identifier: forward
+          path: test-data/AR0387_A_1.fastq.gz
+          filetype: fastqsanger.gz
+          hashes:
+          - hash_function: SHA-1
+            hash_value: 0bcb624b2347148ab740c81ebcb19894449c30b4
+        - class: File
+          identifier: reverse
+          path: test-data/AR0387_A_2.fastq.gz
+          filetype: fastqsanger.gz
+          hashes:
+          - hash_function: SHA-1
+            hash_value: 4590862aba8082c42557f31cbe62c12d694de4b6
+      - class: Collection
+        collection_type: paired
+        identifier: AR0387_B
+        elements:
+        - class: File
+          identifier: forward
+          path: test-data/AR0387_B_1.fastq.gz
+          filetype: fastqsanger.gz
+          hashes:
+          - hash_function: SHA-1
+            hash_value: f0e1a1e97ab993d91baf38ae4ffdd3edf5028905
+        - class: File
+          identifier: reverse
+          path: test-data/AR0387_B_2.fastq.gz
+          filetype: fastqsanger.gz
+          hashes:
+          - hash_function: SHA-1
+            hash_value: 7ccf13c15a7a0ac4571bd2b06796243050d4a17c
+      - class: Collection
+        collection_type: paired
+        identifier: AR0382_tnSWI1_A
+        elements:
+        - class: File
+          identifier: forward
+          path: test-data/AR0382_tnSWI1_A_1.fastq.gz
+          filetype: fastqsanger.gz
+          hashes:
+          - hash_function: SHA-1
+            hash_value: 8c76f5caecf41f7a9e62689f5cbdac2e877c31c7
+        - class: File
+          identifier: reverse
+          path: test-data/AR0382_tnSWI1_A_2.fastq.gz
+          filetype: fastqsanger.gz
+          hashes:
+          - hash_function: SHA-1
+            hash_value: 8d8d57b28c41d50a6f5dd13074440deeb801d1da
+      - class: Collection
+        collection_type: paired
+        identifier: AR0382_tnSWI1_B
+        elements:
+        - class: File
+          identifier: forward
+          path: test-data/AR0382_tnSWI1_B_1.fastq.gz
+          filetype: fastqsanger.gz
+          hashes:
+          - hash_function: SHA-1
+            hash_value: d666ddad269a39d17b736079f15d5fb98d980851
+        - class: File
+          identifier: reverse
+          path: test-data/AR0382_tnSWI1_B_2.fastq.gz
+          filetype: fastqsanger.gz
+          hashes:
+          - hash_function: SHA-1
+            hash_value: 7a7d6932aed4f46604cd030b04eab9355106e5f9
+    Reference genome FASTA:
+      class: File
+      location: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/759/435/GCA_002759435.2_Cand_auris_B8441_V2/GCA_002759435.2_Cand_auris_B8441_V2_genomic.fna.gz
+      filetype: fasta
+      decompress: true
+    Gene annotation GTF:
+      class: File
+      location: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/759/435/GCA_002759435.2_Cand_auris_B8441_V2/GCA_002759435.2_Cand_auris_B8441_V2_genomic.gtf.gz
+      filetype: gtf
+      decompress: true
+    Reference condition level: AR0382
+    First contrast condition level: tnSWI1
+    Second contrast condition level: AR0387
+    Strandedness: 'stranded - reverse'
+    Adjusted p-value threshold: 0.05
+    log2 fold change threshold: 1.0
+  outputs:
+    'FastQC raw reads: text summary':
+      class: Collection
+      element_count: 12
+      element_tests:
+        AR0382_A_forward:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total Sequences\s+200000\b'
+          - that: has_text
+            text: '>>Basic Statistics'
+        AR0382_A_reverse:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total Sequences\s+200000\b'
+          - that: has_text
+            text: '>>Basic Statistics'
+        AR0382_B_forward:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total Sequences\s+200000\b'
+          - that: has_text
+            text: '>>Basic Statistics'
+        AR0382_B_reverse:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total Sequences\s+200000\b'
+          - that: has_text
+            text: '>>Basic Statistics'
+        AR0387_A_forward:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total Sequences\s+200000\b'
+          - that: has_text
+            text: '>>Basic Statistics'
+        AR0387_A_reverse:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total Sequences\s+200000\b'
+          - that: has_text
+            text: '>>Basic Statistics'
+        AR0387_B_forward:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total Sequences\s+200000\b'
+          - that: has_text
+            text: '>>Basic Statistics'
+        AR0387_B_reverse:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total Sequences\s+200000\b'
+          - that: has_text
+            text: '>>Basic Statistics'
+        AR0382_tnSWI1_A_forward:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total Sequences\s+200000\b'
+          - that: has_text
+            text: '>>Basic Statistics'
+        AR0382_tnSWI1_A_reverse:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total Sequences\s+200000\b'
+          - that: has_text
+            text: '>>Basic Statistics'
+        AR0382_tnSWI1_B_forward:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total Sequences\s+200000\b'
+          - that: has_text
+            text: '>>Basic Statistics'
+        AR0382_tnSWI1_B_reverse:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total Sequences\s+200000\b'
+          - that: has_text
+            text: '>>Basic Statistics'
+    Cutadapt trimming report:
+      class: Collection
+      element_count: 6
+      element_tests:
+        AR0382_A:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total read pairs processed:\s+200,000'
+        AR0382_B:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total read pairs processed:\s+200,000'
+        AR0387_A:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total read pairs processed:\s+200,000'
+        AR0387_B:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total read pairs processed:\s+200,000'
+        AR0382_tnSWI1_A:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total read pairs processed:\s+200,000'
+        AR0382_tnSWI1_B:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total read pairs processed:\s+200,000'
+    Trimmed reads:
+      class: Collection
+      element_count: 6
+      element_tests:
+        AR0382_A:
+          class: Collection
+          elements:
+            forward:
+              asserts:
+              - that: has_size
+                min: 1000
+            reverse:
+              asserts:
+              - that: has_size
+                min: 1000
+        AR0382_B:
+          class: Collection
+          elements:
+            forward:
+              asserts:
+              - that: has_size
+                min: 1000
+            reverse:
+              asserts:
+              - that: has_size
+                min: 1000
+        AR0387_A:
+          class: Collection
+          elements:
+            forward:
+              asserts:
+              - that: has_size
+                min: 1000
+            reverse:
+              asserts:
+              - that: has_size
+                min: 1000
+        AR0387_B:
+          class: Collection
+          elements:
+            forward:
+              asserts:
+              - that: has_size
+                min: 1000
+            reverse:
+              asserts:
+              - that: has_size
+                min: 1000
+        AR0382_tnSWI1_A:
+          class: Collection
+          elements:
+            forward:
+              asserts:
+              - that: has_size
+                min: 1000
+            reverse:
+              asserts:
+              - that: has_size
+                min: 1000
+        AR0382_tnSWI1_B:
+          class: Collection
+          elements:
+            forward:
+              asserts:
+              - that: has_size
+                min: 1000
+            reverse:
+              asserts:
+              - that: has_size
+                min: 1000
+    STAR mapping summary:
+      class: Collection
+      element_count: 6
+      element_tests:
+        AR0382_A:
+          asserts:
+          - that: has_text
+            text: 'Uniquely mapped reads %'
+          - that: has_line_matching
+            expression: '\s*Uniquely mapped reads % \|\s+(?:8[0-9]|9[0-9]|100)\.[0-9]+%'
+        AR0382_B:
+          asserts:
+          - that: has_text
+            text: 'Uniquely mapped reads %'
+          - that: has_line_matching
+            expression: '\s*Uniquely mapped reads % \|\s+(?:8[0-9]|9[0-9]|100)\.[0-9]+%'
+        AR0387_A:
+          asserts:
+          - that: has_text
+            text: 'Uniquely mapped reads %'
+          - that: has_line_matching
+            expression: '\s*Uniquely mapped reads % \|\s+(?:8[0-9]|9[0-9]|100)\.[0-9]+%'
+        AR0387_B:
+          asserts:
+          - that: has_text
+            text: 'Uniquely mapped reads %'
+          - that: has_line_matching
+            expression: '\s*Uniquely mapped reads % \|\s+(?:8[0-9]|9[0-9]|100)\.[0-9]+%'
+        AR0382_tnSWI1_A:
+          asserts:
+          - that: has_text
+            text: 'Uniquely mapped reads %'
+          - that: has_line_matching
+            expression: '\s*Uniquely mapped reads % \|\s+(?:8[0-9]|9[0-9]|100)\.[0-9]+%'
+        AR0382_tnSWI1_B:
+          asserts:
+          - that: has_text
+            text: 'Uniquely mapped reads %'
+          - that: has_line_matching
+            expression: '\s*Uniquely mapped reads % \|\s+(?:8[0-9]|9[0-9]|100)\.[0-9]+%'
+    Gene counts per sample:
+      class: Collection
+      element_count: 6
+      element_tests:
+        AR0382_A:
+          asserts:
+          - that: has_n_columns
+            n: 2
+          - that: has_n_lines
+            n: 5587
+            delta: 1
+          - that: has_line_matching
+            expression: 'B9J08_[0-9]{6}\t[0-9]+'
+            min: 5000
+          - that: has_line_matching
+            expression: 'B9J08_001458\t[0-9]+'
+          - that: has_line_matching
+            expression: 'B9J08_001458\t[0-9]{3,}'
+        AR0382_B:
+          asserts:
+          - that: has_n_columns
+            n: 2
+          - that: has_n_lines
+            n: 5587
+            delta: 1
+          - that: has_line_matching
+            expression: 'B9J08_[0-9]{6}\t[0-9]+'
+            min: 5000
+          - that: has_line_matching
+            expression: 'B9J08_001458\t[0-9]+'
+          - that: has_line_matching
+            expression: 'B9J08_001458\t[0-9]{3,}'
+        AR0387_A:
+          asserts:
+          - that: has_n_columns
+            n: 2
+          - that: has_n_lines
+            n: 5587
+            delta: 1
+          - that: has_line_matching
+            expression: 'B9J08_[0-9]{6}\t[0-9]+'
+            min: 5000
+          - that: has_line_matching
+            expression: 'B9J08_001458\t[0-9]+'
+          - that: has_line_matching
+            expression: 'B9J08_001458\t[0-9]{1,2}'
+        AR0387_B:
+          asserts:
+          - that: has_n_columns
+            n: 2
+          - that: has_n_lines
+            n: 5587
+            delta: 1
+          - that: has_line_matching
+            expression: 'B9J08_[0-9]{6}\t[0-9]+'
+            min: 5000
+          - that: has_line_matching
+            expression: 'B9J08_001458\t[0-9]+'
+          - that: has_line_matching
+            expression: 'B9J08_001458\t[0-9]{1,2}'
+        AR0382_tnSWI1_A:
+          asserts:
+          - that: has_n_columns
+            n: 2
+          - that: has_n_lines
+            n: 5587
+            delta: 1
+          - that: has_line_matching
+            expression: 'B9J08_[0-9]{6}\t[0-9]+'
+            min: 5000
+          - that: has_line_matching
+            expression: 'B9J08_001458\t[0-9]+'
+          - that: has_line_matching
+            expression: 'B9J08_001458\t[0-9]{1,2}'
+        AR0382_tnSWI1_B:
+          asserts:
+          - that: has_n_columns
+            n: 2
+          - that: has_n_lines
+            n: 5587
+            delta: 1
+          - that: has_line_matching
+            expression: 'B9J08_[0-9]{6}\t[0-9]+'
+            min: 5000
+          - that: has_line_matching
+            expression: 'B9J08_001458\t[0-9]+'
+          - that: has_line_matching
+            expression: 'B9J08_001458\t[0-9]{1,2}'
+    featureCounts assignment summary:
+      class: Collection
+      element_count: 6
+      element_tests:
+        AR0382_A:
+          asserts:
+          - that: has_line_matching
+            expression: 'Assigned\t1[5-9][0-9]{4}'
+          - that: has_line_matching
+            expression: 'Unassigned_NoFeatures\t[0-9]{1,5}'
+        AR0382_B:
+          asserts:
+          - that: has_line_matching
+            expression: 'Assigned\t1[5-9][0-9]{4}'
+          - that: has_line_matching
+            expression: 'Unassigned_NoFeatures\t[0-9]{1,5}'
+        AR0387_A:
+          asserts:
+          - that: has_line_matching
+            expression: 'Assigned\t1[5-9][0-9]{4}'
+          - that: has_line_matching
+            expression: 'Unassigned_NoFeatures\t[0-9]{1,5}'
+        AR0387_B:
+          asserts:
+          - that: has_line_matching
+            expression: 'Assigned\t1[5-9][0-9]{4}'
+          - that: has_line_matching
+            expression: 'Unassigned_NoFeatures\t[0-9]{1,5}'
+        AR0382_tnSWI1_A:
+          asserts:
+          - that: has_line_matching
+            expression: 'Assigned\t1[5-9][0-9]{4}'
+          - that: has_line_matching
+            expression: 'Unassigned_NoFeatures\t[0-9]{1,5}'
+        AR0382_tnSWI1_B:
+          asserts:
+          - that: has_line_matching
+            expression: 'Assigned\t1[5-9][0-9]{4}'
+          - that: has_line_matching
+            expression: 'Unassigned_NoFeatures\t[0-9]{1,5}'
+    'DESeq2 results: tnSWI1 vs AR0382':
+      asserts:
+      - that: has_n_columns
+        n: 7
+      - that: not_has_text
+        text: baseMean
+      - that: has_line_matching
+        expression: 'B9J08_001458(\t[^\t]*){6}'
+      - that: has_line_matching
+        expression: 'B9J08_001458\t[^\t]+\t-[0-9.]+(\t[^\t]*){4}'
+    'DESeq2 results: AR0387 vs AR0382':
+      asserts:
+      - that: has_n_columns
+        n: 7
+      - that: not_has_text
+        text: baseMean
+      - that: has_line_matching
+        expression: 'B9J08_001458(\t[^\t]*){6}'
+      - that: has_line_matching
+        expression: 'B9J08_001458\t[^\t]+\t-[0-9.]+(\t[^\t]*){4}'
+    'DESeq2 normalized counts: tnSWI1 vs AR0382':
+      asserts:
+      - that: has_n_columns
+        n: 5
+      - that: has_line_matching
+        expression: 'B9J08_001458(\t[0-9.eE+-]+){4}'
+      - that: has_text
+        text: AR0382_A
+      - that: has_text
+        text: AR0382_B
+      - that: has_text
+        text: AR0382_tnSWI1_A
+      - that: has_text
+        text: AR0382_tnSWI1_B
+      - that: not_has_text
+        text: AR0387
+    'DESeq2 normalized counts: AR0387 vs AR0382':
+      asserts:
+      - that: has_n_columns
+        n: 5
+      - that: has_line_matching
+        expression: 'B9J08_001458(\t[0-9.eE+-]+){4}'
+      - that: has_text
+        text: AR0382_A
+      - that: has_text
+        text: AR0382_B
+      - that: has_text
+        text: AR0387_A
+      - that: has_text
+        text: AR0387_B
+      - that: not_has_text
+        text: tnSWI1
+    'Significant genes: tnSWI1 vs AR0382':
+      asserts:
+      - that: has_n_columns
+        n: 7
+      - that: has_line_matching
+        expression: 'B9J08_001458(\t[^\t]*){6}'
+      - that: has_line_matching
+        expression: 'B9J08_001458\t[^\t]+\t-(?:[2-9]|[1-9][0-9]+)(?:\.[0-9]+)?(\t[^\t]*){4}'
+    'Significant genes: AR0387 vs AR0382':
+      asserts:
+      - that: has_n_columns
+        n: 7
+      - that: has_line_matching
+        expression: 'B9J08_001458(\t[^\t]*){6}'
+      - that: has_line_matching
+        expression: 'B9J08_001458\t[^\t]+\t-(?:[2-9]|[1-9][0-9]+)(?:\.[0-9]+)?(\t[^\t]*){4}'
+    'DESeq2 diagnostic plots: tnSWI1 vs AR0382':
+      asserts:
+      - that: has_size
+        min: 10000
+    'DESeq2 diagnostic plots: AR0387 vs AR0382':
+      asserts:
+      - that: has_size
+        min: 10000
+- doc: >-
+    Fast structural smoke test over the same six samples at 25,000 read pairs each
+    (~7 MB compressed total). Makes NO biological claim: at that depth SCF1 falls to
+    roughly 50 fragments in AR0382 and near zero elsewhere, and the significance tables
+    may legitimately be empty. What it does exercise is everything that can silently
+    break without erroring - the sample_sheet:paired input shape, the flatten
+    side-branch, the six-element map-over identifier space, both condition-split joins,
+    both DESeq2 reductions, and both cross-step invariants. Every assertion here is a
+    subset of case 1's, with the depth constant changed and the biological claims removed.
+  job:
+    RNA-seq reads (sample sheet):
+      class: Collection
+      collection_type: sample_sheet:paired
+      # rows is a mapping of element identifier -> POSITIONAL LIST of column values,
+      # ordered to match the input's column_definitions (condition, replicate).
+      # Not a dict of column-name -> value: validate_row() zips row against
+      # column_definitions and rejects on length mismatch.
+      rows:
+        AR0382_A: [AR0382, A]
+        AR0382_B: [AR0382, B]
+        AR0387_A: [AR0387, A]
+        AR0387_B: [AR0387, B]
+        AR0382_tnSWI1_A: [tnSWI1, A]
+        AR0382_tnSWI1_B: [tnSWI1, B]
+      elements:
+      - class: Collection
+        collection_type: paired
+        identifier: AR0382_A
+        elements:
+        - class: File
+          identifier: forward
+          path: test-data/smoke-25k/AR0382_A_1.fastq.gz
+          filetype: fastqsanger.gz
+          hashes:
+          - hash_function: SHA-1
+            hash_value: 7686fa073a0089b0376bbe1d3b819b4ea14e3a67
+        - class: File
+          identifier: reverse
+          path: test-data/smoke-25k/AR0382_A_2.fastq.gz
+          filetype: fastqsanger.gz
+          hashes:
+          - hash_function: SHA-1
+            hash_value: f1749c97d907abffd4f5ee36139c22b15376d2af
+      - class: Collection
+        collection_type: paired
+        identifier: AR0382_B
+        elements:
+        - class: File
+          identifier: forward
+          path: test-data/smoke-25k/AR0382_B_1.fastq.gz
+          filetype: fastqsanger.gz
+          hashes:
+          - hash_function: SHA-1
+            hash_value: a120941043541873bd674fc8e5cab4bf7d8dcc37
+        - class: File
+          identifier: reverse
+          path: test-data/smoke-25k/AR0382_B_2.fastq.gz
+          filetype: fastqsanger.gz
+          hashes:
+          - hash_function: SHA-1
+            hash_value: 8f315372a23e305fc5dc5ee04d31d8a771ccb8f3
+      - class: Collection
+        collection_type: paired
+        identifier: AR0387_A
+        elements:
+        - class: File
+          identifier: forward
+          path: test-data/smoke-25k/AR0387_A_1.fastq.gz
+          filetype: fastqsanger.gz
+          hashes:
+          - hash_function: SHA-1
+            hash_value: d8e170332a2ae20242b8f79c66f287b79fa2c56a
+        - class: File
+          identifier: reverse
+          path: test-data/smoke-25k/AR0387_A_2.fastq.gz
+          filetype: fastqsanger.gz
+          hashes:
+          - hash_function: SHA-1
+            hash_value: 89a32f456f670a00719362b8d72a1a90110c7e94
+      - class: Collection
+        collection_type: paired
+        identifier: AR0387_B
+        elements:
+        - class: File
+          identifier: forward
+          path: test-data/smoke-25k/AR0387_B_1.fastq.gz
+          filetype: fastqsanger.gz
+          hashes:
+          - hash_function: SHA-1
+            hash_value: 022d0851c4b94b919c62d6c1af64e3713bb8e138
+        - class: File
+          identifier: reverse
+          path: test-data/smoke-25k/AR0387_B_2.fastq.gz
+          filetype: fastqsanger.gz
+          hashes:
+          - hash_function: SHA-1
+            hash_value: 28d347eddac1455d3df000846cffb4dc0a472c4d
+      - class: Collection
+        collection_type: paired
+        identifier: AR0382_tnSWI1_A
+        elements:
+        - class: File
+          identifier: forward
+          path: test-data/smoke-25k/AR0382_tnSWI1_A_1.fastq.gz
+          filetype: fastqsanger.gz
+          hashes:
+          - hash_function: SHA-1
+            hash_value: 3b6109b5392bba5cb75f312fd7c078b67346013c
+        - class: File
+          identifier: reverse
+          path: test-data/smoke-25k/AR0382_tnSWI1_A_2.fastq.gz
+          filetype: fastqsanger.gz
+          hashes:
+          - hash_function: SHA-1
+            hash_value: e5599b61d6ec223f9cd88e7eb7e7877c6d7cf29c
+      - class: Collection
+        collection_type: paired
+        identifier: AR0382_tnSWI1_B
+        elements:
+        - class: File
+          identifier: forward
+          path: test-data/smoke-25k/AR0382_tnSWI1_B_1.fastq.gz
+          filetype: fastqsanger.gz
+          hashes:
+          - hash_function: SHA-1
+            hash_value: f803a1ee765bd35a575ab66f80133ad09e50a4ea
+        - class: File
+          identifier: reverse
+          path: test-data/smoke-25k/AR0382_tnSWI1_B_2.fastq.gz
+          filetype: fastqsanger.gz
+          hashes:
+          - hash_function: SHA-1
+            hash_value: 97a623f6a006e90740a44d6391685ede0157acf4
+    Reference genome FASTA:
+      class: File
+      location: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/759/435/GCA_002759435.2_Cand_auris_B8441_V2/GCA_002759435.2_Cand_auris_B8441_V2_genomic.fna.gz
+      filetype: fasta
+      decompress: true
+    Gene annotation GTF:
+      class: File
+      location: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/759/435/GCA_002759435.2_Cand_auris_B8441_V2/GCA_002759435.2_Cand_auris_B8441_V2_genomic.gtf.gz
+      filetype: gtf
+      decompress: true
+    Reference condition level: AR0382
+    First contrast condition level: tnSWI1
+    Second contrast condition level: AR0387
+    Strandedness: 'stranded - reverse'
+    Adjusted p-value threshold: 0.05
+    log2 fold change threshold: 1.0
+  outputs:
+    'FastQC raw reads: text summary':
+      class: Collection
+      element_count: 12
+      element_tests:
+        AR0382_A_forward:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total Sequences\s+25000\b'
+        AR0382_A_reverse:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total Sequences\s+25000\b'
+        AR0382_B_forward:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total Sequences\s+25000\b'
+        AR0382_B_reverse:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total Sequences\s+25000\b'
+        AR0387_A_forward:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total Sequences\s+25000\b'
+        AR0387_A_reverse:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total Sequences\s+25000\b'
+        AR0387_B_forward:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total Sequences\s+25000\b'
+        AR0387_B_reverse:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total Sequences\s+25000\b'
+        AR0382_tnSWI1_A_forward:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total Sequences\s+25000\b'
+        AR0382_tnSWI1_A_reverse:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total Sequences\s+25000\b'
+        AR0382_tnSWI1_B_forward:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total Sequences\s+25000\b'
+        AR0382_tnSWI1_B_reverse:
+          asserts:
+          - that: has_text_matching
+            expression: 'Total Sequences\s+25000\b'
+    Gene counts per sample:
+      class: Collection
+      element_count: 6
+      element_tests:
+        AR0382_A:
+          asserts:
+          - that: has_n_columns
+            n: 2
+          - that: has_n_lines
+            n: 5587
+            delta: 1
+          - that: has_line_matching
+            expression: 'B9J08_[0-9]{6}\t[0-9]+'
+            min: 5000
+        AR0382_B:
+          asserts:
+          - that: has_n_columns
+            n: 2
+          - that: has_n_lines
+            n: 5587
+            delta: 1
+          - that: has_line_matching
+            expression: 'B9J08_[0-9]{6}\t[0-9]+'
+            min: 5000
+        AR0387_A:
+          asserts:
+          - that: has_n_columns
+            n: 2
+          - that: has_n_lines
+            n: 5587
+            delta: 1
+          - that: has_line_matching
+            expression: 'B9J08_[0-9]{6}\t[0-9]+'
+            min: 5000
+        AR0387_B:
+          asserts:
+          - that: has_n_columns
+            n: 2
+          - that: has_n_lines
+            n: 5587
+            delta: 1
+          - that: has_line_matching
+            expression: 'B9J08_[0-9]{6}\t[0-9]+'
+            min: 5000
+        AR0382_tnSWI1_A:
+          asserts:
+          - that: has_n_columns
+            n: 2
+          - that: has_n_lines
+            n: 5587
+            delta: 1
+          - that: has_line_matching
+            expression: 'B9J08_[0-9]{6}\t[0-9]+'
+            min: 5000
+        AR0382_tnSWI1_B:
+          asserts:
+          - that: has_n_columns
+            n: 2
+          - that: has_n_lines
+            n: 5587
+            delta: 1
+          - that: has_line_matching
+            expression: 'B9J08_[0-9]{6}\t[0-9]+'
+            min: 5000
+    'DESeq2 results: tnSWI1 vs AR0382':
+      asserts:
+      - that: has_n_columns
+        n: 7
+      - that: not_has_text
+        text: baseMean
+    'DESeq2 results: AR0387 vs AR0382':
+      asserts:
+      - that: has_n_columns
+        n: 7
+      - that: not_has_text
+        text: baseMean
+    'DESeq2 normalized counts: tnSWI1 vs AR0382':
+      asserts:
+      - that: has_n_columns
+        n: 5
+      - that: has_text
+        text: AR0382_A
+      - that: has_text
+        text: AR0382_B
+      - that: has_text
+        text: AR0382_tnSWI1_A
+      - that: has_text
+        text: AR0382_tnSWI1_B
+      - that: not_has_text
+        text: AR0387
+    'DESeq2 normalized counts: AR0387 vs AR0382':
+      asserts:
+      - that: has_n_columns
+        n: 5
+      - that: has_text
+        text: AR0382_A
+      - that: has_text
+        text: AR0382_B
+      - that: has_text
+        text: AR0387_A
+      - that: has_text
+        text: AR0387_B
+      - that: not_has_text
+        text: tnSWI1
