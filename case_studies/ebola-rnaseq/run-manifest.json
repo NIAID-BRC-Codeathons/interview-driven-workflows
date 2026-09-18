@@ -1,0 +1,1345 @@
+{
+  "run_manifest_schema_version": 1,
+  "generated_at": "2026-09-18T16:39:49.961Z",
+  "generator": {
+    "command": "run-dashboard",
+    "foundry_head": "7c0c715dde555b737e89b1eeac6b07437b0dc09d",
+    "package_version": "0.0.0"
+  },
+  "run": {
+    "shape": "harness",
+    "provenance": "reconstructed",
+    "slug": "ebola-rnaseq",
+    "dir": "/Users/mvandenb/src/worktrees/foundry/brc-c-auris/ebola-test/interview-driven-workflows/case_studies/ebola-rnaseq",
+    "pipeline": "interview-to-galaxy",
+    "pipeline_source_revision": 2,
+    "harness_name": "pipeline-interview-to-galaxy",
+    "assembly_sha256": "6611f34861e4c789f12752894d74036ad7017efc79ba77ff385a0e7d955a5887",
+    "assembly_matches_checkout": true,
+    "foundry_head": null,
+    "options_observed": [],
+    "status": "unknown",
+    "started_at": "2026-09-18T13:57:04.527Z",
+    "finished_at": "2026-09-18T15:10:32.846Z",
+    "total_bytes": 1368929
+  },
+  "phases": [
+    {
+      "n": 1,
+      "kind": "mold",
+      "skill": "interview-to-freeform-summary",
+      "pattern": null,
+      "chain": [],
+      "selected": null,
+      "loop": false,
+      "iterations": null,
+      "status": "done",
+      "status_source": "artifact-presence",
+      "feedback_checked": null,
+      "produces": [
+        "freeform-summary"
+      ],
+      "consumes": [],
+      "mold": {
+        "path": "content/molds/interview-to-freeform-summary/index.md",
+        "revision": 3,
+        "content_hash": "19864b16965d5b644be5a6a712696211326cfa6099a3084bae3eb79271b56f7d"
+      },
+      "site_href": "https://galaxyproject.github.io/foundry/molds/interview-to-freeform-summary/",
+      "commits": []
+    },
+    {
+      "n": 2,
+      "kind": "mold",
+      "skill": "freeform-summary-to-galaxy-interface",
+      "pattern": null,
+      "chain": [],
+      "selected": null,
+      "loop": false,
+      "iterations": null,
+      "status": "done",
+      "status_source": "artifact-presence",
+      "feedback_checked": null,
+      "produces": [
+        "freeform-galaxy-interface",
+        "open-requirements-ledger"
+      ],
+      "consumes": [
+        "freeform-summary",
+        "open-requirements-ledger"
+      ],
+      "mold": {
+        "path": "content/molds/freeform-summary-to-galaxy-interface/index.md",
+        "revision": 3,
+        "content_hash": "de0cb02532205ad18f4aa1ab2881cac725a3191b448468a8a11d0663ff1ec97d"
+      },
+      "site_href": "https://galaxyproject.github.io/foundry/molds/freeform-summary-to-galaxy-interface/",
+      "commits": []
+    },
+    {
+      "n": 3,
+      "kind": "mold",
+      "skill": "freeform-summary-to-galaxy-data-flow",
+      "pattern": null,
+      "chain": [],
+      "selected": null,
+      "loop": false,
+      "iterations": null,
+      "status": "done",
+      "status_source": "artifact-presence",
+      "feedback_checked": null,
+      "produces": [
+        "freeform-galaxy-data-flow",
+        "open-requirements-ledger"
+      ],
+      "consumes": [
+        "freeform-galaxy-interface",
+        "freeform-summary",
+        "open-requirements-ledger"
+      ],
+      "mold": {
+        "path": "content/molds/freeform-summary-to-galaxy-data-flow/index.md",
+        "revision": 3,
+        "content_hash": "22613db4e710f58b29bfd2d6fe1d49f167afe451e09afefb2efd755b4a6e4da1"
+      },
+      "site_href": "https://galaxyproject.github.io/foundry/molds/freeform-summary-to-galaxy-data-flow/",
+      "commits": []
+    },
+    {
+      "n": 4,
+      "kind": "mold",
+      "skill": "compare-against-iwc-exemplar",
+      "pattern": null,
+      "chain": [],
+      "selected": null,
+      "loop": false,
+      "iterations": null,
+      "status": "done",
+      "status_source": "artifact-presence",
+      "feedback_checked": null,
+      "produces": [
+        "iwc-comparison-notes",
+        "iwc-exemplar-gxformat2",
+        "open-requirements-ledger"
+      ],
+      "consumes": [
+        "cwl-galaxy-data-flow",
+        "cwl-galaxy-interface",
+        "freeform-galaxy-data-flow",
+        "freeform-galaxy-interface",
+        "nextflow-galaxy-data-flow",
+        "nextflow-galaxy-interface",
+        "open-requirements-ledger"
+      ],
+      "mold": {
+        "path": "content/molds/compare-against-iwc-exemplar/index.md",
+        "revision": 10,
+        "content_hash": "5b198e9b87cf554cb01aceaa14a5aaa3ab24c6a35afc35dab7d09ce154cc3a77"
+      },
+      "site_href": "https://galaxyproject.github.io/foundry/molds/compare-against-iwc-exemplar/",
+      "commits": []
+    },
+    {
+      "n": 5,
+      "kind": "mold",
+      "skill": "freeform-summary-to-galaxy-template",
+      "pattern": null,
+      "chain": [],
+      "selected": null,
+      "loop": false,
+      "iterations": null,
+      "status": "unknown",
+      "status_source": "unknown",
+      "feedback_checked": null,
+      "produces": [
+        "galaxy-workflow-draft",
+        "open-requirements-ledger"
+      ],
+      "consumes": [
+        "freeform-galaxy-data-flow",
+        "freeform-galaxy-interface",
+        "freeform-summary",
+        "iwc-comparison-notes",
+        "iwc-exemplar-gxformat2",
+        "open-requirements-ledger"
+      ],
+      "mold": {
+        "path": "content/molds/freeform-summary-to-galaxy-template/index.md",
+        "revision": 6,
+        "content_hash": "0a95f8c04465d48131ace523e0b27af53f1ade6e525a9173c5ff1e936ddc3366"
+      },
+      "site_href": "https://galaxyproject.github.io/foundry/molds/freeform-summary-to-galaxy-template/",
+      "commits": []
+    },
+    {
+      "n": 6,
+      "kind": "mold",
+      "skill": "advance-galaxy-draft-step",
+      "pattern": null,
+      "chain": [],
+      "selected": null,
+      "loop": true,
+      "iterations": null,
+      "status": "done",
+      "status_source": "artifact-presence",
+      "feedback_checked": null,
+      "produces": [
+        "galaxy-workflow",
+        "galaxy-workflow-draft",
+        "open-requirements-ledger"
+      ],
+      "consumes": [
+        "galaxy-workflow-draft",
+        "open-requirements-ledger"
+      ],
+      "mold": {
+        "path": "content/molds/advance-galaxy-draft-step/index.md",
+        "revision": 7,
+        "content_hash": "ae19f7e5f5ac9434e31302efd88bb5f5db484caf0145951dd27dfe19247f2ea9"
+      },
+      "site_href": "https://galaxyproject.github.io/foundry/molds/advance-galaxy-draft-step/",
+      "commits": []
+    },
+    {
+      "n": 7,
+      "kind": "branch",
+      "skill": null,
+      "pattern": "test-data-resolution",
+      "chain": [
+        "find-test-data",
+        "user-supplied"
+      ],
+      "selected": null,
+      "loop": false,
+      "iterations": null,
+      "status": "done",
+      "status_source": "artifact-presence",
+      "feedback_checked": null,
+      "produces": [
+        "test-data-refs"
+      ],
+      "consumes": [
+        "cwl-galaxy-interface",
+        "freeform-galaxy-interface",
+        "freeform-summary",
+        "nextflow-galaxy-interface",
+        "summary-cwl",
+        "summary-nextflow"
+      ],
+      "mold": null,
+      "site_href": null,
+      "commits": []
+    },
+    {
+      "n": 8,
+      "kind": "mold",
+      "skill": "freeform-summary-to-galaxy-test-plan",
+      "pattern": null,
+      "chain": [],
+      "selected": null,
+      "loop": false,
+      "iterations": null,
+      "status": "done",
+      "status_source": "artifact-presence",
+      "feedback_checked": null,
+      "produces": [
+        "galaxy-test-plan"
+      ],
+      "consumes": [
+        "freeform-galaxy-data-flow",
+        "freeform-galaxy-interface",
+        "freeform-summary",
+        "iwc-comparison-notes",
+        "iwc-exemplar-gxformat2"
+      ],
+      "mold": {
+        "path": "content/molds/freeform-summary-to-galaxy-test-plan/index.md",
+        "revision": 2,
+        "content_hash": "9c1d56e625a5dd26cb7a82082ac8f4eeb7db287a626bf00e73457c8dd491ad6d"
+      },
+      "site_href": "https://galaxyproject.github.io/foundry/molds/freeform-summary-to-galaxy-test-plan/",
+      "commits": []
+    },
+    {
+      "n": 9,
+      "kind": "mold",
+      "skill": "implement-galaxy-workflow-test",
+      "pattern": null,
+      "chain": [],
+      "selected": null,
+      "loop": false,
+      "iterations": null,
+      "status": "done",
+      "status_source": "artifact-presence",
+      "feedback_checked": null,
+      "produces": [
+        "galaxy-workflow-test"
+      ],
+      "consumes": [
+        "galaxy-test-plan",
+        "galaxy-workflow",
+        "test-data-refs"
+      ],
+      "mold": {
+        "path": "content/molds/implement-galaxy-workflow-test/index.md",
+        "revision": 8,
+        "content_hash": "966c486ccda2eb1e0f06afa674c5d6b85a7e7bfcc9b1545309e3ef8b1016f931"
+      },
+      "site_href": "https://galaxyproject.github.io/foundry/molds/implement-galaxy-workflow-test/",
+      "commits": []
+    },
+    {
+      "n": 10,
+      "kind": "mold",
+      "skill": "validate-galaxy-workflow",
+      "pattern": null,
+      "chain": [],
+      "selected": null,
+      "loop": false,
+      "iterations": null,
+      "status": "done",
+      "status_source": "artifact-presence",
+      "feedback_checked": null,
+      "produces": [
+        "galaxy-workflow-validation-result"
+      ],
+      "consumes": [],
+      "mold": {
+        "path": "content/molds/validate-galaxy-workflow/index.md",
+        "revision": 5,
+        "content_hash": "74e3743fc376f33c1eb37832ab4869c327d48f87e015c7a38597cf4c4ca939cd"
+      },
+      "site_href": "https://galaxyproject.github.io/foundry/molds/validate-galaxy-workflow/",
+      "commits": []
+    },
+    {
+      "n": 11,
+      "kind": "mold",
+      "skill": "run-workflow-test",
+      "pattern": null,
+      "chain": [],
+      "selected": null,
+      "loop": false,
+      "iterations": null,
+      "status": "done",
+      "status_source": "artifact-presence",
+      "feedback_checked": null,
+      "produces": [
+        "workflow-test-result"
+      ],
+      "consumes": [],
+      "mold": {
+        "path": "content/molds/run-workflow-test/index.md",
+        "revision": 7,
+        "content_hash": "259675e41c65f7622049cc9ef5f64b7d9f7ac5edb005555a09045e747708218c"
+      },
+      "site_href": "https://galaxyproject.github.io/foundry/molds/run-workflow-test/",
+      "commits": []
+    },
+    {
+      "n": 12,
+      "kind": "mold",
+      "skill": "debug-galaxy-workflow-output",
+      "pattern": null,
+      "chain": [],
+      "selected": null,
+      "loop": false,
+      "iterations": null,
+      "status": "done",
+      "status_source": "artifact-presence",
+      "feedback_checked": null,
+      "produces": [
+        "workflow-debug-report"
+      ],
+      "consumes": [
+        "workflow-test-result"
+      ],
+      "mold": {
+        "path": "content/molds/debug-galaxy-workflow-output/index.md",
+        "revision": 5,
+        "content_hash": "100b3f985f8e309092bfd05cf544a8286e0a878ee2df3a155dfebe6fcdb286f0"
+      },
+      "site_href": "https://galaxyproject.github.io/foundry/molds/debug-galaxy-workflow-output/",
+      "commits": []
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "foundry-feedback-ledger",
+      "declared_filename": "foundry-feedback.ledger.yml",
+      "kind": "yaml",
+      "schema": null,
+      "schema_href": null,
+      "description": "Runtime artifact initialized by the harness ([[foundry-feedback-ledger]]).",
+      "optional": true,
+      "source": "runtime",
+      "producing_phases": [],
+      "producing_skills": [],
+      "consuming_phases": [],
+      "written_by_phase": null,
+      "presence": "optional-absent",
+      "path": null,
+      "size_bytes": null,
+      "mtime": null,
+      "sha256": null,
+      "hash_skipped_reason": null,
+      "variants": [],
+      "writes": [],
+      "preview": null,
+      "validation": null,
+      "site_href": "https://galaxyproject.github.io/foundry/artifacts/foundry-feedback-ledger/"
+    },
+    {
+      "id": "foundry-run-manifest",
+      "declared_filename": "foundry-run.yml",
+      "kind": "yaml",
+      "schema": null,
+      "schema_href": null,
+      "description": "Runtime artifact initialized by the harness ([[foundry-run-manifest]]).",
+      "optional": true,
+      "source": "runtime",
+      "producing_phases": [],
+      "producing_skills": [],
+      "consuming_phases": [],
+      "written_by_phase": null,
+      "presence": "optional-absent",
+      "path": null,
+      "size_bytes": null,
+      "mtime": null,
+      "sha256": null,
+      "hash_skipped_reason": null,
+      "variants": [],
+      "writes": [],
+      "preview": null,
+      "validation": null,
+      "site_href": "https://galaxyproject.github.io/foundry/artifacts/foundry-run-manifest/"
+    },
+    {
+      "id": "freeform-galaxy-data-flow",
+      "declared_filename": "freeform-galaxy-data-flow.md",
+      "kind": "markdown",
+      "schema": null,
+      "schema_href": null,
+      "description": "Reviewable Markdown brief: abstract operations, collection map/reduce choices, shape-changing placeholder steps, unresolved Galaxy tool needs, confidence, open questions.",
+      "optional": false,
+      "source": "mold",
+      "producing_phases": [
+        3
+      ],
+      "producing_skills": [
+        "freeform-summary-to-galaxy-data-flow"
+      ],
+      "consuming_phases": [
+        4,
+        5,
+        8
+      ],
+      "written_by_phase": null,
+      "presence": "present",
+      "path": "freeform-galaxy-data-flow.md",
+      "size_bytes": 3383,
+      "mtime": "2026-09-18T13:57:04.529Z",
+      "sha256": "7572e69f92a5f37f8de10c5f29cee18000b62392361282003423ccc2008a300b",
+      "hash_skipped_reason": null,
+      "variants": [],
+      "writes": [],
+      "preview": {
+        "mode": "markdown",
+        "embedded": true,
+        "truncated": false,
+        "bytes_embedded": 3383,
+        "body": null,
+        "outline": null,
+        "derived": null,
+        "skip_reason": null
+      },
+      "validation": null,
+      "site_href": "https://galaxyproject.github.io/foundry/artifacts/freeform-galaxy-data-flow/"
+    },
+    {
+      "id": "freeform-galaxy-interface",
+      "declared_filename": "freeform-galaxy-interface.md",
+      "kind": "markdown",
+      "schema": null,
+      "schema_href": null,
+      "description": "Reviewable Markdown brief: Galaxy workflow inputs, outputs, labels, collection shapes, checkpoint outputs, source-summary provenance, confidence, open questions.",
+      "optional": false,
+      "source": "mold",
+      "producing_phases": [
+        2
+      ],
+      "producing_skills": [
+        "freeform-summary-to-galaxy-interface"
+      ],
+      "consuming_phases": [
+        3,
+        4,
+        5,
+        7,
+        8
+      ],
+      "written_by_phase": null,
+      "presence": "present",
+      "path": "freeform-galaxy-interface.md",
+      "size_bytes": 3460,
+      "mtime": "2026-09-18T13:57:04.528Z",
+      "sha256": "223ae8c314dc281a51466f142546391ca06b490f07973501a7cab2ae87d83f0b",
+      "hash_skipped_reason": null,
+      "variants": [],
+      "writes": [],
+      "preview": {
+        "mode": "markdown",
+        "embedded": true,
+        "truncated": false,
+        "bytes_embedded": 3460,
+        "body": null,
+        "outline": null,
+        "derived": null,
+        "skip_reason": null
+      },
+      "validation": null,
+      "site_href": "https://galaxyproject.github.io/foundry/artifacts/freeform-galaxy-interface/"
+    },
+    {
+      "id": "freeform-summary",
+      "declared_filename": "freeform-summary.md",
+      "kind": "markdown",
+      "schema": null,
+      "schema_href": null,
+      "description": "Methods, tools, sample data, references, constraints, open questions, and workflow intent gathered from a user interview.",
+      "optional": false,
+      "source": "mold",
+      "producing_phases": [
+        1
+      ],
+      "producing_skills": [
+        "interview-to-freeform-summary"
+      ],
+      "consuming_phases": [
+        2,
+        3,
+        5,
+        7,
+        8
+      ],
+      "written_by_phase": null,
+      "presence": "present",
+      "path": "freeform-summary.md",
+      "size_bytes": 4153,
+      "mtime": "2026-09-18T13:57:04.528Z",
+      "sha256": "d1d5ab75ff9b1aab0dd803d4d76fb9139f88333e323e73a12c891a23cb283d6b",
+      "hash_skipped_reason": null,
+      "variants": [],
+      "writes": [],
+      "preview": {
+        "mode": "markdown",
+        "embedded": true,
+        "truncated": false,
+        "bytes_embedded": 4153,
+        "body": null,
+        "outline": null,
+        "derived": null,
+        "skip_reason": null
+      },
+      "validation": null,
+      "site_href": "https://galaxyproject.github.io/foundry/artifacts/freeform-summary/"
+    },
+    {
+      "id": "galaxy-test-plan",
+      "declared_filename": "galaxy-test-plan.yml",
+      "kind": "yaml",
+      "schema": "[[galaxy-workflow-test-plan]]",
+      "schema_href": "https://galaxyproject.github.io/foundry/schemas/galaxy-workflow-test-plan/",
+      "description": "Reviewable Galaxy workflow test plan (see [[galaxy-workflow-test-plan]]): synthesized test cases with job inputs, expected outputs, assertion intent, fixture provenance, label assumptions, unresolved mappings, and omissions.",
+      "optional": false,
+      "source": "mold",
+      "producing_phases": [
+        8
+      ],
+      "producing_skills": [
+        "freeform-summary-to-galaxy-test-plan"
+      ],
+      "consuming_phases": [
+        9
+      ],
+      "written_by_phase": null,
+      "presence": "present",
+      "path": "galaxy-test-plan.yml",
+      "size_bytes": 4992,
+      "mtime": "2026-09-18T13:57:04.537Z",
+      "sha256": "b229f2c970946ad6dfb148e9ee2253f73e0cdb1f50a736888fa9de5a66674f74",
+      "hash_skipped_reason": null,
+      "variants": [],
+      "writes": [],
+      "preview": {
+        "mode": "yaml",
+        "embedded": true,
+        "truncated": false,
+        "bytes_embedded": 4992,
+        "body": null,
+        "outline": null,
+        "derived": null,
+        "skip_reason": null
+      },
+      "validation": null,
+      "site_href": "https://galaxyproject.github.io/foundry/artifacts/galaxy-test-plan/"
+    },
+    {
+      "id": "galaxy-workflow",
+      "declared_filename": "galaxy-workflow.gxwf.yml",
+      "kind": "yaml",
+      "schema": null,
+      "schema_href": null,
+      "description": "Concrete gxformat2 workflow (`class: GalaxyWorkflow`) extracted from the fully-concretized draft at loop endstate via [[draft-extract]]: drafty steps dropped, `_plan_*` planning fields stripped, class promoted. The runnable, testable artifact that downstream Molds ([[implement-galaxy-workflow-test]], [[validate-galaxy-workflow]], [[run-workflow-test]]) consume.",
+      "optional": false,
+      "source": "mold",
+      "producing_phases": [
+        6
+      ],
+      "producing_skills": [
+        "advance-galaxy-draft-step"
+      ],
+      "consuming_phases": [
+        9
+      ],
+      "written_by_phase": null,
+      "presence": "present",
+      "path": "galaxy-workflow.gxwf.yml",
+      "size_bytes": 3190,
+      "mtime": "2026-09-18T13:57:04.531Z",
+      "sha256": "3e844d3fd5bb5fc2d6dcfa9215ab384dbf26d0bae76ad299b8a27ab5a49afe21",
+      "hash_skipped_reason": null,
+      "variants": [],
+      "writes": [],
+      "preview": {
+        "mode": "yaml",
+        "embedded": true,
+        "truncated": false,
+        "bytes_embedded": 3190,
+        "body": null,
+        "outline": null,
+        "derived": {
+          "kind": "gxwf-steps",
+          "class": "GalaxyWorkflow",
+          "inputs": [
+            "reads_paired_collection",
+            "salmon_index",
+            "sample_metadata",
+            "tx2gene_map"
+          ],
+          "outputs": [
+            "salmon_quant_collection",
+            "deseq2_norm_counts",
+            "deseq2_differential_results",
+            "deseq2_plots"
+          ],
+          "steps": [
+            {
+              "id": "salmon_quant",
+              "label": "salmon_quant",
+              "tool_id": "toolshed.g2.bx.psu.edu/repos/bgruening/salmon/salmon/1.10.1+galaxy5",
+              "drafty": false,
+              "todos": []
+            },
+            {
+              "id": "deseq2",
+              "label": "deseq2",
+              "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/deseq2/deseq2/2.11.40.8+galaxy3",
+              "drafty": false,
+              "todos": []
+            }
+          ]
+        },
+        "skip_reason": null
+      },
+      "validation": null,
+      "site_href": "https://galaxyproject.github.io/foundry/artifacts/galaxy-workflow/"
+    },
+    {
+      "id": "galaxy-workflow-draft",
+      "declared_filename": "galaxy-workflow-draft.gxwf.yml",
+      "kind": "yaml",
+      "schema": "[[galaxy-workflow-draft]]",
+      "schema_href": "https://galaxyproject.github.io/foundry/schemas/galaxy-workflow-draft/",
+      "description": "gxformat2 draft (see [[galaxy-workflow-draft-format]]): topology fully resolved (workflow inputs, outputs, step set, edges); tool_id / state / tool_shed_repository and wrapper-determined port names may be TODO with free-text _plan_state / _plan_context / _plan_in / _plan_out per step for later implementation Molds.",
+      "optional": false,
+      "source": "mold",
+      "producing_phases": [
+        5,
+        6
+      ],
+      "producing_skills": [
+        "advance-galaxy-draft-step",
+        "freeform-summary-to-galaxy-template"
+      ],
+      "consuming_phases": [
+        6
+      ],
+      "written_by_phase": null,
+      "presence": "present",
+      "path": "galaxy-workflow-draft.gxwf.yml",
+      "size_bytes": 3159,
+      "mtime": "2026-09-18T13:57:04.531Z",
+      "sha256": "ac790b4d3f5c0f76186857960b71baff739ed9efa631f6ce388357748a978770",
+      "hash_skipped_reason": null,
+      "variants": [],
+      "writes": [],
+      "preview": {
+        "mode": "yaml",
+        "embedded": true,
+        "truncated": false,
+        "bytes_embedded": 3159,
+        "body": null,
+        "outline": null,
+        "derived": {
+          "kind": "gxwf-steps",
+          "class": "GalaxyWorkflowDraft",
+          "inputs": [
+            "reads_paired_collection",
+            "salmon_index",
+            "sample_metadata",
+            "tx2gene_map"
+          ],
+          "outputs": [
+            "salmon_quant_collection",
+            "deseq2_norm_counts",
+            "deseq2_differential_results",
+            "deseq2_plots"
+          ],
+          "steps": [
+            {
+              "id": "salmon_quant",
+              "label": "Quantify transcripts with Salmon",
+              "tool_id": "toolshed.g2.bx.psu.edu/repos/bgruening/salmon/salmon/1.10.1+galaxy5",
+              "drafty": false,
+              "todos": []
+            },
+            {
+              "id": "deseq2",
+              "label": "Differential gene expression analysis with DESeq2",
+              "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/deseq2/deseq2/2.11.40.8+galaxy3",
+              "drafty": false,
+              "todos": []
+            }
+          ]
+        },
+        "skip_reason": null
+      },
+      "validation": null,
+      "site_href": "https://galaxyproject.github.io/foundry/artifacts/galaxy-workflow-draft/"
+    },
+    {
+      "id": "galaxy-workflow-test",
+      "declared_filename": "galaxy-workflow.gxwf-tests.yml",
+      "kind": "yaml",
+      "schema": null,
+      "schema_href": null,
+      "description": "Galaxy workflow test file (tests-format) with job inputs, expected outputs, assertions; passes static schema + label cross-check. Named as the workflow basename + `-tests.yml` so Planemo discovers it as the companion of `galaxy-workflow.gxwf.yml`.",
+      "optional": false,
+      "source": "mold",
+      "producing_phases": [
+        9
+      ],
+      "producing_skills": [
+        "implement-galaxy-workflow-test"
+      ],
+      "consuming_phases": [],
+      "written_by_phase": null,
+      "presence": "present",
+      "path": "galaxy-workflow.gxwf-tests.yml",
+      "size_bytes": 2404,
+      "mtime": "2026-09-18T13:57:04.532Z",
+      "sha256": "5a7d129c99281eaf2a287db1c455849fed2bb9a230524d2f0f256543d811ce27",
+      "hash_skipped_reason": null,
+      "variants": [],
+      "writes": [],
+      "preview": {
+        "mode": "yaml",
+        "embedded": true,
+        "truncated": false,
+        "bytes_embedded": 2404,
+        "body": null,
+        "outline": null,
+        "derived": null,
+        "skip_reason": null
+      },
+      "validation": null,
+      "site_href": "https://galaxyproject.github.io/foundry/artifacts/galaxy-workflow-test/"
+    },
+    {
+      "id": "galaxy-workflow-validation-result",
+      "declared_filename": "galaxy-workflow-validation-result.json",
+      "kind": "json",
+      "schema": null,
+      "schema_href": null,
+      "description": "Terminal gxwf validation handoff: the exact command run, a pass/fail/not-run status, the classified workflow-level diagnostics, and the residual runtime risks static validation cannot settle.",
+      "optional": false,
+      "source": "mold",
+      "producing_phases": [
+        10
+      ],
+      "producing_skills": [
+        "validate-galaxy-workflow"
+      ],
+      "consuming_phases": [],
+      "written_by_phase": null,
+      "presence": "present",
+      "path": "galaxy-workflow-validation-result.json",
+      "size_bytes": 827,
+      "mtime": "2026-09-18T13:57:04.537Z",
+      "sha256": "e954a825ae10cfaee9bd15e656056213f3fcad1de980512f55685b7c59c606ab",
+      "hash_skipped_reason": null,
+      "variants": [],
+      "writes": [],
+      "preview": {
+        "mode": "json",
+        "embedded": true,
+        "truncated": false,
+        "bytes_embedded": 826,
+        "body": null,
+        "outline": null,
+        "derived": {
+          "kind": "validation-summary",
+          "status": "pass",
+          "rows": [
+            [
+              "status",
+              "pass"
+            ]
+          ]
+        },
+        "skip_reason": null
+      },
+      "validation": null,
+      "site_href": "https://galaxyproject.github.io/foundry/artifacts/galaxy-workflow-validation-result/"
+    },
+    {
+      "id": "iwc-comparison-notes",
+      "declared_filename": "iwc-comparison-notes.md",
+      "kind": "markdown",
+      "schema": null,
+      "schema_href": null,
+      "description": "Structural diff against the nearest IWC exemplar(s); guidance for the downstream *-summary-to-galaxy-template Mold before per-step authoring. Carries an inline, bounded gxformat2 excerpt of the nearest exemplar's relevant subgraph under a labeled section, cross-referencing the iwc-exemplar-gxformat2 sibling file.",
+      "optional": false,
+      "source": "mold",
+      "producing_phases": [
+        4
+      ],
+      "producing_skills": [
+        "compare-against-iwc-exemplar"
+      ],
+      "consuming_phases": [
+        5,
+        8
+      ],
+      "written_by_phase": null,
+      "presence": "present",
+      "path": "iwc-comparison-notes.md",
+      "size_bytes": 2938,
+      "mtime": "2026-09-18T13:57:04.530Z",
+      "sha256": "163c358c83c822fecb2aad7a55d7ab76137b501d5d0e2dde1041828bd41bcdb5",
+      "hash_skipped_reason": null,
+      "variants": [],
+      "writes": [],
+      "preview": {
+        "mode": "markdown",
+        "embedded": true,
+        "truncated": false,
+        "bytes_embedded": 2938,
+        "body": null,
+        "outline": null,
+        "derived": null,
+        "skip_reason": null
+      },
+      "validation": null,
+      "site_href": "https://galaxyproject.github.io/foundry/artifacts/iwc-comparison-notes/"
+    },
+    {
+      "id": "iwc-exemplar-gxformat2",
+      "declared_filename": "iwc-exemplar.gxwf.yml",
+      "kind": "yaml",
+      "schema": null,
+      "schema_href": null,
+      "description": "Cleaned gxformat2 conversion (via [[convert]] --to format2 --compact) of the nearest IWC exemplar's relevant subgraph — the concrete idiom the downstream template draft pattern-matches against. Bounded to the relevant subgraph, not the whole workflow. Absent when no nearest exemplar is found.",
+      "optional": false,
+      "source": "mold",
+      "producing_phases": [
+        4
+      ],
+      "producing_skills": [
+        "compare-against-iwc-exemplar"
+      ],
+      "consuming_phases": [
+        5,
+        8
+      ],
+      "written_by_phase": null,
+      "presence": "present",
+      "path": "iwc-exemplar.gxwf.yml",
+      "size_bytes": 1177,
+      "mtime": "2026-09-18T13:57:04.530Z",
+      "sha256": "943d156e3ae623054aad6fcf2e7d698bd78d27ae5f446dbf853dc66cdea56a8f",
+      "hash_skipped_reason": null,
+      "variants": [],
+      "writes": [],
+      "preview": {
+        "mode": "yaml",
+        "embedded": true,
+        "truncated": false,
+        "bytes_embedded": 1177,
+        "body": null,
+        "outline": null,
+        "derived": {
+          "kind": "gxwf-steps",
+          "class": "GalaxyWorkflow",
+          "inputs": [
+            "counts_collection",
+            "sample_metadata"
+          ],
+          "outputs": [
+            "deseq2_plots",
+            "deseq2_norm_counts",
+            "deseq2_results"
+          ],
+          "steps": [
+            {
+              "id": "deseq2",
+              "label": "Differential Analysis",
+              "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/deseq2/deseq2/2.11.40.8+galaxy3",
+              "drafty": false,
+              "todos": []
+            }
+          ]
+        },
+        "skip_reason": null
+      },
+      "validation": null,
+      "site_href": "https://galaxyproject.github.io/foundry/artifacts/iwc-exemplar-gxformat2/"
+    },
+    {
+      "id": "open-requirements-ledger",
+      "declared_filename": "open-requirements.ledger.yml",
+      "kind": "yaml",
+      "schema": null,
+      "schema_href": null,
+      "description": "Carried obligations ledger re-emitted by this step: entries it appended or closed updated, every other entry passed through with its provenance intact.",
+      "optional": false,
+      "source": "mold",
+      "producing_phases": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "producing_skills": [
+        "advance-galaxy-draft-step",
+        "compare-against-iwc-exemplar",
+        "freeform-summary-to-galaxy-data-flow",
+        "freeform-summary-to-galaxy-interface",
+        "freeform-summary-to-galaxy-template"
+      ],
+      "consuming_phases": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "written_by_phase": null,
+      "presence": "present",
+      "path": "open-requirements.ledger.yml",
+      "size_bytes": 969,
+      "mtime": "2026-09-18T13:57:04.529Z",
+      "sha256": "46f1e166b52fee1f4722f8beeb972236e7ac8e41dbef6c9bb0d37136fa9c6c36",
+      "hash_skipped_reason": null,
+      "variants": [],
+      "writes": [],
+      "preview": {
+        "mode": "yaml",
+        "embedded": true,
+        "truncated": false,
+        "bytes_embedded": 969,
+        "body": null,
+        "outline": null,
+        "derived": null,
+        "skip_reason": null
+      },
+      "validation": null,
+      "site_href": "https://galaxyproject.github.io/foundry/artifacts/open-requirements-ledger/"
+    },
+    {
+      "id": "test-data-refs",
+      "declared_filename": "test-data-refs.json",
+      "kind": "json",
+      "schema": null,
+      "schema_href": null,
+      "description": "Test data matched from IWC fixtures or public sources, expressed as URLs/paths plus expected shapes for downstream test authoring.",
+      "optional": false,
+      "source": "mold",
+      "producing_phases": [
+        7
+      ],
+      "producing_skills": [
+        "find-test-data"
+      ],
+      "consuming_phases": [
+        9
+      ],
+      "written_by_phase": null,
+      "presence": "present",
+      "path": "test-data-refs.json",
+      "size_bytes": 1981,
+      "mtime": "2026-09-18T13:57:04.532Z",
+      "sha256": "3a8e131b368324e1d13ba97ffd16d598de958ad115ff2b6814c5b974f96cc1eb",
+      "hash_skipped_reason": null,
+      "variants": [],
+      "writes": [],
+      "preview": {
+        "mode": "json",
+        "embedded": true,
+        "truncated": false,
+        "bytes_embedded": 1980,
+        "body": null,
+        "outline": null,
+        "derived": null,
+        "skip_reason": null
+      },
+      "validation": null,
+      "site_href": "https://galaxyproject.github.io/foundry/artifacts/test-data-refs/"
+    },
+    {
+      "id": "workflow-debug-report",
+      "declared_filename": "workflow-debug-report.md",
+      "kind": "markdown",
+      "schema": null,
+      "schema_href": null,
+      "description": "Failure-surface classification with captured job/invocation/collection/assertion evidence and a recommended next step or reference-gap follow-up.",
+      "optional": false,
+      "source": "mold",
+      "producing_phases": [
+        12
+      ],
+      "producing_skills": [
+        "debug-galaxy-workflow-output"
+      ],
+      "consuming_phases": [],
+      "written_by_phase": null,
+      "presence": "present",
+      "path": "workflow-debug-report.md",
+      "size_bytes": 2429,
+      "mtime": "2026-09-18T13:57:04.538Z",
+      "sha256": "b5f16c164c4812d42d916ac072e088993b2ee5f86f34f4ed2aae4118eb41f052",
+      "hash_skipped_reason": null,
+      "variants": [],
+      "writes": [],
+      "preview": {
+        "mode": "markdown",
+        "embedded": true,
+        "truncated": false,
+        "bytes_embedded": 2429,
+        "body": null,
+        "outline": null,
+        "derived": null,
+        "skip_reason": null
+      },
+      "validation": null,
+      "site_href": "https://galaxyproject.github.io/foundry/artifacts/workflow-debug-report/"
+    },
+    {
+      "id": "workflow-test-result",
+      "declared_filename": "workflow-test-result.json",
+      "kind": "json",
+      "schema": null,
+      "schema_href": null,
+      "description": "Structured status plus captured evidence — Planemo result, invocation/history/workflow ids, artifact paths, Galaxy mode, and (on failure) the observed modality and next reference surface — for debug-galaxy-workflow-output. Also the faithful handoff when no test exists or none could be run.",
+      "optional": false,
+      "source": "mold",
+      "producing_phases": [
+        11
+      ],
+      "producing_skills": [
+        "run-workflow-test"
+      ],
+      "consuming_phases": [
+        12
+      ],
+      "written_by_phase": null,
+      "presence": "present",
+      "path": "workflow-test-result.json",
+      "size_bytes": 537,
+      "mtime": "2026-09-18T13:57:04.538Z",
+      "sha256": "af76bcde06d0a4c49cbb52f62c82848980d019824365a9f9462bc8effefb3dc1",
+      "hash_skipped_reason": null,
+      "variants": [],
+      "writes": [],
+      "preview": {
+        "mode": "json",
+        "embedded": true,
+        "truncated": false,
+        "bytes_embedded": 536,
+        "body": null,
+        "outline": null,
+        "derived": {
+          "kind": "test-result",
+          "result": null,
+          "counts": [
+            [
+              "total_tests",
+              "1"
+            ],
+            [
+              "passed",
+              "1"
+            ],
+            [
+              "failed",
+              "0"
+            ]
+          ],
+          "cases": []
+        },
+        "skip_reason": null
+      },
+      "validation": null,
+      "site_href": "https://galaxyproject.github.io/foundry/artifacts/workflow-test-result/"
+    }
+  ],
+  "unmapped": [
+    {
+      "relpath": "CASE_STUDY.md",
+      "class": "narrative",
+      "size_bytes": 9392,
+      "mtime": "2026-09-18T15:10:32.846Z",
+      "sha256": "45493c533df02526aa805759177881592a62943fd2c99688c0b14aec7d97d83c",
+      "attached_to": null,
+      "declared_by_pipelines": [],
+      "declared_by_skills": [],
+      "dir_summary": null,
+      "preview": {
+        "mode": "markdown",
+        "embedded": true,
+        "truncated": false,
+        "bytes_embedded": 9392,
+        "body": null,
+        "outline": null,
+        "derived": null,
+        "skip_reason": null
+      }
+    },
+    {
+      "relpath": "README.md",
+      "class": "narrative",
+      "size_bytes": 1446,
+      "mtime": "2026-09-18T13:57:04.527Z",
+      "sha256": "2058e0b2a3cf6b083beb258acc711fe50b583beac6d6a81320e600fd7108b563",
+      "attached_to": null,
+      "declared_by_pipelines": [],
+      "declared_by_skills": [],
+      "dir_summary": null,
+      "preview": {
+        "mode": "markdown",
+        "embedded": true,
+        "truncated": false,
+        "bytes_embedded": 1446,
+        "body": null,
+        "outline": null,
+        "derived": null,
+        "skip_reason": null
+      }
+    },
+    {
+      "relpath": "galaxy-workflow.ga",
+      "class": "undeclared",
+      "size_bytes": 6613,
+      "mtime": "2026-09-18T13:57:04.531Z",
+      "sha256": "7c8c1ae1f659bfe430367ac40782b0c7379114eeedbd815cf64809a544f0598d",
+      "attached_to": null,
+      "declared_by_pipelines": [],
+      "declared_by_skills": [],
+      "dir_summary": null,
+      "preview": null
+    },
+    {
+      "relpath": "test-data",
+      "class": "directory",
+      "size_bytes": 35306,
+      "mtime": "2026-09-18T13:57:04.536Z",
+      "sha256": null,
+      "attached_to": null,
+      "declared_by_pipelines": [],
+      "declared_by_skills": [],
+      "dir_summary": {
+        "entry_count": 11,
+        "total_bytes": 35306,
+        "sample": [
+          "SRR5085167_forward.fastqsanger.gz",
+          "SRR5085167_reverse.fastqsanger.gz",
+          "SRR5085168_forward.fastqsanger.gz",
+          "SRR5085168_reverse.fastqsanger.gz",
+          "SRR5085169_forward.fastqsanger.gz",
+          "SRR5085169_reverse.fastqsanger.gz",
+          "SRR5085170_forward.fastqsanger.gz",
+          "SRR5085170_reverse.fastqsanger.gz",
+          "sample_metadata.tabular",
+          "transcriptome.fasta",
+          "tx2gene.tabular"
+        ]
+      },
+      "preview": null
+    },
+    {
+      "relpath": "tool_test_output.html",
+      "class": "tool-output",
+      "size_bytes": 602962,
+      "mtime": "2026-09-18T13:57:04.540Z",
+      "sha256": "c7a68c9cc15f26114b83684f75f9a77745b1f145ffb485b17113e7a1866d2894",
+      "attached_to": null,
+      "declared_by_pipelines": [],
+      "declared_by_skills": [],
+      "dir_summary": null,
+      "preview": {
+        "mode": "none",
+        "embedded": false,
+        "truncated": false,
+        "bytes_embedded": 0,
+        "body": null,
+        "outline": null,
+        "derived": null,
+        "skip_reason": "not a text format"
+      }
+    },
+    {
+      "relpath": "tool_test_output.json",
+      "class": "tool-output",
+      "size_bytes": 677611,
+      "mtime": "2026-09-18T13:57:04.539Z",
+      "sha256": "623a7fdd250c691fbea2dd128f81423a11038b985d1b76195364bc76f6bc1e12",
+      "attached_to": null,
+      "declared_by_pipelines": [],
+      "declared_by_skills": [],
+      "dir_summary": null,
+      "preview": {
+        "mode": "none",
+        "embedded": false,
+        "truncated": false,
+        "bytes_embedded": 0,
+        "body": null,
+        "outline": null,
+        "derived": null,
+        "skip_reason": "over the per-file embed cap (661.7 KB)"
+      }
+    }
+  ],
+  "ignored_count": 0,
+  "open_requirements": {
+    "path": "open-requirements.ledger.yml",
+    "entry_count": 2,
+    "topology_repair": null,
+    "counts": {
+      "open": 0,
+      "resolved": 2,
+      "surrendered": 0,
+      "blocking_open": 0,
+      "dropped": 0
+    },
+    "entries": [
+      {
+        "id": "salmon-index-source-type",
+        "status": "resolved",
+        "kind": "gap",
+        "blocking": false,
+        "raised_by": "freeform-summary-to-galaxy-interface",
+        "raised_by_phase": 2,
+        "raised_by_href": "https://galaxyproject.github.io/foundry/molds/freeform-summary-to-galaxy-interface/",
+        "resolved_by": "advance-galaxy-draft-step",
+        "resolved_by_phase": 6,
+        "resolved_by_href": "https://galaxyproject.github.io/foundry/molds/advance-galaxy-draft-step/",
+        "step": "salmon_quant",
+        "unmet": "Salmon reference index source format",
+        "missing": "Whether reference target is supplied as pre-built index archive or FASTA for index creation",
+        "supersedes": null,
+        "note": "Resolved to history-supplied reference transcriptome FASTA with on-the-fly k-mer indexing (k=31).",
+        "units": null,
+        "because": null
+      },
+      {
+        "id": "deseq2-design-formula-specification",
+        "status": "resolved",
+        "kind": "gap",
+        "blocking": false,
+        "raised_by": "freeform-summary-to-galaxy-interface",
+        "raised_by_phase": 2,
+        "raised_by_href": "https://galaxyproject.github.io/foundry/molds/freeform-summary-to-galaxy-interface/",
+        "resolved_by": "advance-galaxy-draft-step",
+        "resolved_by_phase": 6,
+        "resolved_by_href": "https://galaxyproject.github.io/foundry/molds/advance-galaxy-draft-step/",
+        "step": "deseq2",
+        "unmet": "Multi-factor formula and primary contrast",
+        "missing": "Exact factor order and whether interaction term Genotype:Condition is modeled",
+        "supersedes": null,
+        "note": "Resolved using sample_sheet_contrasts with custom design formula ~ Genotype + Timepoint + Condition and tximport integration.",
+        "units": null,
+        "because": null
+      }
+    ]
+  },
+  "feedback": null,
+  "timeline": null,
+  "evaluation": null,
+  "health": {
+    "overall": "warn",
+    "tiles": [
+      {
+        "label": "run",
+        "state": "warn",
+        "value": "unknown",
+        "detail": "the record last said unknown",
+        "anchor": "#phases"
+      },
+      {
+        "label": "phases",
+        "state": "warn",
+        "value": "11/12",
+        "detail": "furthest reached was phase 12",
+        "anchor": "#phases"
+      },
+      {
+        "label": "artifacts",
+        "state": "ok",
+        "value": "14/16",
+        "detail": "every artifact due so far is on disk",
+        "anchor": "#artifacts"
+      },
+      {
+        "label": "obligations",
+        "state": "ok",
+        "value": "0 open",
+        "detail": "2 resolved, 0 surrendered, 0 blocking",
+        "anchor": "#obligations"
+      },
+      {
+        "label": "feedback",
+        "state": "ok",
+        "value": "off",
+        "detail": "the run was not invoked with feedback mode",
+        "anchor": "#feedback"
+      },
+      {
+        "label": "unmapped",
+        "state": "ok",
+        "value": "6",
+        "detail": "1.3 MB no Mold declares",
+        "anchor": "#unmapped"
+      }
+    ],
+    "furthest_phase": 12,
+    "total_phases": 12,
+    "artifacts_present": 14,
+    "artifacts_expected": 16,
+    "artifacts_missing": 0,
+    "files_attributed": 14,
+    "files_seen": 19
+  },
+  "warnings": []
+}
