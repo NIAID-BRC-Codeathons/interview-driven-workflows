@@ -813,8 +813,8 @@
     <!-- SLIDE 8: Case Study 3: Candida auris Reproduction with Sonnet (6:25 - 7:25) -->
     <!-- ================================================================= -->
     <section>
-      <div class="eyebrow">Case Study 3 · PAPER → GALAXY Reproduction (Scott Cain) <span class="timing-pill">6:25 - 7:25</span></div>
-      <h2 class="accent-heading"><em>Candida auris</em> with Sonnet: Autonomous Tool Authoring</h2>
+      <div class="eyebrow">Case Study 3 · Cross-Model Comparison (Scott Cain) <span class="timing-pill">6:25 - 7:25</span></div>
+      <h2 class="accent-heading">Opus vs. Sonnet on the Same Paper</h2>
 
       <div class="stat-grid" style="margin: 6px 0;">
         <div class="stat-box" style="padding: 5px 4px;">
@@ -822,7 +822,7 @@
           <div class="stat-label">Phases Completed</div>
         </div>
         <div class="stat-box" style="padding: 5px 4px;">
-          <div class="stat-num">9</div>
+          <div class="stat-num">9 vs 26</div>
           <div class="stat-label">Loop Iterations</div>
         </div>
         <div class="stat-box" style="padding: 5px 4px;">
@@ -831,47 +831,49 @@
         </div>
         <div class="stat-box" style="padding: 5px 4px;">
           <div class="stat-num green">Live API</div>
-          <div class="stat-label">Executed on usegalaxy.org</div>
+          <div class="stat-label">usegalaxy.org Executed</div>
         </div>
       </div>
 
       <div class="split split-3-2" style="gap: 14px;">
         <div>
           <div class="card card-gold" style="padding: 8px 12px; margin-bottom: 6px;">
-            <div class="card-eyebrow" style="color:var(--deck-gold-ink);">Reproduction Objective &amp; Model</div>
+            <div class="card-eyebrow" style="color:var(--deck-gold-ink);">Reproduction Setup (Claude 3.5 Sonnet)</div>
             <div class="card-body" style="font-size: 0.38em; line-height: 1.35;">
-              <strong>Model:</strong> Re-executed the <code>paper-to-galaxy</code> pipeline using Claude 3.5 Sonnet to test cross-model robustness.<br>
-              <strong>Scope:</strong> Evaluated all 12 phases from initial literature parsing through live execution and output triage.
+              Scott Cain re-executed the <code>paper-to-galaxy</code> pipeline against the same <em>C. auris</em> paper to test cross-model reproducibility. All 12 pipeline phases completed end-to-end.
             </div>
           </div>
 
           <div class="card" style="padding: 8px 12px; margin-bottom: 6px;">
-            <div class="card-eyebrow">Autonomous Tool Authoring (UDT)</div>
+            <div class="card-eyebrow">Strategy Contrast: Tool Search vs. Tool Authoring</div>
             <div class="card-body" style="font-size: 0.37em; line-height: 1.35;">
-              • <strong>Gaps Detected:</strong> When the Tool Shed lacked exact wrappers for custom extraction steps, Sonnet fell through to <code>author-galaxy-tool-wrapper</code>.<br>
-              • <strong>Artifacts Emitted:</strong> Authored 3 containerized User-Defined Tools (<code>class: GalaxyUserTool</code>) with container environments.<br>
-              • <strong>Execution Feedback:</strong> Captured 25 structured feedback items in <code>foundry-feedback.ledger.yml</code>.
+              • <strong>Opus Strategy (26 loops):</strong> Exhaustively searched the Tool Shed, mapped conditional XML parameter trees, and pinned strict standard wrappers.<br>
+              • <strong>Sonnet Strategy (9 loops):</strong> When wrappers were missing or complex, Sonnet authored 3 containerized User-Defined Tools (<code>class: GalaxyUserTool</code>) to bridge the steps.<br>
+              • <strong>Server Deployment:</strong> Invoked live on <code>usegalaxy.org</code> via automated API scripts.
             </div>
           </div>
 
           <div class="card card-success" style="padding: 8px 12px;">
-            <div class="card-eyebrow">Live Galaxy Server Execution</div>
+            <div class="card-eyebrow">Upstream Galaxy Hardening Receipts</div>
             <div class="card-body" style="font-size: 0.38em; line-height: 1.35;">
-              Invoked directly on <code>usegalaxy.org</code> (Invocation <code>8d8af9e4b30d11f18054bc24110164aa</code>, History <code>bbd44e69cb8906b54be4b938868d5a9d</code>).
+              The Sonnet run recorded 25 feedback entries, uncovering tool ID version stripping in Galaxy export routines and dynamic tool UUID resolution gaps.
             </div>
           </div>
         </div>
 
         <div>
           <div class="card card-gold" style="padding: 8px 12px;">
-            <div class="card-eyebrow">Key Cross-Model Finding</div>
+            <div class="card-eyebrow">Comparison Takeaway</div>
             <div class="card-body" style="font-size: 0.37em; line-height: 1.35;">
-              • Sonnet completed 9 draft concretion iterations compared to 26 iterations with the frontier model, opting for custom UDT wrappers rather than searching through deep Tool Shed revisions.<br>
-              • Live execution succeeded across all 11 evaluation genes.<br>
-              • Resulting feedback drafts exposed tool state normalization differences in <code>galaxy.key</code> API workflows.
+              • <strong>Opus is the deep explorer:</strong> Spends iterations finding exact community wrappers and detecting statistical subtleties.<br>
+              • <strong>Sonnet is the pragmatic builder:</strong> Compresses drafting into fewer iterations by authoring custom tools, pushing directly to live server APIs.<br>
+              • Both models successfully synthesized functional workflows from the 60-page supplement.
             </div>
           </div>
-          <div style="text-align: right; margin-top: 6px;">
+          <div style="text-align: right; margin-top: 6px; display: flex; flex-direction: column; gap: 4px; align-items: flex-end;">
+            <a href="https://usegalaxy.org/workflows/invocations/8d8af9e4b30d11f18054bc24110164aa" target="_blank" class="ref-link" style="font-size: 0.40em; font-family: var(--r-code-font);">
+              Live Invocation on UseGalaxy.org (8d8af9e4b30d11f1) ↗
+            </a>
             <a href="../case_studies/auris-scf1-rnaseq-sonnet5/dashboard.html" target="_blank" class="ref-link" style="font-size: 0.40em; font-family: var(--r-code-font);">
               Open Sonnet Run Dashboard ↗
             </a>
@@ -881,7 +883,7 @@
 
       <aside class="notes">
         [6:25 - 7:25] Talking Points:
-        Scott Cain executed a third case study, reproducing the paper-to-galaxy pipeline using Claude 3.5 Sonnet. All 12 pipeline phases completed. When the pipeline encountered gaps in the public Tool Shed, it authored three containerized Galaxy User-Defined Tools. The workflow was installed and executed live on usegalaxy.org, recording 25 feedback entries for upstream Foundry hardening.
+        Scott Cain executed a third case study, reproducing the paper-to-galaxy pipeline on the same Candida auris paper using Claude 3.5 Sonnet. This comparison revealed distinct model behaviors. Opus took 26 iterations, exhaustively searching the Tool Shed and resolving XML parameter trees. Sonnet completed in 9 iterations by authoring three custom containerized User-Defined Tools. Sonnet executed the workflow directly on usegalaxy.org, recording 25 feedback entries that uncovered server-side API quirks.
       </aside>
     </section>
 
