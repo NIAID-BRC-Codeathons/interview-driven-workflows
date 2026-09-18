@@ -1,0 +1,602 @@
+run:
+  pipeline: paper-to-galaxy
+  run_slug: draft-manuscript-galaxy
+  status: complete
+
+phases:
+  - phase: 1
+    kind: mold
+    skill: summarize-paper
+    status: done
+    feedback_checked: true
+  - phase: 2
+    kind: mold
+    skill: freeform-summary-to-galaxy-interface
+    status: done
+    feedback_checked: true
+  - phase: 3
+    kind: mold
+    skill: freeform-summary-to-galaxy-data-flow
+    status: done
+    feedback_checked: true
+  - phase: 4
+    kind: mold
+    skill: compare-against-iwc-exemplar
+    status: done
+    feedback_checked: true
+  - phase: 5
+    kind: mold
+    skill: freeform-summary-to-galaxy-template
+    status: done
+    feedback_checked: true
+  - phase: 6
+    kind: mold
+    skill: advance-galaxy-draft-step
+    loop: true
+    iterations: 9
+    status: done
+    feedback_checked: true
+  - phase: 7
+    kind: branch
+    pattern: test-data-resolution
+    chain: [paper-to-test-data, find-test-data, user-supplied]
+    selected: find-test-data
+    status: done
+    feedback_checked: true
+  - phase: 8
+    kind: mold
+    skill: freeform-summary-to-galaxy-test-plan
+    status: done
+    feedback_checked: true
+  - phase: 9
+    kind: mold
+    skill: implement-galaxy-workflow-test
+    status: done
+    feedback_checked: true
+  - phase: 10
+    kind: mold
+    skill: validate-galaxy-workflow
+    status: done
+    feedback_checked: true
+  - phase: 11
+    kind: mold
+    skill: run-workflow-test
+    status: done
+    feedback_checked: true
+  - phase: 12
+    kind: mold
+    skill: debug-galaxy-workflow-output
+    status: done
+    feedback_checked: true
+
+entries:
+  - id: collection-pattern-mocs-ship-without-referenced-pages
+    raised_by: freeform-summary-to-galaxy-template
+    observed_in:
+      mold:
+        name: freeform-summary-to-galaxy-template
+        path: content/molds/freeform-summary-to-galaxy-template/index.md
+        revision: 6
+        content_hash: 0a95f8c04465d48131ace523e0b27af53f1ade6e525a9173c5ff1e936ddc3366
+        foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: pattern
+      label: galaxy-collection-patterns (and sibling galaxy-conditionals-patterns / galaxy-tabular-patterns MOCs)
+      locator: content/patterns/galaxy-collection-patterns.md
+      content_hash: 9840d686228a254766611196f2be03b2a66119281322c6373ce082cd08e78717
+    kind: gap
+    severity: minor
+    what: "The skill bundle packages `galaxy-collection-patterns.md`, `galaxy-conditionals-patterns.md`, and `galaxy-tabular-patterns.md` as MOC/index pages (frontmatter `pattern_kind: moc`) that only list wikilink-style names of ~15-20 concrete pattern pages each (e.g. `[[fan-in-bundle-consume-and-flatten]]`, `[[collection-unbox-singleton]]`, `[[manifest-to-mapped-collection-lifecycle]]`, `[[tabular-concatenate-collection-to-table]]`). None of the referenced pattern pages themselves -- which per the MOC descriptions should carry the actual worked recipe, concrete tool_id, and state -- are packaged anywhere in this skill bundle's `references/` tree."
+    expected: "Either package the linked pattern pages alongside their MOC (as this skill already does for other reference kinds, e.g. `galaxy-workflow-draft-format.md`), or have the MOC entries themselves carry the concrete tool_id / state worked example inline, so a cast skill that is explicitly told (Runtime Notes) not to fetch Foundry source files at runtime can actually resolve a pattern name to a usable recipe from packaged content alone."
+    evidence: "For this run, resolving concrete tool identities for the fan-in/flatten/tabular-bridge steps (Collapse Collection, __FLATTEN__, collection_column_join) was only possible because the separately-supplied `iwc-comparison-notes.md` artifact (from a prior pipeline phase) happened to quote inline gxformat2 excerpts naming those tools. Had that artifact not carried those excerpts, the packaged collection/tabular pattern MOCs alone (the on-demand references this Mold's own SKILL.md directs it to for exactly this situation) would have given only a pattern *name* with no way to resolve it to a tool_id or worked state, forcing every such step to Deferred tier even where a concrete built-in exists."
+    status: filed
+    issue: https://github.com/galaxyproject/foundry/issues/570
+
+  - id: gxformat2-schema-missing-nested-in-key-convention
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold:
+        name: advance-galaxy-draft-step
+        path: content/molds/advance-galaxy-draft-step/index.md
+        revision: 4
+        content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+        foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: research
+      label: gxformat2-schema
+      locator: content/research/gxformat2-schema/index.md
+      content_hash: 4fe42382f99655115c53c1afde0da0d0556ad77984da7d0ffa8ab725ea260aa3
+    kind: gap
+    severity: major
+    what: "gxformat2-schema documents that a step's `state` nests conditionals/sections as plain nested YAML (the `state` vs `tool_state` section), but no packaged reference in advance-galaxy-draft-step's, implement-galaxy-tool-step's, or repair-galaxy-draft-topology's bundles documents the companion convention for a step's `in:` connections dict: how to address a nested conditional test-parameter branch or section child as a connection target."
+    expected: "Extend gxformat2-schema with an explicit subsection on `in:` key addressing for nested tool state -- the pipe-delimited path convention (e.g. `db_opts|lexicmap_index`, `advanced_settings|align_min_match_pident`) for conditional-branch and section-child parameters -- mirroring the existing `state`-nesting subsection, and include it in implement-galaxy-tool-step's packaged references (the leaf Mold that performs this binding), not just as an assumed convention."
+    evidence: "Implementing lexicmap_search (toolshed.g2.bx.psu.edu/repos/iuc/lexicmap/lexicmap_search 0.9.0+galaxy1) required wiring workflow inputs onto a `gx_conditional`'s case-owned parameter (`lexicmap_index`, under `db_opts_selector: db`) and five `gx_section` children of `advanced_settings`. None of this run's loaded, packaged references named or demonstrated the `|`-joined `in:` key form needed to address them; it was inferred from general Galaxy/gxformat2 familiarity outside any packaged bundle content, which the skill's own Runtime Notes direct against ('use only files packaged in this skill bundle and user-supplied artifacts')."
+    status: filed
+    issue: https://github.com/galaxyproject/foundry/issues/571
+
+  - id: tool-util-cli-toolshed-fetch-rejects-real-filtered-list-collection-output
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold:
+        name: advance-galaxy-draft-step
+        path: content/molds/advance-galaxy-draft-step/index.md
+        revision: 4
+        content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+        foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: related-project
+      label: "galaxy-tool-util-ts / @galaxy-tool-util/cli (gxwf, galaxy-tool-cache) -- ToolShed-fetch-to-ParsedTool decoder"
+      locator: "https://github.com/jmchilton/galaxy-tool-util-ts (packages/cli, @galaxy-tool-util/cli@1.8.1)"
+    kind: defect
+    severity: major
+    what: "`galaxy-tool-cache add`/`summarize` (and `gxwf draft-validate`'s own internal tool-state fetch) fail to fetch or parse a real, currently-published IUC Tool Shed wrapper -- toolshed.g2.bx.psu.edu/repos/iuc/kmindex/kmindex_query -- for every galaxy-suffixed version (tried and reproduced for 0.6.0+galaxy1, 0.6.0+galaxy2, 0.6.1+galaxy2, 0.6.1+galaxy3, 0.6.1+galaxy4, 0.6.1+galaxy5), raising a decode error at `outputs[1].structure: is missing` against the upstream parsedToolSchema's collection-output branch. Only the repo's original unsuffixed '0.6.0' version (which predates the wrapper's `<collection type=\"list\"><filter>...</filter><discover_datasets .../></collection>`-shaped output, added by tools-iuc PR #8208 'support multiple indices simultaneously') parses successfully. `add --galaxy-url https://usegalaxy.org` was also tried as a fallback source and fails the same way (plus a second, `inputs is missing` error on that path)."
+    expected: "The ToolShed-fetch-to-ParsedTool decoder should populate `structure` (collection_type/discover_datasets/etc.) for a `<collection type=\"list\">` output that declares `discover_datasets` directly and has no `structured_like`/rules -- this is an ordinary, common IUC wrapper shape (also present, filtered by a sibling `<filter>` block, which the schema has no field for at all -- a second, related lossiness worth tracking) -- rather than failing the whole fetch. `gxwf draft-validate` already degrades this failure gracefully to a `skip_tool_not_found` (not a hard fail) for tool-state checking, which is the right fallback behavior for validate; but `galaxy-tool-cache add`/`summarize` themselves give no such degrade and simply cannot produce a manifest for this real, in-production wrapper at all, blocking the normal automated discover -> summarize -> implement path for any workflow step using it."
+    evidence: "Reproduced directly this iteration for kmindex_containment_screen (pinned tool_id toolshed.g2.bx.psu.edu/repos/iuc/kmindex/kmindex_query, tool_version 0.6.1+galaxy4, changeset b6fa25b6b436). Root-caused by fetching the wrapper's real upstream XML at the exact matching changeset (Tool Shed API's own `remote_repository_url` for this changeset pointed to github.com/galaxyproject/tools-iuc/tree/main/tools/kmindex; commit 7681be7f40 on that path declares `<tool ... version=\"@TOOL_VERSION@+galaxy4\">`, an exact match) and comparing its `<outputs>` against the successfully-cached bare-'0.6.0' ParsedTool JSON, which lacks the collection output entirely. Worked around this run by hand-reconstructing galaxy-tool-summary.json's `parsed_tool`/`input_schemas` directly from that verified upstream XML rather than via the normal automated `galaxy-tool-cache` path (documented in that file's own `warnings[]`)."
+    status: filed
+    issue: https://github.com/galaxyproject/foundry/issues/572
+
+  - id: implement-galaxy-tool-step-udt-binding-undocumented
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold:
+        name: implement-galaxy-tool-step
+        path: content/molds/implement-galaxy-tool-step/index.md
+        revision: 9
+        content_hash: 197be2d9b27741c3f258092f8392654369d1ca234d7fad492387ff69d656292b
+        foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: implement-galaxy-tool-step
+      locator: content/molds/implement-galaxy-tool-step/index.md
+      content_hash: 197be2d9b27741c3f258092f8392654369d1ca234d7fad492387ff69d656292b
+    kind: gap
+    severity: minor
+    what: "summarize-galaxy-tool's own Inputs section states 'Authored UDTs from author-galaxy-tool-wrapper bypass this Mold,' correctly routing a locally-authored `GalaxyUserTool` around tool-summary generation. But nothing downstream documents what happens next: implement-galaxy-tool-step's declared Inputs list only `galaxy-tool-summary` (never a `galaxy-user-tool-definition`), and its procedure text (step 2, 'Bind to the tool summary') only covers a Tool-Shed-pinned wrapper or a bare/stock built-in id -- there is no documented convention for how a step's `tool_id`/`tool_version`/`state` should be populated when the resolved wrapper is an authored UDT instead of either of those two cases (e.g. whether `tool_id` should mirror the UDT's own `id` field with no `tool_shed_repository` block, by analogy to a bare/stock id, or something else)."
+    expected: "Extend implement-galaxy-tool-step's declared Inputs to include the `galaxy-user-tool-definition` artifact as an alternate input when the discover-or-author branch fell through to authoring, and add an explicit procedure step (or sub-case under step 2) for binding a step to a UDT: what `tool_id`/`tool_version` should hold, that no `tool_shed_repository` block applies, and how the UDT's own declared `inputs`/`outputs` names become the step's `in:`/`out:` port names -- mirroring the level of detail already given for the Tool-Shed-pin and bare/stock-id cases."
+    evidence: "Authored a GalaxyUserTool wrapper this iteration for a step with a confirmed Tool Shed discovery miss. Absent any documented binding convention, proceeded by analogy: set the step's `tool_id` to the UDT's own `id`, `tool_version` to its `version`, and no `tool_shed_repository` block (treating it like a bare/stock tool id). `gxwf draft-validate --concrete` accepted this shape (`draft valid`, `Concrete: OK`) -- the tool_id triggered a live Tool Shed lookup that 404'd and was gracefully downgraded to a `skip_tool_not_found` (the same non-fatal bucket used for an unrelated tool whose fetch failed for network reasons), not validated against the UDT's own declared contract at all. So the binding convention used happened to pass, but this was inferred from a different case's documented pattern, and draft-validate's accept path gives no positive confirmation that a UDT-backed step's ports/state were checked against anything real."
+    status: filed
+    issue: https://github.com/galaxyproject/foundry/issues/573
+
+  - id: galaxy-user-tool-authoring-missing-element-identifier-expression
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold:
+        name: advance-galaxy-draft-step
+        path: content/molds/advance-galaxy-draft-step/index.md
+        revision: 4
+        content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+        foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: research
+      label: galaxy-user-tool-authoring
+      locator: content/research/galaxy-user-tool-authoring/index.md
+      content_hash: 365fad455369945a34bda537c8dbf409a0966f0f88da9fe78b61cff32d5b0d0d
+    kind: gap
+    severity: minor
+    what: "galaxy-user-tool-authoring.md's section 3 ('Expression syntax in shell_command') documents exactly two ways to read a `data` input in a `shell_command`/`configfiles` expression -- a scalar/file path via `$(inputs.NAME.path)` -- and says nothing about a `data` input's other available File-object fields. In particular it never mentions `element_identifier`, even though the installed `@galaxy-tool-util/schema` package's own `gx-data.js` parameter-generation code declares, for the `job_runtime` state representation (the one governing values available inside a running job's command/configfile expressions), a File object shape of `{ class: 'File', basename, location, path, nameroot, nameext, format, size, element_identifier: S.optional(S.String) }` -- i.e. `$(inputs.NAME.element_identifier)` is a real, schema-backed expression, not merely `.path`."
+    expected: "Extend galaxy-user-tool-authoring.md section 3 with an explicit line documenting `$(inputs.NAME.element_identifier)` (available when the input is a mapped collection element, matching the classic Galaxy tool-XML idiom already documented elsewhere in this same skill family's convert-nfcore-module-to-galaxy-tool notes: '`$input.element_identifier` in `<command>`'), alongside the existing `.path` documentation -- this is exactly the mechanism an authored UDT needs to preserve a Galaxy collection's per-element identifier into its output content without adding an extra collection-element-identifier-extraction producer step/port to the workflow topology."
+    evidence: "Authoring flatten_gene_summary_json_to_row (a GalaxyUserTool mapped one call per gene over a summary_json collection) needed the mapped gene's element_identifier embedded as a literal output column, per this step's own _plan_state ('preserving element_identifier for the join'). galaxy-user-tool-authoring.md's packaged expression-syntax section, read upfront per this skill's own procedure, documents only `.path` and gives no indication `.element_identifier` exists or is valid. Confirmed the field's existence and validity only by grepping the installed `@galaxy-tool-util/cli` npm package's own schema source (`gx-data.js`) directly, outside any packaged skill reference -- exactly the kind of external verification this skill's Runtime Notes direct against ('use only files packaged in this skill bundle and user-supplied artifacts'). Had a different, plausible-but-wrong design been chosen instead (e.g. inserting a `collection_element_identifiers` producer step purely to recover the gene symbol as a wireable parameter), it would have been an avoidable topology change driven by a documentation gap, not a real tool-shape constraint."
+    status: filed
+    issue: https://github.com/galaxyproject/foundry/issues/468#issuecomment-5733273474
+
+  - id: gxwf-tool-search-underscore-repo-slug-query-zero-hits
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold:
+        name: advance-galaxy-draft-step
+        path: content/molds/advance-galaxy-draft-step/index.md
+        revision: 4
+        content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+        foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: related-project
+      label: "galaxy-tool-util-ts / @galaxy-tool-util/cli (gxwf tool-search) -- Tool Shed query tokenizer/ranker"
+      locator: "https://github.com/jmchilton/galaxy-tool-util-ts (packages/cli, gxwf tool-search, @galaxy-tool-util/cli@1.10.1)"
+    kind: defect
+    severity: minor
+    what: "`gxwf tool-search \"collapse_collections\"` (the literal Tool Shed repo-slug for the exact wrapper this iteration needed, toolshed.g2.bx.psu.edu/repos/nml/collapse_collections) returns `No hits for query: collapse_collections` and exits 2. The space-joined equivalent, `gxwf tool-search \"collapse collections\"`, also returns zero hits. Only a differently-worded query -- `gxwf tool-search \"nml collapse\"` (owner name plus one word) or `gxwf tool-search \"Collapse Collection\"` (the tool's display name, not its repo/id) -- surfaces the tool, and even then only as a lower-ranked hit (#3 of 5) in the owner-name case."
+    expected: "The query tokenizer/ranker should score a repo-slug-style query (an underscore-joined or space-joined form of the actual `owner/repo` or `tool_id` string) as at least a partial match against that same repo's own `owner/repo` and `tool_id` fields, rather than zero hits -- a query built directly from a known real repo slug is a common, reasonable way to search and should not require the caller to already know the tool's display name or owner to find it."
+    evidence: "Reproduced directly this iteration while resolving kmindex_hit_concat's wrapper (same wrapper already pinned earlier in this run as combine_gene_panel_to_bulk_fasta, nml/collapse_collections/collapse_dataset v5.1.0). `gxwf tool-search \"collapse_collections\"` and `gxwf tool-search \"collapse collections\"` both returned no hits; `gxwf tool-search \"nml collapse\"` returned the correct tool as row 3 of 5; `gxwf tool-search \"Collapse Collection\"` returned it as row 1 of 2. Did not block this iteration (the wrapper identity was already known from the draft's own Identity-pinned `tool_id` and a prior same-run resolution), but would block or mislead a cold discover-shed-tool search that started from only a Tool Shed repo slug."
+    status: filed
+    issue: https://github.com/galaxyproject/foundry/issues/574
+
+  - id: gxwf-draft-validate-json-flag-emits-non-json-diagnostics-on-stdout
+    raised_by: advance-galaxy-draft-step
+    observed_in:
+      mold:
+        name: advance-galaxy-draft-step
+        path: content/molds/advance-galaxy-draft-step/index.md
+        revision: 4
+        content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+        foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: related-project
+      label: "galaxy-tool-util-ts / @galaxy-tool-util/cli (gxwf draft-validate) -- --json report emission"
+      locator: "https://github.com/jmchilton/galaxy-tool-util-ts (packages/cli, gxwf draft-validate, @galaxy-tool-util/cli@1.8.1)"
+    kind: defect
+    severity: minor
+    what: "`gxwf draft-validate <file> --concrete --json` writes one or more human-readable diagnostic lines (e.g. `toolshed fetch failed (...) for iuc~kmindex~kmindex_query: <huge inline TS type dump>`, followed by an ASCII tree of the failing schema path) directly to stdout, ahead of the actual JSON report object, whenever a tool-state fetch during the --concrete pass fails to decode (same underlying decode failure as ledger entry `tool-util-cli-toolshed-fetch-rejects-real-filtered-list-collection-output`). This happens even though stderr is a separate stream the process already uses for nothing observed in this run's redirection test, and even though `--help` explicitly describes `--json` as '(Output structured JSON report)'."
+    expected: "When `--json` is passed, stdout should contain only the single parseable JSON report object (matching the flag's own documented contract); any fetch-failure/decode-diagnostic text (which draft-validate itself already degrades gracefully into the report's own `skip_tool_not_found` status/errors array) should go to stderr, or be folded into the JSON report's own warnings/errors, not interleaved onto stdout ahead of the JSON payload."
+    evidence: "Ran `gxwf draft-validate galaxy-workflow-draft.gxwf.yml --concrete --json 1>/tmp/dv.out 2>/tmp/dv.err` this iteration (implementing join_gene_summary_rows_into_manifest, an unrelated step -- the failing tool-state fetch was for a different, already-implemented step, kmindex_containment_screen/kmindex_query, whose Tool Shed fetch fails per the already-tracked cli defect above). `/tmp/dv.err` was empty; `/tmp/dv.out`'s first bytes were the literal diagnostic text `toolshed fetch failed (...` (confirmed via `head -c 1 | xxd` = `t`, not `{`), not JSON. Had to manually locate the first line starting with `{` and slice from there before `json.loads` would parse the report. The same command without `--json` (plain human-readable mode) is unaffected since it is not claiming to emit machine-parseable output. Non-blocking this iteration only because the diagnostic text happened to precede rather than interleave with the JSON block, and because I fell back to line-scanning; a caller doing a naive `stdout | jq` would hard-fail."
+    status: filed
+    issue: https://github.com/galaxyproject/foundry/issues/548#issuecomment-5733272931
+
+  - id: paper-to-test-data-no-scoping-or-toolshed-fixture-guidance
+    raised_by: paper-to-test-data
+    observed_in:
+      mold:
+        name: paper-to-test-data
+        path: content/molds/paper-to-test-data/index.md
+        revision: 2
+        content_hash: 863d7b503a77fa63449899f124d1669e181fdfd9a72f81f516a219cdc89cb6bb
+        foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: paper-to-test-data
+      locator: content/molds/paper-to-test-data/index.md
+    kind: gap
+    severity: minor
+    what: "paper-to-test-data's SKILL.md is a single-paragraph procedure ('read freeform-summary, derive test inputs/outputs') with no packaged Load-On-Demand references and no guidance at all for the ordinary case this run hit: the paper's own named datasets (kmindex Logan shards, LexicMap Logan indices) are production/external-service scale and cannot become a fast test fixture as named. Its next-in-chain sibling, find-test-data, packages exactly this guidance -- references/notes/iwc-test-data-conventions.md's 'small is a documented subset of a real source, not a fabricated stand-in' rule, plus an explicit step to search IWC/Tool-Shed fixtures when the source's own named data is the wrong shape/scale. Run head-to-head on the same freeform-summary (this run's phix174 kmindex/LexicMap workflow), paper-to-test-data alone could only restate the summary's already-flagged gaps, while find-test-data's packaged convention led directly to real, reusable, already-committed Tool-Shed test-data (galaxyproject/tools-iuc tools/kmindex/test-data and tools/lexicmap/test-data) that resolved the equivalent structural fixture."
+    expected: "paper-to-test-data should either package the same scoping-down / prefer-upstream-test-fixture guidance find-test-data has (so it is not systematically the weaker half of its own declared fallback chain for any workflow with externally-hosted/production-scale reference data), or its own doc should say explicitly when to fall through early (e.g. 'when the paper's cited data is production/external-service scale and not itself a downloadable fixture, this skill's output should mark those inputs resolved: false and the caller should proceed to find-test-data without re-deriving from the same summary') rather than leaving that judgment entirely to the calling harness."
+    evidence: "This run (draft-manuscript-galaxy, phase 7): freeform-summary.md names 109 kmindex Logan shards and up to 25 LexicMap Logan indices (Stage B/C) as the workflow's reference-data universe, all hosted only at usegalaxy.org production scale; paper-to-test-data's procedure and references gave no path to anything smaller. find-test-data's iwc-test-data-conventions.md note, read for the same task, pointed directly at checking the pinned tools' own Tool Shed test-data directories, which surfaced real, already-CI-tested small fixtures (tools-iuc kmindex_query.xml test #6 'using register index', lexicmap.xml tests #3/#4/#6) usable as structural smoke-test data for this workflow's kmindex_containment_screen and lexicmap_search steps. Not blocking this run (the harness's own branch protocol tries both skills in order), but paper-to-test-data contributed no incremental value beyond a plain re-read of freeform-summary.md for this workflow's two hardest inputs."
+    status: filed
+    issue: https://github.com/galaxyproject/foundry/issues/575
+
+  - id: galaxy-workflow-test-plan-schema-fixture-required-for-scalar-typed-params
+    raised_by: freeform-summary-to-galaxy-test-plan
+    observed_in:
+      mold:
+        name: freeform-summary-to-galaxy-test-plan
+        path: content/molds/freeform-summary-to-galaxy-test-plan/index.md
+        revision: 2
+        content_hash: 9c1d56e625a5dd26cb7a82082ac8f4eeb7db287a626bf00e73457c8dd491ad6d
+        foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: schema
+      label: galaxy-workflow-test-plan (JobInput/Fixture $defs)
+      locator: "package://@galaxy-foundry/gxwf-foundry#galaxyWorkflowTestPlanSchema"
+      content_hash: 325e9cf1bb5e075fa818dc68868647de95389ca8df8581ee8cf1e2be61196e37
+    kind: gap
+    severity: minor
+    what: "JobInput.fixture is required (non-optional) and always resolves to the Fixture $def, whose four fields (storage, location, checksum, provenance) and whose enum for `storage` (remote-url, in-repo, cvmfs-string, generated-toy, unresolved, null) are all phrased in file/collection-fixture terms. Neither the schema's own field descriptions nor any packaged on-demand note (iwc-test-data-conventions.md, planemo-asserts-idioms.md, galaxy-workflow-testability-design.md) says what to do for a JobInput that is a plain typed scalar workflow parameter (int, float, boolean, or a text param carrying a literal default, e.g. this workflow's kmindex_zvalue=6 or tiling_qc_allow_frameshifts=false) rather than a file or collection. iwc-test-data-conventions.md section 5 covers only the CVMFS/.loc 'bare string matching a data-table value' case, which is a different shape again (a reference-data selector, not an arbitrary typed parameter default)."
+    expected: "Either make `fixture` on JobInput conditionally optional/nullable-as-a-whole when the input is a plain scalar parameter (not a file/collection/data-table selector), or add an explicit Fixture convention for this case (e.g. storage: null with the literal default value carried in `location`, as this plan did) so different Molds/runs do not each invent their own encoding for the same common situation."
+    evidence: "This run's workflow (galaxy-workflow.gxwf.yml) declares 15 workflow inputs, of which 12 are plain typed scalars with literal pinned defaults (kmindex_zvalue, kmindex_threshold, kmindex_output_format, kmindex_fast, lexicmap_top_n_genomes, lexicmap_advanced_all, and the 6 tiling_qc_* params). Each needed a JobInput entry (required by the TestCase schema) whose required `fixture` object has no natural file/location/checksum reading. Absent any documented convention, this plan used `storage: null` with the default value's string form placed in `location`, and `provenance` noting 'workflow default, per galaxy-workflow.gxwf.yml default' -- a reasoned choice, not a documented one."
+    status: filed
+    issue: https://github.com/galaxyproject/foundry/issues/576
+
+  - id: freeform-summary-to-galaxy-test-plan-silent-on-concrete-draft-and-test-data-refs-inputs
+    raised_by: freeform-summary-to-galaxy-test-plan
+    observed_in:
+      mold:
+        name: freeform-summary-to-galaxy-test-plan
+        path: content/molds/freeform-summary-to-galaxy-test-plan/index.md
+        revision: 2
+        content_hash: 9c1d56e625a5dd26cb7a82082ac8f4eeb7db287a626bf00e73457c8dd491ad6d
+        foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: freeform-summary-to-galaxy-test-plan
+      locator: content/molds/freeform-summary-to-galaxy-test-plan/index.md
+      content_hash: 9c1d56e625a5dd26cb7a82082ac8f4eeb7db287a626bf00e73457c8dd491ad6d
+    kind: gap
+    severity: minor
+    what: "The Mold's declared Inputs (freeform-summary, freeform-galaxy-interface, freeform-galaxy-data-flow, iwc-comparison-notes, iwc-exemplar-gxformat2) and its 'Labels and fixtures are assumed, not bound' procedure section both describe this skill as operating only against template-era briefs, directing label_status: assumed and workflow.label_source: interface-brief in every case. Nothing in the Mold's own SKILL.md anticipates or documents the case actually encountered in this run: a concrete gxformat2 workflow draft and resolved test-data-refs artifact already existed in the harness run-state by phase 8 and were handed to this invocation as extra grounding context, with an explicit instruction to keep the plan consistent with them. The Mold gives no guidance on whether `label_source` should then be 'draft' (since a concrete draft actually was read) or 'interface-brief' (since that is this Mold's only documented input class), nor on how `label_status` should reflect a label that was cross-checked against a real draft rather than merely assumed from a brief."
+    expected: "Document an optional grounding-input case in this Mold's Inputs/Procedure: when a caller also supplies the concrete workflow draft and/or resolved test-data refs (as changeset-to-galaxy-test-plan and the *-test-to-galaxy-test-plan siblings already do for their own analogous 'carry forward' cases), state explicitly which `label_source` and `label_status` values apply, and how far the plan may rely on those artifacts before that reliance should instead be deferred to implement-galaxy-workflow-test's own workflow-label cross-check."
+    evidence: "This run's harness passed galaxy-workflow.gxwf.yml (the concrete 9-step draft) and test-data-refs.json (phase 7's resolved gene E/J test-data scoping) as additional context alongside this Mold's normal declared inputs, with an instruction to avoid contradicting them. Absent any packaged guidance for this hybrid situation, this plan set workflow.label_source: draft and label_status: resolved throughout (since every label was in fact read from and matches the concrete draft's own ids), which is a reasoned but undocumented departure from the Mold's own stated 'assumed'/'interface-brief' default behavior."
+    status: filed
+    issue: https://github.com/galaxyproject/foundry/issues/577
+
+  - id: tests-format-job-schema-has-no-path-to-an-intermediate-step-input-port
+    raised_by: implement-galaxy-workflow-test
+    observed_in:
+      mold:
+        name: implement-galaxy-workflow-test
+        path: content/molds/implement-galaxy-workflow-test/index.md
+        revision: 8
+        content_hash: 966c486ccda2eb1e0f06afa674c5d6b85a7e7bfcc9b1545309e3ef8b1016f931
+        foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: schema
+      label: "tests-format (Job / TestJob $defs)"
+      locator: "package://@galaxy-foundry/gxwf-foundry#testsFormatSchema"
+      content_hash: ff0de5041f4c3de0ab7abe9e7555c5a7120665b077f42661461301b0fb26f372
+    kind: gap
+    severity: major
+    what: "The harness's phase-9 task instruction directed constructing a synthetic LexicMap hits TSV and 'wiring it as the lexicmap_results input the test case feeds toward lexicmap_streamer_tiling_qc' so the am3 assertions would be checkable end-to-end. But lexicmap_results is not a top-level workflow input on galaxy-workflow.gxwf.yml -- it is wired to an internal step output (lexicmap_search/out_file). The tests-format schema's `Job` $def (`TestJob.job`) is `additionalProperties: <value-types>` with no structural provision for keying a value to anything but a top-level workflow input label, and the packaged planemo-workflow-test-architecture.md / planemo-asserts-idioms.md notes describe Planemo's `job:` block exclusively in terms of workflow-level inputs. There is no documented (or apparently possible) tests-format mechanism to inject a value onto an intermediate step's input port for a whole-workflow test."
+    expected: "Either document explicitly (in tests-format's schema description or in planemo-workflow-test-architecture.md) that a synthetic fixture for an internal step is NOT expressible via `job:` and must instead be pursued via a real registered index/data-table entry or a separate component/tool-level test -- so a Mold is not directed to do something the format cannot express -- or, if Planemo/Galaxy actually has an undocumented mechanism for this (e.g. a `--test_index`-scoped step-parameter override), document and cite it."
+    evidence: "This run: after confirming (by reading tests-format.schema.json's Job/TestJob $defs directly) that job keys can only bind workflow-level input labels, test case gene_e_j_am3_diagnostic_synthetic_lexicmap_index in galaxy-workflow.gxwf-tests.yml could not literally wire the synthetic hits TSV onto lexicmap_streamer_tiling_qc's lexicmap_results port. The synthetic fixture was instead staged under test-data/synthetic_am3/ and its expected effects validated by directly executing the real vendored lexicmap_streamer.py script outside of Planemo, with lexicmap_index_selection left as a documented placeholder pending real index construction (galaxy-test-plan.yml unresolved[0]/[1])."
+    status: filed
+    issue: https://github.com/galaxyproject/foundry/issues/578
+
+  - id: tests-format-schema-silent-on-sample-sheet-column-definitions-shape
+    raised_by: implement-galaxy-workflow-test
+    observed_in:
+      mold:
+        name: implement-galaxy-workflow-test
+        path: content/molds/implement-galaxy-workflow-test/index.md
+        revision: 8
+        content_hash: 966c486ccda2eb1e0f06afa674c5d6b85a7e7bfcc9b1545309e3ef8b1016f931
+        foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: research
+      label: iwc-test-data-conventions (Collection.rows / sample_sheet shape)
+      locator: content/research/iwc-test-data-conventions/index.md
+      content_hash: 1921e939703444604440e0768caca6e6b834a73dcfa964f450fa081143e008d3
+    kind: gap
+    severity: minor
+    what: "galaxy-workflow.gxwf.yml's primary input, gene_query_panel, is `collection_type: sample_sheet` with 4 optional per-element `column_definitions` (the per-gene LexicMap sensitivity overrides). tests-format.schema.json's `Collection` $def does carry a `rows` field (additionalProperties: column-name -> array) seemingly meant for exactly this, but neither iwc-test-data-conventions.md (this skill's authoritative note on job/input YAML shapes, which documents List/Paired/list:paired/list:list:paired/composite_data in detail) nor any other packaged note mentions `sample_sheet`, `column_definitions`, or `rows` at all, and a corpus grep for these terms across the whole skill bundle returns nothing beyond the bare schema field."
+    expected: "Add a worked `sample_sheet` + `rows:` example to iwc-test-data-conventions.md (or a note it references) alongside the existing collection-shape sections, so a Mold does not have to infer the shape from the schema's generic field alone."
+    evidence: "galaxy-workflow.gxwf-tests.yml's test case 2 encodes gene_query_panel's per-gene align_min_match_pident/align_min_match_len/seed_min_prefix/min_qcov_per_genome overrides as `rows: {align_min_match_pident: [60.0, null], ...}` alongside `elements:` -- a reasoned best-effort construction against the bare schema field, passing `gxwf validate-tests --workflow` cleanly, but with no corpus precedent to confirm it is actually what Planemo/Galaxy expects at runtime."
+    status: filed
+    issue: https://github.com/galaxyproject/foundry/issues/579
+
+  - id: galaxy-workflow-frame-comments-missing-position-size-rejected-by-real-galaxy-import
+    raised_by: implement-galaxy-workflow-test
+    observed_in:
+      mold:
+        name: implement-galaxy-workflow-test
+        path: content/molds/implement-galaxy-workflow-test/index.md
+        revision: 8
+        content_hash: 966c486ccda2eb1e0f06afa674c5d6b85a7e7bfcc9b1545309e3ef8b1016f931
+        foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: related-project
+      label: "Galaxy (galaxyproject/galaxy) WorkflowCommentModel vs. this pipeline's gxformat2 `comments: type: frame` authoring"
+      locator: "galaxyproject/galaxy: lib/galaxy/model/__init__.py (WorkflowCommentModel), lib/galaxy/managers/workflows.py (_workflow_from_raw_description)"
+    kind: gap
+    severity: major
+    what: "Attempting `planemo test --test_index 1 --install_galaxy galaxy-workflow.gxwf.yml` (a bounded attempt at the second validation step of this phase) failed before any test data was staged or any tool was run: Galaxy's real workflow-import API rejected galaxy-workflow.gxwf.yml with HTTP 400, 'Field required in (\"frame\",\"position\")' and 'Field required in (\"frame\",\"size\")'. The workflow's own `comments:` block (4 `type: frame` entries grouping steps into Stage A/B/C/D2, e.g. `{type: frame, label: 'Stage A — input assembly', title: ..., contains_steps: [...]}`) carries no `position`/`size` fields, which real Galaxy's WorkflowCommentModel requires for any frame-type comment. This means the concrete workflow produced by earlier phases (advance-galaxy-draft-step / freeform-summary-to-galaxy-template, whichever Mold first authored these frame comments) is schema-valid enough to pass this pipeline's own `gxwf draft-validate --concrete` gate but is NOT actually importable into a real Galaxy instance."
+    expected: "Whichever Mold/reference documents the gxformat2 `comments: type: frame` shape should require (or default) `position: {x, y}` and `size: {width, height}` fields, and `gxwf draft-validate`/`validate-galaxy-workflow` should be extended to catch this class of real-Galaxy-only requirement before a Planemo run discovers it at import time."
+    evidence: "Full traceback captured during this phase's `planemo test` attempt: bioblend.ConnectionError: Unexpected HTTP status code: 400, pydantic_core ValidationError 'WorkflowCommentModel: frame.position Field required, frame.size Field required', raised from galaxy.managers.workflows.build_workflow_from_raw_description -> model.WorkflowComment.from_dict on the first frame comment `{id:0, type:frame, data:{title:'Stage A — input assembly'}, child_steps:[15], label:'Stage A — input assembly'}`. This blocked test case 1 before tool installation/dependency resolution was ever reached, so it was not possible to determine whether the kmindex/lexicmap/UDT tool chain itself would install and run cleanly."
+    status: filed
+    issue: https://github.com/galaxyproject/foundry/issues/580
+
+  - id: gxwf-validate-connections-flag-crashes-uncaught-on-format2-dict-shaped-step-in
+    raised_by: validate-galaxy-workflow
+    observed_in:
+      mold:
+        name: validate-galaxy-workflow
+        path: content/molds/validate-galaxy-workflow/index.md
+        revision: 5
+        content_hash: 74e3743fc376f33c1eb37832ab4869c327d48f87e015c7a38597cf4c4ca939cd
+        foundry_head: 79bf5c3ab98eec3a67948d8bdebb9dba7d8a2359
+    subject:
+      kind: related-project
+      label: "galaxy-tool-util-ts / @galaxy-tool-util/cli (gxwf validate --connections) -- normalized-workflow-to-native step builder"
+      locator: "https://github.com/jmchilton/galaxy-tool-util-ts (packages/schema, workflow/normalized/toNative.js:429 _extractConnections; packages/connection-validation, graph-builder.js; @galaxy-tool-util/cli@1.10.1)"
+    kind: defect
+    severity: major
+    what: "`gxwf validate galaxy-workflow.gxwf.yml --json --connections` (and the same with `--strict` added) crashes with an uncaught `TypeError: step.in is not iterable` at `toNative.js:429` (`_extractConnections`, called from `_buildToolStep` -> `_buildStep` -> `_buildNativeWorkflow` -> `toNative` -> `_coerceNormalizedNative` -> `buildWorkflowGraph` -> `validateConnectionsReport` -> `buildConnectionReport`), exits 1, and emits no JSON report at all -- not even a `connection_report: null` degrade the way tool-state fetch failures degrade to `skip_tool_not_found`. This workflow's every step's `in:` is an ordinary gxformat2 mapping (`{port_name: source, ...}`, e.g. `in: {input_list: gene_query_panel}`), the standard and only shape gxformat2's own schema documents for step connections (see this same run's `gxformat2-schema-missing-nested-in-key-convention` entry, which independently confirms and cites this `in:` mapping shape). `_extractConnections`'s `for (const stepInput of step.in)` expects `step.in` to already be an array (the native-format shape), so any format2 workflow with a normal dict-shaped `in:` reaching this code path crashes rather than being converted."
+    expected: "`_extractConnections` (or its caller) should convert a format2 dict-shaped `step.in` into the array shape it expects before iterating -- the same normalization `toNative` already performs successfully for the plain `gxwf validate` (no `--connections`) path, since that path reads this exact workflow's steps without error. `gxwf validate --connections` should either work on an ordinary format2 workflow or fail gracefully (a caught, reported error in the JSON `connection_report` field, matching the tool-state fetch failure's graceful `skip_tool_not_found` degrade) rather than throwing an uncaught exception that discards the entire report."
+    evidence: "Reproduced directly this phase: `gxwf validate galaxy-workflow.gxwf.yml --json --connections` and `gxwf validate galaxy-workflow.gxwf.yml --json --connections --strict` both exit 1 with the identical stack trace, no stdout JSON at all (the process crashes before writing the report object). `gxwf validate galaxy-workflow.gxwf.yml --json --strict` (same workflow, same flags minus `--connections`) exits 0 and produces a full JSON report (5 ok / 0 fail / 4 skip). This skill's own SKILL.md directs using `--connections` 'when tool cache metadata is available and data-shape compatibility matters, especially around collections and map-over' -- squarely this workflow's shape (9 steps, heavy collection map-over across kmindex/lexicmap/UDT steps) -- so the flag's total unusability here is a real, non-hypothetical gap, not an edge case. Worked around by validating without `--connections` and recording collection/map-over shape compatibility as a residual runtime risk instead."
+    status: filed
+    issue: https://github.com/galaxyproject/foundry/issues/581
+
+  - id: run-workflow-test-no-mechanism-to-install-authored-galaxyusertool-udts
+    raised_by: run-workflow-test
+    observed_in:
+      mold:
+        name: run-workflow-test
+        path: content/molds/run-workflow-test/index.md
+        revision: 6
+        content_hash: unavailable-in-cast
+        foundry_head: 79bf5c3ab98eec3a67948d8bdebb9dba7d8a2359
+    subject:
+      kind: mold
+      label: run-workflow-test
+      locator: content/molds/run-workflow-test/index.md
+    kind: gap
+    severity: major
+    what: "Neither run-workflow-test's own packaged references (planemo.md, planemo-workflow-test-architecture.md, planemo-asserts-idioms.md, galaxy-workflow-invocation-failure-reference.md) nor author-galaxy-tool-wrapper's (which explicitly states its output is 'a single GalaxyUserTool YAML document, not Galaxy XML') document any mechanism by which a locally-authored GalaxyUserTool YAML definition (no Tool Shed presence) is supposed to reach a Planemo-managed Galaxy's toolbox for a workflow test run. `planemo test`'s only documented tool-injection option, `--extra_tools <file|directory>`, was tried against a directory holding this run's 3 UDT YAML files; planemo emits a `<tool_dir dir=\"...\">` entry into the generated tool_conf.xml (confirmed by reading the generated file directly), and Galaxy's toolbox parses that tool_conf.xml, but Galaxy's classic `tool_dir` scanner only auto-discovers XML tool wrappers -- zero log lines anywhere reference any of the 3 UDT ids/files, and the subsequent real workflow-invocation attempt's HTTP 400 explicitly lists `lexicmap_streamer (version 1.0.0)`, `flatten_gene_summary_json_to_row (version 1.0.0)`, and `kmindex_hit_dedup_max_score (version 1.0.0)` among the 'required tools are not installed', proving the toolbox never registered them at all."
+    expected: "Either document a real, working path for a GalaxyUserTool YAML to reach a Planemo-managed toolbox for testing (e.g. a `gxwf`/`galaxy-tool-util` command that lowers `class: GalaxyUserTool` to a classic Galaxy tool XML + script directory that `--extra_tools` can actually load, or an alternate Planemo/Galaxy API this skill bundle should cite), or state explicitly in run-workflow-test's own procedure that an authored UDT with no such lowering step is expected to fail tool-shed/toolbox resolution in a real Planemo run and name the concrete blocking condition as `not-run`/`fail`-with-tool-install-modality rather than leaving the caller to discover this empirically."
+    evidence: "Phase 11 of this run (draft-manuscript-galaxy). Copied the 3 UDT YAMLs (galaxy-user-tool.yml, galaxy-user-tool-flatten-gene-summary.yml, galaxy-user-tool-kmindex-hit-dedup-max-score.yml) into a scratch directory and passed it via `planemo test --extra_tools <dir> --install_galaxy --test_index 2 ...`. Verified the generated tmp tool_conf.xml contained `<tool_dir dir=\".../udt-tools\" />`; grepped both this run's planemo-test1.log and planemo-test2.log for the 3 UDT ids/filenames/`GalaxyUserTool` and found zero matches anywhere in either log. The subsequent workflow-invocation attempt for test case 2 (`POST /api/workflows/.../invocations` -> HTTP 400) returned `err_msg: \"Workflow was not invoked; the following required tools are not installed: ... lexicmap_streamer (version 1.0.0), flatten_gene_summary_json_to_row (version 1.0.0), kmindex_hit_dedup_max_score (version 1.0.0), ...\"`, confirming the toolbox has no record of these 3 tool ids under any mechanism this run attempted."
+    status: filed
+    issue: https://github.com/galaxyproject/foundry/issues/582
+
+  - id: galaxy-tool-util-replacement-collection-requires-rows-key-unconditionally
+    raised_by: run-workflow-test
+    observed_in:
+      mold:
+        name: run-workflow-test
+        path: content/molds/run-workflow-test/index.md
+        revision: 6
+        content_hash: unavailable-in-cast
+        foundry_head: 79bf5c3ab98eec3a67948d8bdebb9dba7d8a2359
+    subject:
+      kind: related-project
+      label: "galaxy-tool-util (galaxy.tool_util.cwl.util.replacement_collection) -- Planemo job-input staging for sample_sheet collections"
+      locator: "https://github.com/galaxyproject/galaxy (packages/tool_util, lib/galaxy/tool_util/cwl/util.py, galaxy-tool-util==25.1.2, vendored into planemo==0.75.47)"
+    kind: defect
+    severity: major
+    what: "`galaxy.tool_util.cwl.util.replacement_collection()` (the function Planemo's `stage_in`/`galactic_job_json` path uses to turn a tests-format `job:` Collection value into a Galaxy HDCA-creation payload) contains `if collection_type.startswith(\"sample_sheet\"): kwds[\"rows\"] = value[\"rows\"]` -- an unconditional dict-index (not `.get()`) on the job value's optional `rows` key. tests-format.schema.json's own `Collection` $def does not require `rows` (this workflow's own test case 1, `kmindex_wiring_smoke_generic_fixtures`, intentionally omits it -- 'not meaningful for generic non-phiX174 fixture content' -- and that test file already passed `gxwf validate-tests --workflow ... --json` cleanly with `rows` absent). Any `sample_sheet`-typed Collection job input that legitimately omits `rows` therefore crashes Planemo's staging step with an uncaught `KeyError: 'rows'` before any Galaxy invocation is even created, rather than surfacing as a graceful assertion/staging-problem report."
+    expected: "`replacement_collection` should use `kwds[\"rows\"] = value.get(\"rows\", {})` (or omit the key entirely when absent, if Galaxy's collection-create API tolerates a missing `rows`), matching the tests-format schema's own treatment of `rows` as optional for a `sample_sheet` Collection value."
+    evidence: "Reproduced directly this phase: `planemo test --install_galaxy --test_index 1 --extra_tools <dir> galaxy-workflow.gxwf.yml` crashed with `execution_problem: \"'rows'\"`, `status: \"error\"`, `invocation_details: null`, `job: null` in the structured `tool_test_output.json` -- i.e. staging failed before any Galaxy invocation existed. Full traceback: `planemo/galaxy/activity.py:441 stage_in -> galaxy/tool_util/client/staging.py:275 stage -> galaxy/tool_util/cwl/util.py:388 galactic_job_json -> :234 replacement_item -> :362 replacement_collection -> KeyError: 'rows'`. Confirmed the isolating variable by contrast: test case 2 (`gene_e_j_am3_diagnostic_synthetic_lexicmap_index`), whose `gene_query_panel` Collection DOES carry a `rows:` block, staged past this exact code path without error in the immediately following run and reached a real (differently-failing) workflow-invocation attempt. Installed package confirmed at `galaxy_tool_util-25.1.2.dist-info` under planemo 0.75.47's own venv."
+    status: filed
+    issue: https://github.com/galaxyproject/foundry/issues/583
+
+  - id: galaxy-workflow-invocation-check-rejects-previously-installed-tool-as-not-installed
+    raised_by: debug-galaxy-workflow-output
+    observed_in:
+      mold:
+        name: debug-galaxy-workflow-output
+        path: content/molds/debug-galaxy-workflow-output/index.md
+        revision: 5
+        content_hash: 100b3f985f8e309092bfd05cf544a8286e0a878ee2df3a155dfebe6fcdb286f0
+        foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: research
+      label: galaxy-workflow-invocation-failure-reference
+      locator: content/research/galaxy-workflow-invocation-failure-reference/index.md
+      content_hash: e8115df6ddca447d47d77cb33becda847cdd19b2cbe9924782bfc180b94bb451
+    kind: gap
+    severity: major
+    what: "The note's 'Request-time validation' surface (API error before a useful invocation state exists, e.g. an HTTP 400 'required tools are not installed') gives no guidance on how to tell a genuine per-tool dependency/installation failure apart from a toolbox-state read that is stale relative to the just-completed install/reload cycle. This phase found a concrete, reproducible tell that the note doesn't mention: in this run's test 2, `planemo-test2.log:292` shows `collapse_collections` (providing `collapse_dataset`) was *skipped* for reinstall because its cached status was already 'Installed' -- no fresh clone, no fresh dependency resolution occurred for it this run -- yet the subsequent `POST /api/workflows/.../invocations` 400 (`planemo-test2.log:1775-1796`) still lists `collapse_dataset` among the 'not installed' tools, 54 seconds later, alongside 3 real freshly-cloned Tool Shed tools and 3 never-installable UDTs. A tool with a confirmed pre-existing good install status being rejected is strong evidence the invocation-validation check read stale/incomplete toolbox state rather than a real, current dependency failure for that specific tool -- but nothing in this note documents 'a previously-Installed repository still appearing in the not-installed list' as a diagnostic signal for this class of race, so the classification had to be reconstructed ad hoc from Galaxy install-manager log lines rather than a documented reference path."
+    expected: "Add this diagnostic tell to the 'Request-time validation' row (or a new row) in galaxy-workflow-invocation-failure-reference.md: when a tool listed as 'not installed' in a request-time 400 has a repository install-manager log line showing its install was skipped because it was already 'Installed' from a prior/cached run, that is evidence of a toolbox-state read/reload-timing defect rather than a genuine dependency-resolution failure for that tool, and should route debugging toward Galaxy's toolbox-reload/tool-availability-check code path rather than toward the wrapper's conda requirements."
+    evidence: "draft-manuscript-galaxy phase 12. `planemo-test2.log:292`: \"Skipping installation of revision 90981f86000f of repository 'collapse_collections' because it was installed with the (possibly updated) revision 90981f86000f and its current installation status is 'Installed'.\" `planemo-test2.log:1775,1796`: `POST /api/workflows/961e7c4742a92de4/invocations HTTP/1.1 400` with `err_msg` listing `collapse_dataset (version 5.1.0)` among 7 'not installed' tools. Last logged `reload_toolbox` control-task cycle completes at `11:50:13,808`; the invocation POST fires at `11:50:58,531`, 45s later -- ruling out an in-flight reload as the immediate cause and pointing instead at how the invocation-validation code path sources its toolbox snapshot."
+    status: filed
+    issue: https://github.com/galaxyproject/foundry/issues/584
+
+  - id: galaxy-udt-registration-real-endpoint-is-unprivileged-tools-not-dynamic-tools
+    raised_by: run-workflow-test
+    observed_in:
+      mold:
+        name: run-workflow-test
+        path: content/molds/run-workflow-test/index.md
+        revision: 7
+        content_hash: 259675e41c65f7622049cc9ef5f64b7d9f7ac5edb005555a09045e747708218c
+        foundry_head: 79bf5c3ab98eec3a67948d8bdebb9dba7d8a2359
+    subject:
+      kind: related-project
+      label: "Galaxy core (lib/galaxy/webapps/galaxy/api) -- dynamic-tool registration endpoints"
+      locator: "https://github.com/galaxyproject/galaxy (lib/galaxy/webapps/galaxy/api/dynamic_tools.py, lib/galaxy/webapps/galaxy/api/tools.py)"
+    kind: gap
+    severity: major
+    what: "This run's earlier entry (run-workflow-test-no-mechanism-to-install-authored-galaxyusertool-udts) found no way to load a GalaxyUserTool YAML into a Planemo-managed toolbox and, separately, `POST /api/dynamic_tools` against a real production Galaxy instance (usegalaxy.org) returned HTTP 403 ('You must be an administrator to access this feature'). Neither run-workflow-test's nor author-galaxy-tool-wrapper's packaged references mention that Galaxy exposes a SEPARATE, non-admin-gated endpoint for exactly this: `POST /api/unprivileged_tools`, gated only by a `USER_TOOL_EXECUTE` role plus the instance's `enable_beta_tool_formats` config flag (both satisfied by an ordinary usegalaxy.org account). A regular user's own GalaxyUserTool YAML (converted to the JSON body that endpoint expects) registers there successfully and becomes a real, invocable, user-scoped dynamic tool with a `tool_uuid`."
+    expected: "author-galaxy-tool-wrapper and/or run-workflow-test should document `POST /api/unprivileged_tools` as the real-Galaxy registration path for an authored GalaxyUserTool (distinct from the admin-only `/api/dynamic_tools`), including its role/config gating (`USER_TOOL_EXECUTE`, `enable_beta_tool_formats`) and that a successful registration returns a `tool_uuid` a workflow step must reference (see the companion entry on gxformat2 not modeling `tool_uuid`) rather than a bare `tool_id` string."
+    evidence: "draft-manuscript-galaxy, post-pipeline deploy step. `POST https://usegalaxy.org/api/dynamic_tools` with a GalaxyUserTool-derived body -> HTTP 403 admin-required. `POST https://usegalaxy.org/api/unprivileged_tools` with the same tool content (after fixing a separate lint defect, see the companion `value: 0` entry) -> 200, returning a real `tool_uuid` for each of this run's 3 UDTs (lexicmap_streamer, flatten_gene_summary_json_to_row, kmindex_hit_dedup_max_score), later confirmed resolvable with zero step errors via `GET /api/workflows/{id}/download` once wired into the imported workflow."
+    status: filed
+    issue: https://github.com/galaxyproject/foundry/issues/585
+
+  - id: galaxy-workflow-import-enforces-undocumented-per-field-length-limit-on-step-doc
+    raised_by: freeform-summary-to-galaxy-template
+    observed_in:
+      mold:
+        name: freeform-summary-to-galaxy-template
+        path: content/molds/freeform-summary-to-galaxy-template/index.md
+        revision: 6
+        content_hash: 0a95f8c04465d48131ace523e0b27af53f1ade6e525a9173c5ff1e936ddc3366
+        foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: related-project
+      label: "Galaxy core -- POST /api/workflows gxformat2 import, step doc/annotation field"
+      locator: "https://github.com/galaxyproject/galaxy (workflow import/gxformat2 conversion path)"
+    kind: defect
+    severity: major
+    what: "A real Galaxy instance (usegalaxy.org, 26.1.2.dev0) rejects `POST /api/workflows` with an opaque, tracebackless HTTP 500 when any step's `doc:` (annotation) field exceeds a real, undocumented length limit. Bisected directly against the live endpoint: a step `doc` of 2000 characters imports fine; 2398 characters 500s; the limit sits at exactly 2048 characters. Neither `gxwf draft-validate`/`gxwf validate` (both passed clean, repeatedly, on the same file) nor galaxy-workflow-draft-format's or gxformat2-schema's packaged notes model or enforce any such limit -- this run's `freeform-summary-to-galaxy-template` output (and later advance-galaxy-draft-step iterations folding `_plan_context` rationale into `doc:` per that skill's own 'a resolved step carries no _plan_* fields' rule) produced 5 step `doc` fields well over 2048 characters, all invisible to every static check available in this toolchain, only surfacing as a bare 500 at real-Galaxy import time."
+    expected: "gxwf's draft-validate/validate should check step (and workflow-level) `doc`/`annotation` field length against Galaxy's real limit (~2048 chars, worth confirming the exact DB column width upstream) and fail with a clear diagnostic naming the offending step and its length, rather than letting a workflow pass all local validation and then 500 opaquely at real-Galaxy import. Separately, freeform-summary-to-galaxy-template's convention of folding full authoring/discovery provenance into a step's `doc:` field (rather than only in the run's own ledgers) should be revised to keep `doc:` short and put full provenance in open-requirements/feedback ledger entries instead, given this real, silent ceiling."
+    evidence: "draft-manuscript-galaxy, post-pipeline deploy step. Direct `POST /api/workflows` bisection against https://usegalaxy.org/api/workflows: doc length 2000 -> 200 OK; 2398 -> 500 'Uncaught exception in exposed API method' (no traceback surfaced to the client); 2048 -> 200 OK. Trimmed 5 oversized step `doc` fields in galaxy-workflow.gxwf.yml (kmindex_hit_dedup_max_score, lexicmap_streamer_tiling_qc, and 3 others) from full authoring-provenance prose down to concise summaries, after which the same workflow imported successfully."
+    status: filed
+    issue: https://github.com/galaxyproject/foundry/issues/564#issuecomment-5733272414
+
+  - id: galaxy-unprivileged-tools-lint-crashes-on-integer-input-default-value-zero
+    raised_by: author-galaxy-tool-wrapper
+    observed_in:
+      mold:
+        name: author-galaxy-tool-wrapper
+        path: content/molds/author-galaxy-tool-wrapper/index.md
+        revision: 5
+        content_hash: cced8f068cd1ce81fefad23a62fdb4d52b3ce805b2231f64a7fe37f258bc1e09
+        foundry_head: ac92d2713fb01b07049027e584b8610e07c88d82
+    subject:
+      kind: related-project
+      label: "Galaxy core -- POST /api/unprivileged_tools tool-creation lint (TestsCaseValidation)"
+      locator: "https://github.com/galaxyproject/galaxy (unprivileged dynamic-tool creation / tool linting path)"
+    kind: defect
+    severity: minor
+    what: "Galaxy's real tool-creation lint on `POST /api/unprivileged_tools` (invoked via `input_models_for_tool_source` / `TestsCaseValidation`) throws an uncaught, unhelpfully-reported exception ('TestsCaseValidation ... exception is []', no further detail) when a GalaxyUserTool integer input declares `value: 0` as its default -- confirmed by bisecting the tool's own input list live against the real endpoint: identical input with `value: 1` registers successfully, `value: 0` fails every time. galaxy-user-tool-authoring.md (author-galaxy-tool-wrapper's own packaged reference) documents the `value:` field for scalar inputs generally but does not warn that a literal `0` default on an integer input is unsupported."
+    expected: "Either fix Galaxy's lint to handle a zero-valued integer default (the underlying bug), or, until fixed, have galaxy-user-tool-authoring.md warn against declaring `value: 0` on an integer/float UDT input and recommend omitting the default (relying on the step's own explicit wired value) when zero is the semantically correct default."
+    evidence: "draft-manuscript-galaxy, post-pipeline deploy step. `POST https://usegalaxy.org/api/unprivileged_tools` with the `lexicmap_streamer` UDT (max_internal_stops integer input, `value: 0`) -> HTTP 400, opaque lint exception. Removing the `value: 0` default from that one input (workflow always supplies it explicitly anyway) -> 200 OK, tool registered with a real `tool_uuid`. Re-added the same field with `value: 1` on a throwaway test copy to confirm the value itself (not the field's mere presence) was the trigger."
+    status: filed
+    issue: https://github.com/galaxyproject/foundry/issues/586
+
+  - id: gxformat2-step-schema-does-not-model-tool-uuid-for-dynamic-tool-resolution
+    raised_by: freeform-summary-to-galaxy-template
+    observed_in:
+      mold:
+        name: freeform-summary-to-galaxy-template
+        path: content/molds/freeform-summary-to-galaxy-template/index.md
+        revision: 6
+        content_hash: 0a95f8c04465d48131ace523e0b27af53f1ade6e525a9173c5ff1e936ddc3366
+        foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: related-project
+      label: "gxformat2 schema / Galaxy workflow import -- dynamic-tool step resolution"
+      locator: "https://github.com/galaxyproject/gxformat2 (step schema), https://github.com/galaxyproject/galaxy (native .ga workflow-step tool_uuid resolution)"
+    kind: gap
+    severity: major
+    what: "A gxformat2 workflow step referencing a real, registered user-scoped dynamic tool (via `POST /api/unprivileged_tools`, see the companion endpoint entry) by bare `tool_id` string alone imports and round-trips (`gxwf convert`) without ever populating or requiring a `tool_uuid` -- but real Galaxy's step-to-tool resolution for a dynamic/unprivileged tool requires the native `.ga` JSON step to carry that tool's real `tool_uuid` explicitly; a bare `tool_id` never resolves to a user-scoped dynamic tool even after it is successfully registered and even though the same `tool_id` string is correct. This left all 3 UDT steps showing 'Tool is not installed' after a clean gxformat2 import, with no schema-level signal of what was missing. Compounded by a second, already-ledgered gxwf defect (`step.in is not iterable` on `gxwf convert`), which blocked using gxwf itself to do the format2->native conversion+injection, forcing a workaround via Galaxy's own `/api/workflows/{id}/download` to get native JSON, hand-inject the 3 real `tool_uuid`s, and re-`POST` that native form."
+    expected: "Either extend the gxformat2 step schema/galaxy-workflow-draft-format to model an optional `tool_uuid` field (populated once a dynamic/UDT tool is registered) so a template/draft can carry it through the normal Foundry pipeline, or document explicitly in freeform-summary-to-galaxy-template / advance-galaxy-draft-step / run-workflow-test that a workflow step resolving to a GalaxyUserTool-authored dynamic tool must, at real-Galaxy deployment time, be converted to native `.ga` and have its `tool_uuid` injected post-registration -- this is not currently documented anywhere in the pipeline's packaged references."
+    evidence: "draft-manuscript-galaxy, post-pipeline deploy step. gxformat2 import of galaxy-workflow.gxwf.yml (all 3 UDT tool_ids correct, tools already registered via /api/unprivileged_tools) still showed all 3 steps as tool-unresolved in the imported workflow. Fetched the imported workflow natively via `GET /api/workflows/{id}/download`, confirmed each UDT step's JSON had no `tool_uuid` key at all; manually set `tool_uuid` to each of the 3 registered tools' real UUIDs in that native JSON and re-imported via `POST /api/workflows` (native form) -- resulting workflow (id 575e9ee747b2031f) shows zero step errors on the same `GET .../download` check."
+    status: filed
+    issue: https://github.com/galaxyproject/foundry/issues/587
+
+  - id: lexicmap-search-sample-sheet-column-to-scalar-port-defect
+    raised_by: debug-galaxy-workflow-output
+    observed_in:
+      mold:
+        name: debug-galaxy-workflow-output
+        path: content/molds/debug-galaxy-workflow-output/index.md
+        revision: 5
+        content_hash: 100b3f985f8e309092bfd05cf544a8286e0a878ee2df3a155dfebe6fcdb286f0
+        foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: advance-galaxy-draft-step
+      locator: content/molds/advance-galaxy-draft-step/index.md
+      content_hash: c92d452f69a7b40bcab5fc8e63b03e1e2abf98f2a636abc4c93ad7f3c1d03082
+    kind: defect
+    severity: major
+    what: "advance-galaxy-draft-step's phase 6 iteration 2 (lexicmap_search implementation) wired the workflow's four per-gene LexicMap sensitivity overrides (align_min_match_pident, align_min_match_len, seed_min_prefix, min_qcov_per_genome) directly from `gene_query_panel` (a `sample_sheet` collection whose per-element columns carry these values) onto lexicmap_search's plain scalar `advanced_settings|*` tool ports (`in: advanced_settings|align_min_match_pident: gene_query_panel`, etc.) -- a binding that can never work. A sample_sheet collection's per-element column values are only readable by a tool that itself declares a `data_collection` input accepting `sample_sheet` and reads columns internally via `DatasetCollectionWrapper.sample_sheet_row()` in its own Cheetah/XML template; `lexicmap_search` (iuc/lexicmap 0.9.0+galaxy1) is an ordinary IUC tool with plain float/int scalar parameters and no sample_sheet awareness whatsoever. There is no generic Galaxy workflow-wiring mechanism to bind an arbitrary other tool's scalar parameter to a sample_sheet column at runtime -- rewiring the *connection* alone can never fix this; the whole design of carrying these 4 values as sample_sheet columns was unworkable from the start for feeding a non-sample_sheet-aware tool. Nothing in this pipeline's static checks caught it: `gxwf draft-validate`/`gxwf validate` both passed clean repeatedly on this file (structural validation OK, 0 fail/0 structure_errors), the deploy step's own `GET /api/workflows/{id}/download` check showed zero step errors, and `gxwf validate --connections` (which would in principle check collection-algebra/map-over connection-type compatibility) cannot run at all against this file due to an already-ledgered, unrelated crash (`gxwf-validate-connections-flag-crashes-uncaught-on-format2-dict-shaped-step-in`). The defect was only exposed by a real invocation on live usegalaxy.org: both per-gene lexicmap_search jobs (invocation `7a25084290281d4f`, jobs `bbd44e69cb8906b5703a6db6ea90ddf0` and `bbd44e69cb8906b55890e15ae6aa2602`) errored pre-execution -- no command line, no stdout/stderr, no exit code -- with the job's actual submitted `advanced_settings` tool_state literally holding `\"<galaxy.model.DatasetCollectionElement(99373144) at 0x7f1f8adf6cb0>\"` (the raw Python object repr) in place of a resolved float/int for all four ports."
+    expected: "implement-galaxy-tool-step / advance-galaxy-draft-step's packaged references should document, as a hard rule, that a `sample_sheet` collection's per-element columns cannot be wired directly onto another (non-sample_sheet-aware) tool's plain scalar parameter -- only onto a tool that itself declares a `data_collection` input parameter for that sample_sheet. For the common case of needing a per-element-varying scalar value to feed an ordinary tool's parameter, the correct, real Galaxy pattern (verified working here) is: a parallel `list` collection (not `sample_sheet`) whose element_identifiers match the driving collection's, one dataset element per gene holding that gene's real value as plain text, consumed by a Galaxy core `param_value_from_file` (0.1.0) step mapped over it -- note this tool exposes one output port per `param_type` (`text_param` / `integer_param` / `float_param` / `boolean_param`; the packaged references should say to use the port matching the chosen `param_type`, not a generic `output`), whose result then wires into the target tool's scalar port. Separately, `gxwf validate --connections` should (once its unrelated crash is fixed) flag a sample_sheet-to-scalar-parameter connection as a real type error, since it is never valid regardless of collection contents."
+    evidence: "draft-manuscript-galaxy, phase 12 (debug-galaxy-workflow-output) + live remediation. Root-caused via `GET /api/jobs/{id}?full=true` on both failed lexicmap_search jobs under invocation `7a25084290281d4f` (history `bbd44e69cb8906b51b4da6f15800819c`), showing the literal `DatasetCollectionElement` repr in `advanced_settings.align_min_match_pident`/`align_min_match_len`/`seed_min_prefix`/`min_qcov_per_genome`, while `db_opts.lexicmap_index` (a real ordinary text-select port) resolved correctly to `\"Viral\"` in the same job -- isolating the fault to the sample_sheet-column ports specifically. Confirmed the real fix mechanism by inspecting `GET /api/tools/param_value_from_file?io_details=true` (four per-param_type output ports, not a single generic one) and rebuilt the binding for real: 4 new real `list` collections created via `POST /api/dataset_collections` (`gene_align_min_match_pident_panel` id `5f39d50dafb0838b`, `gene_align_min_match_len_panel` id `ae22378905d7f2b7`, `gene_seed_min_prefix_panel` id `1ea756628560cfef`, `gene_min_qcov_per_genome_panel` id `7565b2b9a270b623`; each E/J, values 60.0/70.0, 35/50, 15/17, 30.0/0.0 respectively -- J using the wrapper's own confirmed tool defaults 70.0/50/17, min_qcov_per_genome having no real wrapper default so 0.0 (no-op floor) was used deliberately for genes without a production override), plus 4 new `extract_<name>_per_gene` (`param_value_from_file` 0.1.0) steps, rewiring lexicmap_search's 4 broken `in:` ports onto these steps' typed output ports instead of `gene_query_panel`. Fix applied to galaxy-workflow.gxwf.yml (local source of truth) and re-validated clean (`gxwf validate`: 9 ok / 0 fail / 4 skip_tool_not_found, all 4 skips pre-existing UDT/toolshed-fetch gaps unrelated to this change)."
+    status: filed
+    issue: https://github.com/galaxyproject/foundry/issues/588
+
+  - id: galaxy-workflow-update-exact-tools-defaults-true-and-discards-per-step-error-detail
+    raised_by: debug-galaxy-workflow-output
+    observed_in:
+      mold:
+        name: debug-galaxy-workflow-output
+        path: content/molds/debug-galaxy-workflow-output/index.md
+        revision: 5
+        content_hash: 100b3f985f8e309092bfd05cf544a8286e0a878ee2df3a155dfebe6fcdb286f0
+        foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: related-project
+      label: "Galaxy core -- PUT /api/workflows/{id} (update_workflow_from_raw_description, WorkflowUpdateOptions)"
+      locator: "https://github.com/galaxyproject/galaxy (lib/galaxy/webapps/galaxy/api/workflows.py, lib/galaxy/managers/workflows.py, lib/galaxy/workflow/modules.py)"
+    kind: defect
+    severity: major
+    what: "`PUT /api/workflows/{id}` resolves every step's tool via `trans.app.toolbox.get_tool(tool_id, tool_version=tool_version, exact=exact_tools, tool_uuid=tool_uuid)`, where `exact_tools` (a field on the real `WorkflowUpdateOptions` Pydantic model) defaults to `True` unless the request body explicitly sets it -- the exact same false-positive tool-resolution behavior already observed at invocation time (workaroundable there via `require_exact_tool_versions: false`) recurs at save time with a DIFFERENT, undocumented field name (`exact_tools`, not `require_exact_tool_versions`) and no obvious hint that a save-time escape hatch even exists. Worse: when `get_tool(..., exact=True)` fails for one or more steps, `update_workflow_from_raw_description` builds a real, specific per-step message (`f\"Step {n+1}: Requires tool '{tool_id}'.\"`) into `missing_tool_tups` and raises `MissingToolsException`, but the API handler in `workflows.py` unconditionally rewrites this to a generic `{\"err_msg\": \"This workflow contains missing tools. It cannot be saved until they have been removed from the workflow or installed.\", \"err_code\": 0}` -- discarding the specific, already-computed per-step list before it ever reaches the client, even though every one of the flagged tools was independently confirmed installed at exactly the pinned tool_id/tool_version via `/api/tools/{id}/build`."
+    expected: "(1) `PUT /api/workflows/{id}`'s error response should surface the specific per-step missing-tool list it already computed internally (`missing_tool_tups`) instead of discarding it for a generic message with `err_code: 0` -- this alone would have cut a full diagnostic round-trip. (2) Document `exact_tools`/`allow_missing_tools` (WorkflowUpdateOptions' real fields) as the save-time equivalent of invocation-time's `require_exact_tool_versions`/`allow_tool_state_corrections`, ideally in the same place, since a caller who already learned about one escape hatch has no way to guess the other exists under a different name for a different endpoint."
+    evidence: "draft-manuscript-galaxy, post-pipeline deploy step. `PUT /api/workflows/575e9ee747b2031f` with a corrected native workflow JSON (bare `{\"workflow\": {...}}` body) -> `{\"err_msg\": \"This workflow contains missing tools...\", \"err_code\": 0}` for 4 tools (collapse_dataset 5.1.0, lexicmap_search 0.9.0+galaxy1, kmindex_query 0.6.1+galaxy4, collection_column_join 0.0.3) independently re-confirmed installed via `/api/tools/{id}/build` moments before and after. Re-submitting the identical `workflow` content with two added top-level sibling keys, `{\"exact_tools\": false, \"allow_missing_tools\": true}`, succeeded immediately with no other change."
+    status: filed
+    issue: https://github.com/galaxyproject/foundry/issues/589
+
+  - id: author-galaxy-tool-wrapper-no-check-of-wrapped-scripts-own-declared-input-ordering-assumption
+    raised_by: debug-galaxy-workflow-output
+    observed_in:
+      mold:
+        name: debug-galaxy-workflow-output
+        path: content/molds/debug-galaxy-workflow-output/index.md
+        revision: 5
+        content_hash: 100b3f985f8e309092bfd05cf544a8286e0a878ee2df3a155dfebe6fcdb286f0
+        foundry_head: 63a3f9cf9c97a637fe1628d298e524f35709e289
+    subject:
+      kind: mold
+      label: author-galaxy-tool-wrapper
+      locator: content/molds/author-galaxy-tool-wrapper/index.md
+      content_hash: cced8f068cd1ce81fefad23a62fdb4d52b3ce805b2231f64a7fe37f258bc1e09
+    kind: gap
+    severity: major
+    what: "This is NOT a report of a bug in the wrapped script itself (that lived entirely in the user's own private nekrut/disassembler repository and was fixed there directly, with a patch prepared for the user's own separate upstream review -- out of scope for this ledger). The Foundry-relevant gap is in the authoring process: author-galaxy-tool-wrapper wrapped `lexicmap_streamer.py` as the `lexicmap_streamer` GalaxyUserTool without ever checking whether the script's own explicit, self-declared input-ordering assumption actually holds for the real upstream Galaxy tool this step would be wired to consume from in the concrete workflow. The vendored script's own code comment stated the assumption outright ('the stream is grouped by accession one block at a time, so all of an accession's HSPs must be contiguous... detect a reappearance and stop') -- a directly inspectable, static signal that this script's correctness depends on a specific ordering property of its input. Nothing in author-galaxy-tool-wrapper's packaged authoring/review process prompts for cross-checking a wrapped script's own declared input-shape assumptions against the actual, real output ordering of the specific upstream Tool Shed tool (`iuc/lexicmap/lexicmap_search`) it is wired to consume from later in the same workflow (implement-galaxy-tool-step's job, but with no input from authoring about what to check). The gap was only caught because a live, real, production-scale invocation happened to exercise it -- run-workflow-test's own synthetic 3-decoy fixture never could have, since a 3-element fixture is trivially 'grouped' by construction regardless of the bug."
+    expected: "author-galaxy-tool-wrapper's review/authoring procedure should add an explicit check step: when a wrapped script's own source/docstring/comments assert an assumption about the shape, ordering, or grouping of its input data (a `sort`/`group`/`contiguous`/'assumes' style comment is a strong, mechanically-greppable signal), the authoring pass should either (a) verify that assumption against the real, documented output-ordering behavior of the specific upstream tool the step will actually be wired to (not just against a hand-built test fixture that can't exercise the failure mode), or (b) explicitly flag the assumption as an open, unverified risk in the step's `doc:`/ledger for a later phase (e.g. run-workflow-test or a dedicated real-data smoke test) to confirm before the workflow is treated as production-ready. A synthetic fixture alone -- however carefully constructed -- cannot substitute for this check when the fixture is, by construction, too small to violate the assumption being tested."
+    evidence: "draft-manuscript-galaxy. `lexicmap_streamer.py`'s own committed comment (vendored verbatim into galaxy-user-tool.yml's configfiles entry at authoring time) explicitly named the exact risk that later caused two live job failures on real usegalaxy.org production data (invocation 802eff260023dc62, both lexicmap_streamer_tiling_qc jobs) against the real, correctly-functioning `iuc/lexicmap/lexicmap_search` 0.9.0+galaxy1 output (confirmed via direct byte-range inspection: real LexicMap search output is ranked by match quality across all matched genomes, not grouped by target accession -- the assumption was false for this specific real upstream tool from the start). The 3-decoy synthetic fixture used at test-authoring time (test-data/synthetic_am3/*.tsv) could not have surfaced this: a 3-row/3-accession fixture cannot exhibit a 'reappearing accession' pattern by construction, regardless of whether the underlying assumption holds for real data."
+    status: filed
+    issue: https://github.com/galaxyproject/foundry/issues/590
+
+  - id: ga-download-normalizes-tool-id-producing-workflows-that-save-but-cannot-invoke
+    raised_by: manual-deploy
+    observed_in: null
+    subject:
+      kind: research
+      label: galaxy-workflow-invocation-failure-reference
+      locator: content/research/galaxy-workflow-invocation-failure-reference/index.md
+      content_hash: null
+    kind: defect
+    severity: major
+    what: "`GET /api/workflows/{id}/download?style=ga` emits each Tool Shed step's `tool_id` as the UNVERSIONED repository path (`toolshed.g2.bx.psu.edu/repos/iuc/kmindex/kmindex_query`) with the version carried separately in `tool_version`. Re-importing that exact document -- the download/edit/upload round trip that any external deploy script performs -- produces a workflow that SAVES successfully, shows `errors: null` on every step via `GET /api/workflows/{id}?legacy=false`, and lints clean, but CANNOT be invoked: `POST /api/workflows/{id}/invocations` returns HTTP 400 `Workflow was not invoked; the following required tools are not installed: <tool> (version <v>)` naming tools that are installed at exactly that id and version. Setting `tool_id` to the full VERSIONED path (`.../kmindex_query/0.6.1+galaxy4`) with no other change makes the same workflow invoke immediately. The round trip is therefore lossy in a way that is invisible until invocation: the format the server hands you back is not a format the server will accept for execution. This is distinct from the existing entry `galaxy-workflow-invocation-check-rejects-previously-installed-tool-as-not-installed`, which describes a STALE-TOOLBOX-READ race under planemo with a reload-timing signature; this defect is deterministic, has no timing component, and reproduces on demand against a long-warm production toolbox."
+    expected: "(1) `POST /api/workflows/{id}/invocations` should resolve an unversioned `tool_id` together with the step's own `tool_version` field, exactly as the save path and the editor already do -- or, failing that, the error should say the id is unversioned rather than claiming an installed tool is not installed, which routes debugging toward tool installation instead of toward id formatting. (2) `download?style=ga` should round-trip losslessly: either emit the versioned id, or the invocation check should accept what the download emits. As it stands, the documented way to fetch a workflow produces a document that silently loses executability."
+    evidence: "draft-manuscript-galaxy, paper-scale rerun setup, 2026-09-18. ISOLATED on a purpose-built 1-step probe workflow (single `tp_cat` step, plain `POST /api/workflows` body `{\"workflow\": ...}` with NO `exact_tools`/`allow_missing_tools` keys, so those flags are excluded as a cause): `tool_id: .../text_processing/tp_cat` + `tool_version: 9.11+galaxy0` -> invocation 400 `required tools are not installed: .../tp_cat (version 9.11+galaxy0)`; changing ONLY `tool_id` to `.../text_processing/tp_cat/9.11+galaxy0` -> invocation scheduled, jobs ran to `ok`. CORROBORATED on the real workflow 575e9ee747b2031f: version 4 (unversioned ids, from a `download?style=ga` round trip) saved fine with `steps with errors: 0` and every tool independently confirmed present via `GET /api/tools/{versioned-id}`, yet invocation returned 400 listing collapse_dataset 5.1.0, kmindex_query 0.6.1+galaxy4, lexicmap_search 0.9.0+galaxy1 and collection_column_join 0.0.3 as not installed; version 5, identical apart from versioned `tool_id`s, invoked successfully (invocation 6372d41d2d9cf1c6)."
+    status: filed
+    issue: https://github.com/galaxyproject/foundry/issues/591

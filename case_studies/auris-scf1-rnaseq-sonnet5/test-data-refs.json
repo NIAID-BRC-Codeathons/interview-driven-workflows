@@ -1,0 +1,162 @@
+{
+  "artifact": "test-data-refs",
+  "schema_note": "Resolved workflow test inputs and expected outputs for galaxy-workflow.gxwf.yml (phix174_sra_landscape_spikein_sieve / Workflow A), derived via foundry-skills:paper-to-test-data then foundry-skills:find-test-data. Selected chain step: find-test-data (see foundry-feedback.ledger.yml phases[7].selected).",
+  "workflow": "/Users/scottcain/git/dms/draft-manuscript-galaxy/galaxy-workflow.gxwf.yml",
+  "scoping_decision": {
+    "summary": "Full production scale (10-gene panel x 109 kmindex shards x up to 25 LexicMap indices, ~2.1M accessions) is far too large/slow for a fast workflow test. This fixture scopes the test to 2 genes, 3 kmindex shards, and 2 LexicMap indices, using real project assets where they exist and real upstream Tool-Shed test fixtures where the project's own data was never actually completed.",
+    "genes_selected": ["E", "J"],
+    "genes_rationale": "Gene E is required to exercise the final extract_gene_e_am3_audit step (the workflow's whole reason for keeping a per-gene axis) and is the paper's flagship am3 spike-in finding. Gene J is the shortest CDS (114 bp) in the panel, kept alongside E only to give the sample_sheet collection more than one element (so map-over/collection-shape steps are genuinely exercised) while staying tiny. The other 8 genes (A, Astar, B, C, D, F, G, H, K) are dropped from this fixture, not from the production workflow.",
+    "kmindex_shards_selected": ["GENOMIC_PHG", "GENOMIC_VRL", "METAGENOMIC_ENV"],
+    "kmindex_shards_rationale": "3 of the real 109 ALL_KMINDEX_DBS shard names (confirmed verbatim in /Users/scottcain/git/dms/submit_kmindex_all_genes.py) chosen for topical relevance to a phage genome search: GENOMIC_PHG (phage genomic library), GENOMIC_VRL (viral genomic), METAGENOMIC_ENV (environmental metagenome, the category the paper implicates in spike-in cross-talk).",
+    "lexicmap_indices_selected": ["Viral", "BacteriaMetagenomic"],
+    "lexicmap_indices_rationale": "2 of the real 5-index TARGETED_PHAGE_INDICES subset (confirmed verbatim in /Users/scottcain/git/dms/pull_logan_alignments.py), out of the full 24-name ALL_LEXICMAP_INDICES list. Matches the workflow's own default (lexicmap_index_selection default already lists all 5; this fixture narrows to 2 for test speed)."
+  },
+  "inputs": [
+    {
+      "workflow_input_id": "gene_query_panel",
+      "resolved": true,
+      "provenance": "real_project_asset",
+      "description": "Per-gene CDS query panel, scoped to 2 of the 10 real genes.",
+      "elements": [
+        {
+          "element_identifier": "E",
+          "path": "/Users/scottcain/git/dms/cds/E.fasta",
+          "filetype": "fasta",
+          "bytes": 311,
+          "note": "273 bp CDS, coords 568..840 on NC_001422.1. Real file already used by this project's own kmindex/LexicMap submission scripts (submit_kmindex_all_genes.py, submit_remaining_logan.py)."
+        },
+        {
+          "element_identifier": "J",
+          "path": "/Users/scottcain/git/dms/cds/J.fasta",
+          "filetype": "fasta",
+          "bytes": 152,
+          "note": "114 bp CDS, shortest gene in the panel."
+        }
+      ],
+      "column_definitions_note": "gene_query_panel's per-element LexicMap sensitivity-override columns (align_min_match_pident, align_min_match_len, seed_min_prefix, min_qcov_per_genome) are populated in production for genes A/C/E/K only. For this fixture, set them for E (align_min_match_pident=60.0, align_min_match_len=35, seed_min_prefix=15, min_qcov_per_genome=30.0 -- real per-gene values read from /Users/scottcain/git/dms/logan_remaining_runs.json) and leave unset for J (falls back to wrapper defaults 70/50/17/unset)."
+    },
+    {
+      "workflow_input_id": "kmindex_db_selection",
+      "resolved": true,
+      "provenance": "real_project_asset_names_only",
+      "value": "GENOMIC_PHG,GENOMIC_VRL,METAGENOMIC_ENV",
+      "note": "Real shard names (verbatim substrings of ALL_KMINDEX_DBS in submit_kmindex_all_genes.py). GAP: no real, small, prebuilt kmindex index exists anywhere for these specific Logan shard names -- the 109 shards are multi-terabyte production Logan indices hosted at usegalaxy.org and are not locally buildable/downloadable at test scale. See gaps[] below."
+    },
+    { "workflow_input_id": "kmindex_zvalue", "resolved": true, "provenance": "workflow_default", "value": 6 },
+    { "workflow_input_id": "kmindex_threshold", "resolved": true, "provenance": "workflow_default", "value": 0.3 },
+    { "workflow_input_id": "kmindex_output_format", "resolved": true, "provenance": "workflow_default", "value": "json" },
+    { "workflow_input_id": "kmindex_fast", "resolved": true, "provenance": "workflow_default", "value": false },
+    {
+      "workflow_input_id": "lexicmap_index_selection",
+      "resolved": true,
+      "provenance": "real_project_asset_names_only",
+      "value": "Viral,BacteriaMetagenomic",
+      "note": "Real index names (verbatim substrings of ALL_LEXICMAP_INDICES / TARGETED_PHAGE_INDICES in pull_logan_alignments.py). GAP: same as kmindex -- these are multi-terabyte production Logan-derived LexicMap indices, not locally reproducible at test scale. See gaps[] below."
+    },
+    { "workflow_input_id": "lexicmap_top_n_genomes", "resolved": true, "provenance": "workflow_default", "value": 0 },
+    { "workflow_input_id": "lexicmap_advanced_all", "resolved": true, "provenance": "workflow_default", "value": true },
+    { "workflow_input_id": "tiling_qc_min_coverage", "resolved": true, "provenance": "workflow_default", "value": 0.8 },
+    { "workflow_input_id": "tiling_qc_min_coverage_partial", "resolved": true, "provenance": "workflow_default", "value": 0.5 },
+    { "workflow_input_id": "tiling_qc_min_pident", "resolved": true, "provenance": "workflow_default", "value": 60 },
+    { "workflow_input_id": "tiling_qc_max_internal_stops", "resolved": true, "provenance": "workflow_default", "value": 0 },
+    { "workflow_input_id": "tiling_qc_sample_cap", "resolved": true, "provenance": "workflow_default", "value": 10 },
+    {
+      "workflow_input_id": "tiling_qc_allow_frameshifts",
+      "resolved": true,
+      "provenance": "confirmed_from_real_source_(open-requirements ledger entry allow-frameshifts-default-unconfirmed, resolved)",
+      "value": false,
+      "note": "Confirmed OFF/False by direct read of nekrut/disassembler python/lexicmap_streamer.py argparse (store_true, no default=True)."
+    }
+  ],
+  "tool_level_structural_fixtures": {
+    "note": "Because no small real Logan-shard kmindex DB or Logan-derived LexicMap index exists anywhere (in this repo or upstream), the two real external Galaxy tools in this workflow (kmindex_query 0.6.1+galaxy4, lexicmap_search 0.9.0+galaxy1) can only be exercised end-to-end in THIS test using their own upstream Tool Shed functional-test fixtures -- real, already-committed, already-used-for-CI assets, but generic smoke-test data (synthetic repeat sequences / two small real RefSeq viral genomes), NOT phiX174 biology and NOT the named Logan shards/indices above. Recommended use: a structural/wiring-only sub-test of steps kmindex_containment_screen and lexicmap_search in isolation, separate from a full end-to-end run.",
+    "kmindex_query": {
+      "source": "galaxyproject/tools-iuc, tools/kmindex/test-data (main branch)",
+      "closest_analog_test": "kmindex_query.xml <test> #6 ('using register index, JSON output'): db_opts_selector=db, kmindex=register (expands to index1,index2 -- a real 2-shard multi-select, structurally identical to this workflow's db_opts|kmindex multi-select binding) -> output_json list collection with 2 elements (index1, index2).",
+      "files": {
+        "query_fasta": "https://raw.githubusercontent.com/galaxyproject/tools-iuc/main/tools/kmindex/test-data/query1.fasta",
+        "prebuilt_index_register": "https://github.com/galaxyproject/tools-iuc/tree/main/tools/kmindex/test-data/register_index",
+        "prebuilt_index1": "https://github.com/galaxyproject/tools-iuc/tree/main/tools/kmindex/test-data/index1",
+        "prebuilt_index2": "https://github.com/galaxyproject/tools-iuc/tree/main/tools/kmindex/test-data/index2",
+        "expected_output_index1": "https://raw.githubusercontent.com/galaxyproject/tools-iuc/main/tools/kmindex/test-data/expected_query2_index1.json",
+        "expected_output_index2": "https://raw.githubusercontent.com/galaxyproject/tools-iuc/main/tools/kmindex/test-data/expected_query2_index2.json"
+      },
+      "caveat": "tools-iuc's own kmindex.loc carries the comment: 'This file is just a placeholder since Galaxy does not yet support uploading a kmindex index, which is required for functional tests.' The indexed sequences (seq1/seq2/seq3, synthetic ATCG/CGCG/TATA/GAGA repeats) have no relationship to phiX174 or the named Logan shards."
+    },
+    "lexicmap_search": {
+      "source": "galaxyproject/tools-iuc, tools/lexicmap/test-data (main branch)",
+      "closest_analog_test": "lexicmap.xml <test> #3/#4/#6 (query one/multi FASTA against LexicMapIndexCombined = db.lmi + db2.lmi, i.e. a real 2-index multi-select, structurally identical to this workflow's db_opts|lexicmap_index multi-select binding).",
+      "real_indexed_genomes": [
+        "GCF_001502155.1 (ViralProj307776)",
+        "GCF_001502175.1 (ViralProj307780)"
+      ],
+      "files": {
+        "prebuilt_index_1": "https://github.com/galaxyproject/tools-iuc/tree/main/tools/lexicmap/test-data/db.lmi",
+        "prebuilt_index_2": "https://github.com/galaxyproject/tools-iuc/tree/main/tools/lexicmap/test-data/db2.lmi",
+        "query_fasta": "https://raw.githubusercontent.com/galaxyproject/tools-iuc/main/tools/lexicmap/test-data/lexicmap_query3.fasta",
+        "expected_output_with_all_columns_schema": "https://raw.githubusercontent.com/galaxyproject/tools-iuc/main/tools/lexicmap/test-data/lexicmap_query_result3.tsv"
+      },
+      "column_schema_confirmed": "With --all (this workflow's lexicmap_advanced_all=true), lexicmap.xml's column_names metadata action declares: query,qlen,hits,sgenome,sseqid,qcovGnm,cls,hsp,qcovHSP,alenHSP,pident,gaps,qstart,qend,sstart,send,sstr,slen,evalue,bitscore,cigar,qseq,sseq,align -- confirms lexicmap_streamer.py's required columns (sgenome, pident, qstart, qend, qseq, sseq) are all genuinely present in real lexicmap_search output when --all is set.",
+      "caveat": "lexicmap_index.loc carries the same 'placeholder ... Galaxy does not yet support uploading a lexicmap index' comment. The 2 indexed genomes are real small viral RefSeq assemblies but are not phiX174 and not Logan-derived domain indices."
+    }
+  },
+  "known_accessions_for_biological_grounding": {
+    "positive_controls_real": {
+      "source": "BioProject PRJNA1174868 / SRP539859 (Idaho 2024 chemostat time series), cited in freeform-summary.md Stage E and phix174_sra_evolution_manifest.tsv",
+      "accessions": ["SRR31059334", "SRR31059335"],
+      "note": "Real SRA runs known to derive from a laboratory phiX174 chemostat competitive-growth experiment (guaranteed genuine ΦX174-positive reads, tracking Gene G specifically per the paper). NOT yet tied to any actual recorded kmindex containment score or LexicMap hit for genes E/J in this repo -- no completed kmindex/LexicMap run against these accessions exists (kmindex_runs.json / logan_remaining_runs.json both show status: 'queued', never completed)."
+    },
+    "negative_control": {
+      "resolved": true,
+      "accession": "SRR40691913",
+      "source": "User-supplied (2026-09-17), attributed to \"a reliable source\" as expected to have zero phiX174 gene-panel containment/alignment. Not independently derived from freeform-summary.md or any file in this repo.",
+      "verification_status": "unverified_by_this_pipeline: no kmindex/LexicMap run has actually been executed against this accession in this run. Treat as a candidate true-negative to be confirmed empirically (e.g. via kmindex_containment_screen + lexicmap_search) before relying on it as a hard assertion target; do not assume zero-hit status is proven until that run completes.",
+      "reason_previously_unresolved": "freeform-summary.md's nominal-taxonomy audit (Stage D) catalogs BioProjects that ARE phiX174-tagged (misfiled or genuine), not a verified phiX174-negative accession. No accession in this repo or the paper was explicitly documented as a true negative for phiX174 gene-panel containment/alignment, hence the original gap -- now resolved via direct user input rather than repo/paper evidence."
+    }
+  },
+  "expected_output_ground_truth_full_scale_only": {
+    "note": "These are REAL, already-computed full-production-scale numbers from this project's own results/ directory -- NOT achievable by the tiny scoped fixture above (2 genes x 3 shards x 2 indices vs. the real 10 genes x 109 shards x up to 25 indices x ~2.1M accessions). Useful only as directional/sanity-bound references for a full-scale run, not as exact-match assertions for the fast test.",
+    "ingestion_manifest_rows": {
+      "source": "/Users/scottcain/git/dms/results/00_ingestion/lexicmap_9genes_ingestion_manifest.csv",
+      "gene_J": "length_bp=114, total_accessions_evaluated=2278534, clean_full_length=2184554, flagged_internal_stops=63, clean_unique_haplotypes=1081",
+      "gene_E": "length_bp=273, total_accessions_evaluated=2392457, clean_full_length=52862, flagged_internal_stops=2215172, clean_unique_haplotypes=1379"
+    },
+    "gene_e_am3_audit": {
+      "source": "/Users/scottcain/git/dms/results/02_layer1_quasispecies/gene_e_am3_quarantine_audit.json",
+      "total_evaluated_accessions": 2392457,
+      "clean_wildtype_accessions": 52862,
+      "am3_flagged_stop_accessions": 2215172,
+      "am3_stop_fraction_pct": 92.59,
+      "am3_genomic_coordinate": 587,
+      "am3_mutation_gene_e": "TGG->TAG (Trp7Stop)"
+    }
+  },
+  "gaps": [
+    {
+      "id": "no-real-small-kmindex-logan-shard-subset",
+      "unmet": "A small, real, downloadable subset of any actual named Logan kmindex shard (GENOMIC_PHG, GENOMIC_VRL, METAGENOMIC_ENV, or any of the other 106) containing verifiable phiX174-related hits.",
+      "why": "The 109 Logan shards are production-scale (multi-TB) indices hosted only at usegalaxy.org via a Tool Shed data-table entry (db_opts|kmindex); kmindex itself has no public 'build a tiny shard from a public FASTA subset' precedent in this repo or upstream tools-iuc, and this project's own kmindex run (kmindex_runs.json) never completed (status: queued).",
+      "what_would_resolve_it": "Either (a) the user grants access to a live usegalaxy.org history/API key so the workflow's kmindex_containment_screen step can be run for real against a couple of the smallest real shards, or (b) the user (or a downstream build step) constructs a tiny local kmindex index via kmindex_query's own kmindex_build.xml wrapper, seeded with cds/E.fasta plus a handful of real decoy sequences, named to mimic one real shard for structural purposes only."
+    },
+    {
+      "id": "no-real-small-lexicmap-logan-index-subset",
+      "unmet": "A small, real, downloadable subset of any actual named LexicMap Logan domain index (Viral, BacteriaMetagenomic, or any of the other 22) with verifiable phiX174 hits.",
+      "why": "Same production-scale/hosting constraint as kmindex above; this project's own LexicMap runs also never completed (logan_remaining_runs.json / logan_structural_runs.json both show status: 'queued').",
+      "what_would_resolve_it": "Same two options as above, using lexicmap-index.xml to build a tiny local index from cds/*.fasta plus decoys."
+    },
+    {
+      "id": "no-real-completed-lexicmap-hits-table-for-lexicmap-streamer",
+      "unmet": "A real LexicMap results TSV (the lexicmap_streamer_tiling_qc step's second required input, -f/--file) containing genuine phiX174 Gene E / Gene J hits, ideally including at least one wildtype-clean row and one am3-like premature-stop row.",
+      "why": "No such file exists anywhere in this repo (msas/, msas_sub/, logan_alignments/ contain post-hoc EVcouplings-style protein/codon MSAs for HyphAeon, not raw per-accession LexicMap tabular hits; results/ has only already-aggregated summary CSVs/JSONs, not the underlying hit table).",
+      "what_would_resolve_it": "implement-galaxy-workflow-test should hand-construct a small synthetic TSV using the REAL, confirmed column schema in tool_level_structural_fixtures.lexicmap_search.column_schema_confirmed (sgenome, pident, qcovHSP, qstart, qend, qseq, sseq, etc.), with qseq/sseq values derived from real cds/E.fasta and cds/J.fasta sequences with hand-introduced positive/negative cases -- clearly labeled as synthetic, not as a real accession's genuine sequencing data."
+    },
+    {
+      "id": "no-verified-phix174-negative-control-accession",
+      "unmet": "See known_accessions_for_biological_grounding.negative_control above.",
+      "why": "freeform-summary.md and this repo document only phiX174-tagged BioProjects; none is documented as a confirmed non-hit.",
+      "what_would_resolve_it": "User input: name a specific SRA accession known/expected to have zero phiX174 gene-panel containment, for use as a true-negative test case.",
+      "status": "resolved_by_user_input",
+      "resolution": "User supplied SRR40691913 (2026-09-17) as the expected negative control. Still needs an actual kmindex/LexicMap run to empirically confirm zero containment before it's used as a hard assertion in the test plan -- see known_accessions_for_biological_grounding.negative_control.verification_status."
+    }
+  ]
+}

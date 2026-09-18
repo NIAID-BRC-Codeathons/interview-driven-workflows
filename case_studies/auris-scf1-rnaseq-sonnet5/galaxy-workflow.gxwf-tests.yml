@@ -1,0 +1,273 @@
+# Galaxy workflow test file for galaxy-workflow.gxwf.yml (phix174_sra_landscape_spikein_sieve
+# / Workflow A). Assembled by implement-galaxy-workflow-test (phase 9) from galaxy-test-plan.yml,
+# galaxy-workflow.gxwf.yml, and test-data-refs.json. All job-input and output labels below are the
+# literal input/output ids from galaxy-workflow.gxwf.yml's inputs:/outputs: blocks.
+#
+# Two test cases, matching galaxy-test-plan.yml exactly:
+#   1. kmindex_wiring_smoke_generic_fixtures -- wiring/structural smoke test using each pinned
+#      Tool Shed wrapper's own real upstream functional-test fixtures (generic, non-phiX174).
+#      Existence-only assertions throughout; does not audit the am3 diagnostic.
+#   2. gene_e_j_am3_diagnostic_synthetic_lexicmap_index -- the flagship am3 content test, built
+#      around a hand-constructed synthetic 3-decoy LexicMap hits fixture (see
+#      test-data/synthetic_am3/). All output assertions in this case were verified by directly
+#      executing the real vendored lexicmap_streamer.py (galaxy-user-tool.yml, LexicMapStreamer,
+#      commit a51eb58d) against that fixture -- the reported values below are actual observed
+#      script output, not guessed.
+#
+# KNOWN BLOCKING GAP (test case 2, carried from galaxy-test-plan.yml unresolved[0]/[1], both
+# blocking): `lexicmap_index_selection` in test case 2 is a PLACEHOLDER value
+# ("PhiX174E_J_Am3ToyIndex"). No real small kmindex/LexicMap index exists anywhere at test scale
+# (109 Logan kmindex shards and up to 25 LexicMap domain indices are multi-terabyte,
+# usegalaxy.org-hosted production data only), and no `lexicmap` or `kmindex` CLI was available in
+# this authoring environment to build and register one. Consequently:
+#   - lexicmap_search (the real Tool Shed tool immediately upstream of lexicmap_streamer_tiling_qc
+#     in the concrete workflow) cannot itself be made to emit the synthetic hits table below when
+#     `planemo test` actually invokes this workflow end-to-end -- the tests-format `job:` block can
+#     only bind values to top-level workflow input labels (confirmed against
+#     references/schemas/tests-format.schema.json's `Job`/`TestJob` defs), and
+#     `lexicmap_streamer_tiling_qc`'s `lexicmap_results` port is wired to an internal step output
+#     (`lexicmap_search/out_file`), not a workflow input -- there is no schema-supported way to
+#     inject a pre-built hits table directly onto that port from this file.
+#   - The synthetic fixture (test-data/synthetic_am3/{E,J}.synthetic_lexicmap_hits.tsv plus the 3
+#     decoy reference FASTAs) is therefore staged as the validated ground truth this test case's
+#     assertions were derived from, and as the input a future real-index-build pass (or a direct
+#     component/tool-level test of lexicmap_streamer_tiling_qc alone) should reproduce against.
+#   - See foundry-feedback.ledger.yml entry
+#     `implement-galaxy-workflow-test-no-tests-format-path-to-intermediate-step-input` for the
+#     schema-capability gap this exposed, and the plan's own unresolved[0]/[1] for the upstream
+#     index-construction gap.
+#   - A full `planemo test` run of this test case is therefore expected to fail or hang at
+#     `lexicmap_search` today; this is a deliberate, already-documented deferral to phase 11
+#     (run-workflow-test), not an authoring omission.
+
+- doc: >-
+    kmindex_wiring_smoke_generic_fixtures: structural/wiring smoke test for the kmindex
+    containment-screen chain and lexicmap_search's multi-index-selection binding, using each
+    pinned Tool Shed wrapper's own real upstream functional-test fixtures (generic, non-phiX174
+    sequences and indices). Proves the workflow's collection map-over, multi-select DB/index
+    binding, and per-gene sensitivity-override wiring execute without error. Does NOT audit any
+    biological content, including the Gene E am3 diagnostic (see the other test case for that).
+  job:
+    gene_query_panel:
+      class: Collection
+      collection_type: sample_sheet
+      elements:
+        - class: File
+          identifier: E
+          location: "https://raw.githubusercontent.com/galaxyproject/tools-iuc/main/tools/kmindex/test-data/query1.fasta"
+          filetype: fasta
+        - class: File
+          identifier: J
+          location: "https://raw.githubusercontent.com/galaxyproject/tools-iuc/main/tools/lexicmap/test-data/lexicmap_query3.fasta"
+          filetype: fasta
+      # Per-gene LexicMap sensitivity-override columns (align_min_match_pident, etc.) intentionally
+      # left unset (no `rows:` block) -- not meaningful for generic non-phiX174 fixture content,
+      # per galaxy-test-plan.yml test_cases[0].job_inputs[0].
+    # kmindex_db_selection / lexicmap_index_selection removed 2026-09-18: both ports are
+    # `multiple: true` selects that reject a delimited string and require an array, which a
+    # gxformat2 `text` input cannot carry. The index lists are now literals in the workflow's
+    # kmindex_containment_screen / lexicmap_search step state, so they are no longer job inputs.
+    kmindex_zvalue: 6
+    kmindex_threshold: 0.3
+    kmindex_output_format: "json"
+    kmindex_fast: false
+    lexicmap_top_n_genomes: 0
+    lexicmap_advanced_all: true
+    tiling_qc_min_coverage: 0.8
+    tiling_qc_min_coverage_partial: 0.5
+    tiling_qc_min_pident: 60.0
+    tiling_qc_max_internal_stops: 0
+    tiling_qc_sample_cap: 10
+    tiling_qc_allow_frameshifts: false
+  outputs:
+    kmindex_accession_union:
+      # Existence-only: the underlying index has no phiX174 biological relationship, so only
+      # "the chain ran and produced non-empty output" is assertable.
+      asserts:
+        - has_size: { min: 1 }
+    clean_full_length_cds_haplotypes:
+      class: Collection
+      element_tests:
+        E:
+          asserts:
+            - has_size: { min: 1 }
+        J:
+          asserts:
+            - has_size: { min: 1 }
+    clean_haplotype_counts:
+      class: Collection
+      element_tests:
+        E:
+          asserts:
+            - has_n_columns: { min: 2 }
+        J:
+          asserts:
+            - has_n_columns: { min: 2 }
+    flagged_audit_reasons:
+      class: Collection
+      element_tests:
+        E:
+          # "At least a header line is present."
+          asserts:
+            - has_n_lines: { min: 1 }
+    per_gene_ingestion_summary:
+      class: Collection
+      element_tests:
+        E:
+          asserts:
+            - has_text: { text: "{" }
+        J:
+          asserts:
+            - has_text: { text: "{" }
+    ingestion_manifest_all_genes:
+      asserts:
+        - has_n_lines: { n: 3, delta: 1 }
+    gene_e_am3_quarantine_audit:
+      # Existence-only: this case's "E" element is generic fixture sequence, not real phiX174
+      # gene E, so no am3 diagnostic content is expected here.
+      asserts:
+        - has_size: { min: 1 }
+
+- doc: >-
+    gene_e_j_am3_diagnostic_synthetic_lexicmap_index: primary functional test for the paper's
+    Sanger am3 spike-in diagnostic (freeform-summary.md Stage D2: genome position nt587 G->A
+    causes a premature TGG->TAG stop at Gene E codon 7, gpE_W7*). Exercises
+    lexicmap_streamer_tiling_qc -> {flatten_gene_summary_json_to_row ->
+    join_gene_summary_rows_into_manifest} and -> extract_gene_e_am3_audit against a hand-built
+    synthetic 3-decoy LexicMap hits fixture (test-data/synthetic_am3/) seeded with real
+    cds/E.fasta and cds/J.fasta content: (1) a Gene-E wildtype-clean decoy (E_wildtype_ctrl,
+    sseq == real E.fasta verbatim), (2) a Gene-E am3-positive decoy (E_am3_ctrl, sseq carries
+    the exact nt587 G->A / codon-7 TGG->TAG substitution), (3) a Gene-J clean decoy
+    (J_clean_ctrl, sseq == real J.fasta verbatim). All assertion values below were confirmed by
+    directly executing the real vendored lexicmap_streamer.py against this fixture with the
+    workflow's default tiling_qc_* parameters (see test-data/synthetic_am3/*.tsv header
+    comments for full provenance). The kmindex chain shares the same job but is not this case's
+    focus and is left unasserted (kmindex_accession_union), matching
+    galaxy-test-plan.yml omissions[1].
+
+    KNOWN BLOCKING GAP: `lexicmap_index_selection` here is a placeholder
+    ("PhiX174E_J_Am3ToyIndex") -- no real small LexicMap index backs it, and the tests-format
+    `job:` block cannot bind the synthetic hits fixture directly onto
+    lexicmap_streamer_tiling_qc's internal `lexicmap_results` port (see the file header comment
+    above and galaxy-test-plan.yml unresolved[0]/[1]). A full `planemo test` run of this case is
+    expected to fail/stall at lexicmap_search until a real toy index is constructed and
+    registered; that construction is deferred to a later phase.
+  job:
+    gene_query_panel:
+      class: Collection
+      collection_type: sample_sheet
+      elements:
+        - class: File
+          identifier: E
+          path: test-data/E.fasta
+          filetype: fasta
+        - class: File
+          identifier: J
+          path: test-data/J.fasta
+          filetype: fasta
+      # Per-gene LexicMap sensitivity-override columns, in column_definitions order
+      # (align_min_match_pident, align_min_match_len, seed_min_prefix, min_qcov_per_genome).
+      # Populated for E (real per-gene values from logan_remaining_runs.json, per
+      # test-data-refs.json); left null for J (falls back to wrapper defaults 70/50/17/unset).
+      # NOTE: this skill bundle's packaged references do not document a worked `sample_sheet` /
+      # `column_definitions` -> tests-format shape; this `rows:` block is a reasoned best-effort
+      # construction against the tests-format.schema.json `Collection.rows` field (a dict of
+      # column name -> per-row-aligned array) -- see the feedback ledger entry
+      # `tests-format-schema-silent-on-sample-sheet-column-definitions-shape`.
+      rows:
+        align_min_match_pident: [60.0, null]
+        align_min_match_len: [35, null]
+        seed_min_prefix: [15, null]
+        min_qcov_per_genome: [30.0, null]
+    # kmindex_db_selection / lexicmap_index_selection removed 2026-09-18: both ports are
+    # `multiple: true` selects that reject a delimited string and require an array, which a
+    # gxformat2 `text` input cannot carry. The index lists are now literals in the workflow's
+    # kmindex_containment_screen / lexicmap_search step state, so they are no longer job inputs.
+    kmindex_zvalue: 6
+    kmindex_threshold: 0.3
+    kmindex_output_format: "json"
+    kmindex_fast: false
+    lexicmap_top_n_genomes: 0
+    lexicmap_advanced_all: true
+    tiling_qc_min_coverage: 0.8
+    tiling_qc_min_coverage_partial: 0.5
+    tiling_qc_min_pident: 60.0
+    tiling_qc_max_internal_stops: 0
+    tiling_qc_sample_cap: 10
+    tiling_qc_allow_frameshifts: false
+  outputs:
+    clean_full_length_cds_haplotypes:
+      # Gene E's clean cohort should contain exactly the wildtype-clean decoy (the am3-positive
+      # decoy is routed to FLAGGED, not here). Gene J's clean cohort should contain its one clean
+      # decoy. Confirmed via direct script execution: result_E.clean.accessions.fasta contains
+      # only E_wildtype_ctrl; result_J.clean.accessions.fasta contains only J_clean_ctrl.
+      class: Collection
+      element_tests:
+        E:
+          asserts:
+            - has_text: { text: "E_wildtype_ctrl" }
+        J:
+          asserts:
+            - has_text: { text: "J_clean_ctrl" }
+    clean_haplotype_counts:
+      # Confirmed: header + exactly 1 clean-haplotype row for both E and J.
+      class: Collection
+      element_tests:
+        E:
+          asserts:
+            - has_n_lines: { n: 2, delta: 1 }
+        J:
+          asserts:
+            - has_n_lines: { n: 2, delta: 1 }
+    flagged_accessions:
+      # Confirmed: Gene E's flagged FASTA contains exactly the am3-positive decoy.
+      class: Collection
+      element_tests:
+        E:
+          asserts:
+            - has_text: { text: "E_am3_ctrl" }
+    flagged_audit_reasons:
+      # Confirmed via direct script execution (result_E.flagged.tsv):
+      #   accession        coverage  mean_pident  flag              n_stops  stop_codons  hsps_merged
+      #   E_am3_ctrl        1.0000    99.63        PREMATURE_STOPS   1        7            1
+      # header + exactly 1 flagged row for E (stop_codons="7", matching the paper's gpE_W7*
+      # codon-7 diagnostic). Gene J's flagged.tsv is header-only (0 flagged rows; clean decoy
+      # only) -- confirmed exact 1-line file.
+      class: Collection
+      element_tests:
+        E:
+          asserts:
+            - has_n_lines: { n: 2, delta: 1 }
+            - has_text: { text: "7" }
+        J:
+          asserts:
+            - has_n_lines: { n: 1, delta: 0 }
+    per_gene_ingestion_summary:
+      # Confirmed via direct script execution (result_E.summary.json / result_J.summary.json):
+      # gene E total_accessions_evaluated=2, cohort_breakdown.flagged_premature_stops=1;
+      # gene J total_accessions_evaluated=1.
+      class: Collection
+      element_tests:
+        E:
+          asserts:
+            - has_json_property_with_value: { property: "total_accessions_evaluated", value: "2" }
+            - has_json_property_with_value: { property: "flagged_premature_stops", value: "1" }
+        J:
+          asserts:
+            - has_json_property_with_value: { property: "total_accessions_evaluated", value: "1" }
+    ingestion_manifest_all_genes:
+      asserts:
+        - has_n_lines: { n: 3, delta: 1 }
+        - has_text: { text: "gene" }
+    gene_e_am3_quarantine_audit:
+      # FLAGSHIP ASSERTION. Gene E element of flagged_tsv (extract_gene_e_am3_audit,
+      # by_identifier "E"). Confirmed identical to result_E.flagged.tsv above: exactly 1 flagged
+      # row (header + the single am3-positive decoy), identifying E_am3_ctrl with stop_codons="7"
+      # -- the workflow-level, assertable analog of the paper's real finding that
+      # 2,215,172/2,392,457 (92.59%) of evaluated Gene E accessions carry the nt587 G->A /
+      # gpE_W7* substitution (real full-scale numbers recorded only as directional context in
+      # test-data-refs.json, not asserted here).
+      asserts:
+        - has_n_lines: { n: 2, delta: 0 }
+        - has_text: { text: "E_am3_ctrl" }
+        - has_text: { text: "7" }

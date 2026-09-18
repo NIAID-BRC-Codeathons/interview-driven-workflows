@@ -1,0 +1,62 @@
+{
+    "exit_code": null,
+    "summary": {
+        "num_errors": 1,
+        "num_failures": 0,
+        "num_skips": 0,
+        "num_tests": 1
+    },
+    "tests": [
+        {
+            "data": {
+                "end_datetime": "2026-09-17T11:47:30.379012",
+                "execution_problem": "'rows'",
+                "inputs": {
+                    "gene_query_panel": {
+                        "class": "Collection",
+                        "collection_type": "sample_sheet",
+                        "elements": [
+                            {
+                                "class": "File",
+                                "filetype": "fasta",
+                                "identifier": "E",
+                                "location": "https://raw.githubusercontent.com/galaxyproject/tools-iuc/main/tools/kmindex/test-data/query1.fasta"
+                            },
+                            {
+                                "class": "File",
+                                "filetype": "fasta",
+                                "identifier": "J",
+                                "location": "https://raw.githubusercontent.com/galaxyproject/tools-iuc/main/tools/lexicmap/test-data/lexicmap_query3.fasta"
+                            }
+                        ]
+                    },
+                    "kmindex_db_selection": "register",
+                    "kmindex_fast": false,
+                    "kmindex_output_format": "json",
+                    "kmindex_threshold": 0.3,
+                    "kmindex_zvalue": 6,
+                    "lexicmap_advanced_all": true,
+                    "lexicmap_index_selection": "db,db2",
+                    "lexicmap_top_n_genomes": 0,
+                    "tiling_qc_allow_frameshifts": false,
+                    "tiling_qc_max_internal_stops": 0,
+                    "tiling_qc_min_coverage": 0.8,
+                    "tiling_qc_min_coverage_partial": 0.5,
+                    "tiling_qc_min_pident": 60.0,
+                    "tiling_qc_sample_cap": 10
+                },
+                "invocation_details": null,
+                "job": null,
+                "output_problems": [],
+                "problem_log": null,
+                "start_datetime": "2026-09-17T11:47:15.607411",
+                "status": "error"
+            },
+            "doc": "kmindex_wiring_smoke_generic_fixtures: structural/wiring smoke test for the kmindex containment-screen chain and lexicmap_search's multi-index-selection binding, using each pinned Tool Shed wrapper's own real upstream functional-test fixtures (generic, non-phiX174 sequences and indices). Proves the workflow's collection map-over, multi-select DB/index binding, and per-gene sensitivity-override wiring execute without error. Does NOT audit any biological content, including the Gene E am3 diagnostic (see the other test case for that).",
+            "has_data": true,
+            "id": "galaxy-workflow.gxwf.yml_0",
+            "test_type": "galaxy_workflow"
+        }
+    ],
+    "version": "0.1"
+}

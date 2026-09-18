@@ -1,0 +1,166 @@
+# Galaxy user-defined tool wrapper for kmindex_hit_dedup_max_score (Stage B, N3b).
+#
+# Resolves open-requirements ledger entry kmindex-hit-merge-no-corpus-precedent: no Tool Shed
+# wrapper performs key-based dedup-with-max-score reduction over kmindex's per-shard JSON hit
+# maps. discover-shed-tool (this iteration, see galaxy-tool-pin.json) returned a MISS: the only
+# structurally-relevant candidates (iuc/datamash_ops, agordon/datamash_wrapper -- GNU datamash
+# `groupby -g <col> max <col>`) implement the right reduction primitive but require already-
+# tabular, pre-sorted-by-key delimited text input; they cannot parse JSON, so adopting one would
+# only relocate the custom transform (a JSON-to-TSV flatten + sort) rather than eliminate it.
+# Domain-specific "unique"/"sort" hits (mothur unique.seqs, vsearch dereplication, BAM/chain
+# sorters) dedup by sequence identity or genomic coordinate, not by an arbitrary JSON key --
+# wrong domain entirely. Authoring a small purpose-built tool is the correct, previously
+# recommended path (freeform-galaxy-data-flow.md section 4 item 1; ledger entry resolved by
+# freeform-summary-to-galaxy-template as this two-step topology: kmindex_hit_concat, the built-in
+# Collapse Collection concatenation, feeds this step, the custom dedup+max-score reduction).
+#
+# Input shape assumption (carried forward, not fabricated): kmindex_hit_concat's output is the
+# plain byte-for-byte concatenation (Collapse Collection, one_header: false) of ~109 per-shard
+# kmindex_query JSON files with no inserted separator, so the input to this tool is a stream of
+# back-to-back JSON documents, not one JSON value or one-object-per-line JSONL. This script
+# parses that stream with a repeated `json.JSONDecoder.raw_decode` scan rather than a single
+# `json.load` / line-split, so it does not depend on how many whitespace bytes (if any) fall
+# between documents. freeform-summary.md ("Output: per-shard JSON hit maps (accession ->
+# containment score)") documents the per-shard payload as an accession-keyed score map, but
+# kmindex's own upstream JSON output can nest per-query (multi-FASTA queries were combined into
+# one job by combine_gene_panel_to_bulk_fasta) as {query_name: {accession: score}} rather than a
+# flat {accession: score} map -- the wrapper's own schema could not be fetched this run (ledger
+# `tool-util-cli-toolshed-fetch-rejects-real-filtered-list-collection-output`) to confirm which
+# shape is real. Rather than pick one and silently mis-parse the other, the script recurses
+# through arbitrary dict/list nesting and treats every dict entry whose value is a plain number
+# as an (accession, score) leaf pair -- this covers both the flat and the one-level-nested-by-
+# query shape identically and is documented here as the explicit, checkable assumption.
+class: GalaxyUserTool
+id: kmindex_hit_dedup_max_score
+version: 1.0.0
+name: Kmindex Hit Accession Dedup By Max Score
+description: >-
+  Deduplicate kmindex per-shard containment hit records by accession, keeping the maximum
+  containment score observed for each accession across all shards, and emit the resulting
+  unique-accession union as a single one-per-line text list.
+license: MIT
+container: python:3.13-slim
+help:
+    format: markdown
+    content: |
+        Reads the single concatenated dataset produced by `kmindex_hit_concat` (Collapse
+        Collection's plain concatenation of the ~109-element per-shard kmindex containment-hit
+        JSON collection) and reduces it to one deduplicated accession list.
+
+        Because Collapse Collection inserts no separator between the per-shard JSON files it
+        concatenates, this tool parses the input as a sequence of back-to-back JSON documents
+        (repeated `raw_decode`, not a single `json.load`), then recursively walks each document:
+        any dict entry whose value is a plain number is treated as one `(accession, score)`
+        observation, and any dict/list value is recursed into. This covers both a flat
+        `{accession: score}` per-shard map and a per-query-nested `{query: {accession: score}}`
+        map without assuming which one kmindex emits for this multi-FASTA-query job.
+
+        For each accession seen anywhere across all shards, only the maximum observed
+        containment score is kept; the output is the sorted, deduplicated set of accession
+        identifiers (one per line) -- the workflow's `kmindex_accession_union` checkpoint
+        (2,114,904 unique accessions across the full 109-shard screen, per the paper).
+
+        No Tool Shed wrapper performs this key-based dedup-with-max-score reduction over JSON
+        input (open-requirements ledger `kmindex-hit-merge-no-corpus-precedent`; the closest
+        candidate, GNU datamash's `groupby ... max`, requires already-tabular pre-sorted input
+        and cannot parse JSON) -- this is the small custom step that ledger entry anticipated.
+inputs:
+    - name: concatenated_hits
+      type: data
+      format: [json, txt]
+      label: Concatenated per-shard kmindex hit JSON (kmindex_hit_concat output)
+      help: >-
+        One dataset holding all ~109 shards' kmindex containment-hit JSON records,
+        concatenated back-to-back with no separator (kmindex_hit_concat / Collapse Collection).
+outputs:
+    - name: accession_union
+      type: data
+      format: txt
+      from_work_dir: accession_union.txt
+      label: Deduplicated accession union (max containment score kept per accession)
+configfiles:
+    - filename: kmindex_hit_dedup_max_score.py
+      content: |
+          #!/usr/bin/env python3
+          """kmindex_hit_dedup_max_score.py: Deduplicate kmindex per-shard containment hit
+          records by accession, keeping the maximum containment score observed for each
+          accession across all shards, and emit the resulting unique-accession union as a
+          single one-per-line text list.
+
+          Input is the plain concatenation (no separator) of ~109 per-shard kmindex_query JSON
+          files (kmindex_hit_concat / Collapse Collection output), so it is parsed as a stream
+          of back-to-back JSON documents via repeated json.JSONDecoder.raw_decode rather than a
+          single json.load call.
+
+          Each document is walked recursively: any dict entry whose value is a plain number
+          (int/float, not bool) is treated as one (accession, score) leaf observation; any
+          dict or list value is recursed into. This handles both a flat {accession: score}
+          per-shard map and a per-query-nested {query: {accession: score}} map identically,
+          since kmindex's own multi-FASTA-query output nesting could not be confirmed this run
+          (see this tool's authoring header / help for the full citation).
+
+          Only the deduplicated accession identities are emitted (scores are tracked purely to
+          resolve which observation of a repeated accession wins the dedup; the paper-facing
+          output, UNION.accessions.txt-equivalent, is an accession list, not a scored table).
+          """
+          import argparse
+          import json
+          import sys
+
+          def iter_json_documents(text):
+              decoder = json.JSONDecoder()
+              idx = 0
+              n = len(text)
+              while idx < n:
+                  while idx < n and text[idx].isspace():
+                      idx += 1
+                  if idx >= n:
+                      break
+                  obj, end = decoder.raw_decode(text, idx)
+                  yield obj
+                  idx = end
+
+          def collect_max_scores(node, best):
+              if isinstance(node, dict):
+                  for key, value in node.items():
+                      if isinstance(value, (int, float)) and not isinstance(value, bool):
+                          prev = best.get(key)
+                          if prev is None or value > prev:
+                              best[key] = value
+                      elif isinstance(value, dict) or isinstance(value, list):
+                          collect_max_scores(value, best)
+              elif isinstance(node, list):
+                  for item in node:
+                      collect_max_scores(item, best)
+
+          def main():
+              parser = argparse.ArgumentParser(description=__doc__)
+              parser.add_argument("--input", required=True, help="Concatenated per-shard kmindex hit JSON")
+              parser.add_argument("--output", required=True, help="Output deduplicated accession list path")
+              args = parser.parse_args()
+
+              with open(args.input, "r") as fh:
+                  text = fh.read()
+
+              best_score_by_accession = {}
+              n_documents = 0
+              for document in iter_json_documents(text):
+                  n_documents += 1
+                  collect_max_scores(document, best_score_by_accession)
+
+              if n_documents == 0:
+                  sys.stderr.write(
+                      "kmindex_hit_dedup_max_score: no JSON documents found in input; "
+                      "writing an empty accession union.\n"
+                  )
+
+              with open(args.output, "w") as out:
+                  for accession in sorted(best_score_by_accession):
+                      out.write(accession + "\n")
+
+          if __name__ == "__main__":
+              main()
+shell_command: >-
+  python kmindex_hit_dedup_max_score.py
+  --input $(inputs.concatenated_hits.path)
+  --output accession_union.txt

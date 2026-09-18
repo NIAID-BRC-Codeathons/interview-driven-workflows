@@ -1,0 +1,171 @@
+diff --git a/python/lexicmap_streamer.py b/python/lexicmap_streamer.py
+index 6ed4b5e..a276fa7 100755
+--- a/python/lexicmap_streamer.py
++++ b/python/lexicmap_streamer.py
+@@ -387,15 +387,22 @@ def stream_lexicmap_to_msa(
+     start_time = time.time()
+     last_report_time = start_time
+ 
+-    print("\n---> Streaming rows, grouping by accession, and partitioning into Clean & Flagged cohorts...")
+-
+-    curr_acc = None
+-    curr_hsps = []
+-    # The stream is grouped by accession one block at a time, so all of an accession's HSPs must
+-    # be contiguous. If they are not, an accession is split into several blocks: it is counted
+-    # more than once and its multi-HSP coverage is undercounted, silently. Rather than corrupt
+-    # the cohort, detect a reappearance and stop with a clear instruction to sort the input.
+-    seen_accessions = set()
++    print("\n---> Reading rows and buffering HSPs by accession (robust to any row order)...")
++
++    # CORRECTNESS FIX: the original implementation assumed LexicMap's own tabular output was
++    # grouped by accession (`sgenome`) throughout the entire stream -- processing one contiguous
++    # "block" at a time and raising if an accession ever reappeared. That assumption held for
++    # small hand-built fixtures but is false for real, production-scale LexicMap search output:
++    # a single query commonly matches many thousands of target genomes ranked globally by score,
++    # and a genome with more than one distinct HSP/cluster can have its rows scattered
++    # non-contiguously throughout the file (confirmed against a real production run: e.g.
++    # accession 'SRR20569132' reappeared tens of thousands of rows after its first occurrence).
++    # Buffer every row by accession as it is read, and only classify/finalize each accession once
++    # the entire input has been consumed -- this is correct regardless of row order and needs no
++    # upstream pre-sorting step. Relies on Python's guaranteed dict insertion-order (3.7+) so
++    # accessions are still classified/emitted in first-seen order, matching prior behavior for the
++    # (still fully supported) case where the input already happens to be grouped.
++    row_buffer = {}  # acc -> list of hsp tuples, in first-seen order
+ 
+     def process_accession_block(acc, hsps):
+         nonlocal total_accessions, count_clean_full, count_clean_partial
+@@ -406,15 +413,6 @@ def stream_lexicmap_to_msa(
+         if not acc or not hsps:
+             return
+ 
+-        if acc in seen_accessions:
+-            raise ValueError(
+-                f"Accession '{acc}' reappears after its block was already processed, so the "
+-                f"input is not grouped by accession. All HSPs of an accession must be "
+-                f"contiguous. Sort the LexicMap output by the accession column first, e.g. "
+-                f"`sort -k<sgenome_col> -s input.tsv`, then re-run."
+-            )
+-        seen_accessions.add(acc)
+-
+         total_accessions += 1
+ 
+         merged_seq, covered_bases, mean_pid, single_ge_cov, single_full = merge_accession_hsps(
+@@ -505,29 +503,39 @@ def stream_lexicmap_to_msa(
+ 
+             hsp = (pident, qcov, qstart, qend, qseq, sseq)
+ 
+-            if acc != curr_acc:
+-                if curr_acc is not None:
+-                    process_accession_block(curr_acc, curr_hsps)
+-                curr_acc = acc
+-                curr_hsps = [hsp]
++            if acc not in row_buffer:
++                row_buffer[acc] = [hsp]
+             else:
+-                curr_hsps.append(hsp)
++                row_buffer[acc].append(hsp)
+ 
+             now = time.time()
+             if now - last_report_time >= 5.0 or (max_records and total_rows % 25000 == 0):
+                 elapsed = now - start_time
+                 rate = total_rows / elapsed if elapsed > 0 else 0
+-                print(f"     [Stream] Rows: {total_rows:,} | Accs: {total_accessions:,} | "
+-                      f"Clean Full: {count_clean_full:,} | Rescued: {total_rescued_multihsp:,} | "
+-                      f"Flagged Stops: {count_flagged_stops:,} | Speed: {rate:,.0f} rows/s")
++                print(f"     [Read] Rows: {total_rows:,} | Distinct accessions buffered: {len(row_buffer):,} | "
++                      f"Speed: {rate:,.0f} rows/s")
+                 last_report_time = now
+ 
+             if max_records and total_rows >= max_records:
+                 print(f"\n[*] Reached row limit (--max-records {max_records:,}).")
+                 break
+ 
+-        if curr_acc is not None:
+-            process_accession_block(curr_acc, curr_hsps)
++        # All rows are read (or --max-records was reached): every accession's HSPs are now
++        # complete and grouped in `row_buffer` regardless of their original order in the input.
++        # Classify each accession exactly once, in first-seen order.
++        print(f"\n---> Read complete: {len(row_buffer):,} distinct accessions. Classifying into cohorts...")
++        classify_start = time.time()
++        last_report_time = classify_start
++        for i, (acc, hsps) in enumerate(row_buffer.items(), 1):
++            process_accession_block(acc, hsps)
++            now = time.time()
++            if now - last_report_time >= 5.0:
++                elapsed = now - classify_start
++                rate = i / elapsed if elapsed > 0 else 0
++                print(f"     [Classify] Accs: {i:,}/{len(row_buffer):,} | "
++                      f"Clean Full: {count_clean_full:,} | Rescued: {total_rescued_multihsp:,} | "
++                      f"Flagged Stops: {count_flagged_stops:,} | Speed: {rate:,.0f} accs/s")
++                last_report_time = now
+ 
+     finally:
+         if hasattr(stream, "close"):
+diff --git a/python/test_lexicmap_streamer.py b/python/test_lexicmap_streamer.py
+index ec94738..d46c7ad 100644
+--- a/python/test_lexicmap_streamer.py
++++ b/python/test_lexicmap_streamer.py
+@@ -127,9 +127,12 @@ class TestLexicMapStreamer(unittest.TestCase):
+         self.assertLessEqual(mean_pid, 100.0)
+         self.assertAlmostEqual(mean_pid, 90.0)
+ 
+-    def test_ungrouped_input_is_rejected(self):
+-        # SRR001's two HSPs are split by an SRR002 row: the stream is not grouped by accession.
+-        # This must raise rather than silently double-count SRR001 and undercount its coverage.
++    def test_ungrouped_input_is_handled_correctly(self):
++        # SRR001's two HSPs are split by an SRR002 row: the stream is NOT grouped by accession.
++        # Real production LexicMap output is routinely ordered this way (ranked by score across
++        # all matched genomes, not grouped by genome), so this must be handled correctly rather
++        # than raising: SRR001's two split HSPs must still be merged together into one
++        # full-coverage clean accession, exactly as if the input had been pre-sorted.
+         tsv = (
+             "sgenome\tpident\tqcovHSP\tqstart\tqend\tqseq\tsseq\n"
+             "SRR001\t100.0\t50.0\t1\t6\tATGGCT\tATGGCT\n"
+@@ -138,11 +141,42 @@ class TestLexicMapStreamer(unittest.TestCase):
+         )
+         p = self.dir_path / "ungrouped.tsv"
+         p.write_text(tsv)
+-        with self.assertRaises(ValueError):
+-            lms.stream_lexicmap_to_msa(
+-                ref_path=str(self.ref_fasta), file_path=str(p),
+-                out_prefix=str(self.dir_path / "ung"),
+-            )
++        summary = lms.stream_lexicmap_to_msa(
++            ref_path=str(self.ref_fasta), file_path=str(p),
++            out_prefix=str(self.dir_path / "ung"),
++        )
++        # Both SRR001 (rescued from its two split HSPs) and SRR002 (single full-length HSP) must
++        # be counted as clean full-length -- not raised on, not double-counted, not undercounted.
++        breakdown = summary["cohort_breakdown"]
++        self.assertEqual(summary["total_accessions_evaluated"], 2)
++        self.assertEqual(breakdown["clean_full_length"], 2)
++        self.assertEqual(summary["recovery_metrics"]["multi_hsp_rescued_accessions"], 1)  # SRR001
++
++        clean_fa = Path(f"{self.dir_path / 'ung'}.clean.accessions.fasta").read_text()
++        self.assertIn("SRR001", clean_fa)
++        self.assertIn("SRR002", clean_fa)
++        self.assertIn("ATGGCTGAATAA", clean_fa)  # SRR001's merged, full-coverage sequence
++
++    def test_reappearing_accession_does_not_double_count(self):
++        # A three-way split (interleaved with two other accessions) is a stronger version of the
++        # same real-world scenario: SRR900's three HSPs are scattered across the file. Must still
++        # be merged into exactly one accession record, not three.
++        tsv = (
++            "sgenome\tpident\tqcovHSP\tqstart\tqend\tqseq\tsseq\n"
++            "SRR900\t100.0\t33.3\t1\t4\tATGG\tATGG\n"
++            "SRR901\t100.0\t100.0\t1\t12\tATGGCTGAATAA\tATGGCTGAATAA\n"
++            "SRR900\t100.0\t33.3\t5\t8\tCTGA\tCTGA\n"
++            "SRR902\t100.0\t100.0\t1\t12\tATGGCTGAATAA\tATGGCTGAATAA\n"
++            "SRR900\t100.0\t33.3\t9\t12\tATAA\tATAA\n"
++        )
++        p = self.dir_path / "scattered.tsv"
++        p.write_text(tsv)
++        summary = lms.stream_lexicmap_to_msa(
++            ref_path=str(self.ref_fasta), file_path=str(p),
++            out_prefix=str(self.dir_path / "scat"),
++        )
++        self.assertEqual(summary["total_accessions_evaluated"], 3)  # not 5, not double-counted
++        self.assertEqual(summary["cohort_breakdown"]["clean_full_length"], 3)
+ 
+     def test_empty_stream_does_not_crash(self):
+         # Header only, no data rows: must return a zeroed summary, not raise ZeroDivisionError.

@@ -1,0 +1,690 @@
+plan_version: "1"
+
+source:
+  kind: freeform
+  name: "ΦX174 Planetary-Scale Retrospective DMS -- Workflow A (SRA Landscape & Spike-In Sieve)"
+  derived_from: intent
+  notes: >-
+    Synthesized from freeform-summary.md (Stages A, B, C, D2), freeform-galaxy-interface.md
+    (Workflow A section), freeform-galaxy-data-flow.md (nodes N1-N7), and
+    iwc-comparison-notes.md (no High/Medium-confidence IWC domain exemplar found; kmindex and
+    LexicMap do not appear anywhere in the IWC corpus). There is no upstream test-evidence
+    (nf-test snapshot, CWL job file) for this project to translate -- every test case and
+    assertion below is synthesized from stated workflow intent, the paper's own Table 1 /
+    am3-diagnostic numbers, and the concrete workflow's declared step contracts. Grounded
+    additionally against galaxy-workflow.gxwf.yml (the concrete 9-step gxformat2 draft) and
+    test-data-refs.json (phase 7's gene E/J scoping decision and documented fixture gaps), per
+    this run's explicit instruction to use them for consistency even though they are not this
+    skill's own declared inputs.
+
+workflow:
+  title: "phix174_sra_landscape_spikein_sieve (ΦX174 SRA Landscape & Spike-In Sieve, Workflow A)"
+  label_source: draft
+  notes: >-
+    All workflow_label values below are the literal input/output ids from
+    galaxy-workflow.gxwf.yml's inputs:/outputs: blocks (e.g. gene_query_panel,
+    gene_e_am3_quarantine_audit), not the interface brief's earlier proposed prose labels
+    (e.g. "Gene E am3 quarantine audit"), which in places differ from what the concrete draft
+    actually shipped. implement-galaxy-workflow-test should still re-confirm these against the
+    live draft before finalizing, since this skill's own declared inputs are the earlier
+    template-era briefs (see warnings[0]).
+
+test_cases:
+  - id: kmindex_wiring_smoke_generic_fixtures
+    doc: >-
+      Structural/wiring smoke test for the kmindex containment-screen chain
+      (combine_gene_panel_to_bulk_fasta -> kmindex_containment_screen -> kmindex_hit_concat ->
+      kmindex_hit_dedup_max_score) and for lexicmap_search's multi-index-selection binding,
+      using each pinned Tool Shed wrapper's own real upstream functional-test fixtures (generic,
+      non-phiX174 sequences and indices) instead of phiX174 biology. This exists because no
+      small, real, locally-buildable Logan-shard kmindex index or Logan-derived LexicMap domain
+      index exists at any scale smaller than usegalaxy.org's production data (test-data-refs.json
+      gaps "no-real-small-kmindex-logan-shard-subset" and
+      "no-real-small-lexicmap-logan-index-subset"). This case proves the workflow's collection
+      map-over, multi-select DB/index binding, and per-gene sensitivity-override wiring execute
+      without error; it does NOT audit any biological content, including the Gene E am3
+      diagnostic (see test case gene_e_j_am3_diagnostic_synthetic_lexicmap_index for that).
+      The workflow's mandatory element_identifier=="E" extraction in extract_gene_e_am3_audit
+      means every test case, including this one, must still supply an "E"-identified
+      gene_query_panel element, even though here it carries generic (non-phiX174) sequence
+      content.
+    derived_from: intent
+    provenance: >-
+      test-data-refs.json tool_level_structural_fixtures (kmindex_query test #6 "using register
+      index"; lexicmap.xml tests #3/#4/#6); iwc-comparison-notes.md "Test issues" routing note.
+    job_inputs:
+      - workflow_label: gene_query_panel
+        label_status: resolved
+        description: >-
+          2-element sample_sheet reusing the workflow's mandatory E/J identifiers but populated
+          with each pinned tool's own generic upstream test query sequences, not real phiX174
+          CDS -- element "E" holds tools-iuc kmindex's query1.fasta content (or lexicmap's
+          lexicmap_query3.fasta content), element "J" a second generic sequence from the same
+          fixture sets. Per-gene LexicMap sensitivity override columns left unset for both
+          (not meaningful for generic sequences).
+        collection_shape: sample_sheet
+        datatype: fasta
+        fixture:
+          storage: remote-url
+          location: >-
+            https://raw.githubusercontent.com/galaxyproject/tools-iuc/main/tools/kmindex/test-data/query1.fasta
+            ; https://raw.githubusercontent.com/galaxyproject/tools-iuc/main/tools/lexicmap/test-data/lexicmap_query3.fasta
+          checksum: null
+          provenance: >-
+            tools-iuc kmindex_query.xml test #6 and lexicmap.xml tests #3/#4/#6, both already
+            used for upstream CI; not phiX174 biology.
+      - workflow_label: kmindex_db_selection
+        label_status: resolved
+        description: >-
+          kmindex's own test-only "register" value, which expands (in the wrapper's own
+          functional test) to a real 2-shard multi-select (index1, index2) against a synthetic
+          repeat-sequence index bundled in tools-iuc's test-data.
+        collection_shape: null
+        datatype: null
+        fixture:
+          storage: unresolved
+          location: null
+          checksum: null
+          provenance: >-
+            Value "register" is confirmed only inside kmindex_query.xml's own functional test
+            harness; whether a workflow-level Planemo test job can pass it through the same way
+            is unconfirmed -- see unresolved[2].
+      - workflow_label: kmindex_zvalue
+        label_status: resolved
+        description: workflow default.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: "6", checksum: null, provenance: "galaxy-workflow.gxwf.yml default"}
+      - workflow_label: kmindex_threshold
+        label_status: resolved
+        description: workflow default.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: "0.3", checksum: null, provenance: "galaxy-workflow.gxwf.yml default"}
+      - workflow_label: kmindex_output_format
+        label_status: resolved
+        description: workflow default.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: "json", checksum: null, provenance: "galaxy-workflow.gxwf.yml default"}
+      - workflow_label: kmindex_fast
+        label_status: resolved
+        description: workflow default.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: "false", checksum: null, provenance: "galaxy-workflow.gxwf.yml default"}
+      - workflow_label: lexicmap_index_selection
+        label_status: resolved
+        description: >-
+          LexicMap's own real 2-index test combination (db.lmi + db2.lmi), indexing two small
+          real viral RefSeq assemblies (GCF_001502155.1, GCF_001502175.1) -- not phiX174 and not
+          Logan-derived.
+        collection_shape: null
+        datatype: null
+        fixture:
+          storage: unresolved
+          location: null
+          checksum: null
+          provenance: >-
+            tools-iuc lexicmap.xml tests #3/#4/#6 combine db.lmi+db2.lmi; whether the exact
+            data-table name is reachable from a workflow-level test job is unconfirmed -- see
+            unresolved[2].
+      - workflow_label: lexicmap_top_n_genomes
+        label_status: resolved
+        description: workflow default.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: "0", checksum: null, provenance: "galaxy-workflow.gxwf.yml default"}
+      - workflow_label: lexicmap_advanced_all
+        label_status: resolved
+        description: workflow default.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: "true", checksum: null, provenance: "galaxy-workflow.gxwf.yml default"}
+      - workflow_label: tiling_qc_min_coverage
+        label_status: resolved
+        description: workflow default.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: "0.8", checksum: null, provenance: "galaxy-workflow.gxwf.yml default"}
+      - workflow_label: tiling_qc_min_coverage_partial
+        label_status: resolved
+        description: workflow default.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: "0.5", checksum: null, provenance: "galaxy-workflow.gxwf.yml default"}
+      - workflow_label: tiling_qc_min_pident
+        label_status: resolved
+        description: workflow default.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: "60", checksum: null, provenance: "galaxy-workflow.gxwf.yml default"}
+      - workflow_label: tiling_qc_max_internal_stops
+        label_status: resolved
+        description: workflow default.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: "0", checksum: null, provenance: "galaxy-workflow.gxwf.yml default"}
+      - workflow_label: tiling_qc_sample_cap
+        label_status: resolved
+        description: workflow default.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: "10", checksum: null, provenance: "galaxy-workflow.gxwf.yml default"}
+      - workflow_label: tiling_qc_allow_frameshifts
+        label_status: resolved
+        description: >-
+          Confirmed OFF/False by direct read of nekrut/disassembler's lexicmap_streamer.py
+          argparse (store_true, no default=True).
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: "false", checksum: null, provenance: "test-data-refs.json inputs (tiling_qc_allow_frameshifts)"}
+    expected_outputs:
+      - workflow_label: kmindex_accession_union
+        label_status: resolved
+        description: >-
+          Deduplicated accession union across the kmindex "register" test shards. Existence-only:
+          the underlying index has no phiX174 biological relationship, so only "the chain ran and
+          produced non-empty output" is assertable.
+        output_kind: dataset
+        collection_shape: null
+        assertion_intent:
+          - family: has_size
+            intent: "Output is non-empty (chain executed and produced a result)."
+            expected_value: null
+            tolerance: {kind: none, magnitude: null, rationale: "existence-only, no content relationship to phiX174"}
+            element_identifier: null
+            evidence: intent
+            confidence: low
+      - workflow_label: clean_full_length_cds_haplotypes
+        label_status: resolved
+        description: "Per-gene clean haplotype FASTA (sample_sheet). Existence-only per element."
+        output_kind: collection
+        collection_shape: sample_sheet
+        assertion_intent:
+          - {family: has_size, intent: "Non-empty output for gene E.", expected_value: null, tolerance: null, element_identifier: "E", evidence: intent, confidence: low}
+          - {family: has_size, intent: "Non-empty output for gene J.", expected_value: null, tolerance: null, element_identifier: "J", evidence: intent, confidence: low}
+      - workflow_label: clean_haplotype_counts
+        label_status: resolved
+        description: "Per-gene clean haplotype counts table. Existence-only per element."
+        output_kind: collection
+        collection_shape: sample_sheet
+        assertion_intent:
+          - {family: has_n_columns, intent: "Table has a plausible column count (schema smoke check).", expected_value: null, tolerance: null, element_identifier: "E", evidence: intent, confidence: low}
+          - {family: has_n_columns, intent: "Table has a plausible column count (schema smoke check).", expected_value: null, tolerance: null, element_identifier: "J", evidence: intent, confidence: low}
+      - workflow_label: flagged_accessions
+        label_status: resolved
+        description: "Per-gene flagged (QC-failed) sequences. Existence-only, not audited for content in this case."
+        output_kind: collection
+        collection_shape: sample_sheet
+        assertion_intent: []
+      - workflow_label: flagged_audit_reasons
+        label_status: resolved
+        description: "Per-gene flagged.tsv. Existence-only in this case; see the other test case for the real am3 assertion."
+        output_kind: collection
+        collection_shape: sample_sheet
+        assertion_intent:
+          - {family: has_n_lines, intent: "At least a header line is present.", expected_value: null, tolerance: {kind: none, magnitude: null, rationale: "existence-only"}, element_identifier: "E", evidence: intent, confidence: low}
+      - workflow_label: per_gene_ingestion_summary
+        label_status: resolved
+        description: "Per-gene summary.json. Stochastic/opaque given generic non-phiX174 input; existence-only per corpus convention for JSON of this kind."
+        output_kind: collection
+        collection_shape: sample_sheet
+        assertion_intent:
+          - {family: has_text, intent: "Output is well-formed JSON.", expected_value: "{", tolerance: null, element_identifier: "E", evidence: intent, confidence: low}
+          - {family: has_text, intent: "Output is well-formed JSON.", expected_value: "{", tolerance: null, element_identifier: "J", evidence: intent, confidence: low}
+      - workflow_label: ingestion_manifest_all_genes
+        label_status: resolved
+        description: "All-gene manifest table. Existence-only (2 data rows expected structurally, not content-checked)."
+        output_kind: dataset
+        collection_shape: null
+        assertion_intent:
+          - {family: has_n_lines, intent: "Header plus 2 gene rows (E, J).", expected_value: 3, tolerance: {kind: delta, magnitude: 1, rationale: "tolerate a trailing-newline off-by-one"}, element_identifier: null, evidence: intent, confidence: medium}
+      - workflow_label: gene_e_am3_quarantine_audit
+        label_status: resolved
+        description: >-
+          Gene E element of flagged_tsv. In THIS case the "E" element is generic test-fixture
+          sequence, not real phiX174 gene E, so no am3 diagnostic content is expected --
+          existence-only. The meaningful, content-bearing am3 assertion is in the other test
+          case.
+        output_kind: dataset
+        collection_shape: null
+        assertion_intent:
+          - family: has_size
+            intent: "Output exists (extraction step resolved a real E element and did not error)."
+            expected_value: null
+            tolerance: {kind: none, magnitude: null, rationale: "existence-only; not phiX174 biology in this case"}
+            element_identifier: null
+            evidence: intent
+            confidence: low
+
+  - id: gene_e_j_am3_diagnostic_synthetic_lexicmap_index
+    doc: >-
+      Primary functional test for Workflow A's core scientific claim (the paper's Sanger am3
+      spike-in diagnostic, freeform-summary.md Stage D2: genome position nt587 G->A causes a
+      premature TGG->TAG stop at Gene E codon 7, gpE_W7*). Exercises lexicmap_search ->
+      lexicmap_streamer_tiling_qc -> {flatten_gene_summary_json_to_row ->
+      join_gene_summary_rows_into_manifest} and -> extract_gene_e_am3_audit end-to-end using a
+      small, purpose-built synthetic LexicMap domain index (construction deferred to
+      implement-galaxy-workflow-test / a follow-on find-test-data pass; this plan specifies its
+      required composition per Fixture.storage=generated-toy) seeded with real cds/E.fasta and
+      cds/J.fasta content plus 3 hand-crafted decoy accessions: (1) a Gene-E wildtype-clean
+      decoy, (2) a Gene-E am3-positive decoy carrying the exact nt587 G->A / codon-7 TGG->TAG
+      substitution, and (3) a Gene-J clean decoy. This is the smallest fixture that can produce a
+      real, assertable Gene E am3 quarantine audit without waiting on usegalaxy.org-hosted
+      production Logan indices (test-data-refs.json gap
+      "no-real-completed-lexicmap-hits-table-for-lexicmap-streamer"). The kmindex chain shares
+      the same job (one workflow invocation runs both chains) but is not the focus here and is
+      only weakly asserted; see omissions[1].
+    derived_from: intent
+    provenance: >-
+      freeform-summary.md Stage D2 (am3 diagnostic: nt587 G->A, gpE_W7*, 2,215,172/2,392,457 =
+      92.59% of evaluated Gene E accessions); test-data-refs.json inputs[0] (real cds/E.fasta,
+      cds/J.fasta, per-gene sensitivity overrides) and gaps[2]; galaxy-workflow.gxwf.yml
+      extract_gene_e_am3_audit doc (flagged_tsv columns: accession, coverage, mean_pident, flag,
+      n_stops, stop_codons, hsps_merged).
+    job_inputs:
+      - workflow_label: gene_query_panel
+        label_status: resolved
+        description: >-
+          2-element sample_sheet: E = real cds/E.fasta (273 bp CDS) with per-gene LexicMap
+          sensitivity override columns populated (align_min_match_pident=60.0,
+          align_min_match_len=35, seed_min_prefix=15, min_qcov_per_genome=30.0, sourced from
+          logan_remaining_runs.json per test-data-refs.json); J = real cds/J.fasta (114 bp CDS,
+          shortest gene in the panel), override columns unset (falls back to wrapper defaults
+          70/50/17/unset).
+        collection_shape: sample_sheet
+        datatype: fasta
+        fixture:
+          storage: in-repo
+          location: "cds/E.fasta, cds/J.fasta"
+          checksum: null
+          provenance: >-
+            test-data-refs.json inputs[0]; real files already used by this project's own
+            kmindex/LexicMap submission scripts (submit_kmindex_all_genes.py,
+            submit_remaining_logan.py).
+      - workflow_label: kmindex_db_selection
+        label_status: resolved
+        description: "Real Logan shard names, kept only for job completeness; not this case's focus."
+        collection_shape: null
+        datatype: null
+        fixture:
+          storage: unresolved
+          location: "GENOMIC_PHG,GENOMIC_VRL,METAGENOMIC_ENV"
+          checksum: null
+          provenance: >-
+            test-data-refs.json kmindex_db_selection (real shard names, no backing test-scale
+            index -- see unresolved[0]).
+      - workflow_label: kmindex_zvalue
+        label_status: resolved
+        description: workflow default.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: "6", checksum: null, provenance: "galaxy-workflow.gxwf.yml default"}
+      - workflow_label: kmindex_threshold
+        label_status: resolved
+        description: workflow default.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: "0.3", checksum: null, provenance: "galaxy-workflow.gxwf.yml default"}
+      - workflow_label: kmindex_output_format
+        label_status: resolved
+        description: workflow default.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: "json", checksum: null, provenance: "galaxy-workflow.gxwf.yml default"}
+      - workflow_label: kmindex_fast
+        label_status: resolved
+        description: workflow default.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: "false", checksum: null, provenance: "galaxy-workflow.gxwf.yml default"}
+      - workflow_label: lexicmap_index_selection
+        label_status: assumed
+        description: >-
+          Placeholder data-table name for the not-yet-built synthetic 3-decoy index described in
+          this test case's doc (e.g. "PhiX174E_J_Am3ToyIndex"); real value to be assigned once
+          the index is constructed.
+        collection_shape: null
+        datatype: null
+        fixture:
+          storage: generated-toy
+          location: null
+          checksum: null
+          provenance: >-
+            This plan specifies the index's required composition (wildtype-clean Gene E decoy,
+            am3-positive Gene E decoy, clean Gene J decoy); construction is deferred -- see
+            unresolved[1].
+      - workflow_label: lexicmap_top_n_genomes
+        label_status: resolved
+        description: workflow default.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: "0", checksum: null, provenance: "galaxy-workflow.gxwf.yml default"}
+      - workflow_label: lexicmap_advanced_all
+        label_status: resolved
+        description: workflow default.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: "true", checksum: null, provenance: "galaxy-workflow.gxwf.yml default"}
+      - workflow_label: tiling_qc_min_coverage
+        label_status: resolved
+        description: workflow default.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: "0.8", checksum: null, provenance: "galaxy-workflow.gxwf.yml default"}
+      - workflow_label: tiling_qc_min_coverage_partial
+        label_status: resolved
+        description: workflow default.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: "0.5", checksum: null, provenance: "galaxy-workflow.gxwf.yml default"}
+      - workflow_label: tiling_qc_min_pident
+        label_status: resolved
+        description: workflow default.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: "60", checksum: null, provenance: "galaxy-workflow.gxwf.yml default"}
+      - workflow_label: tiling_qc_max_internal_stops
+        label_status: resolved
+        description: >-
+          workflow default; 0 tolerated internal stops for the CLEAN cohort is exactly what
+          routes the am3-positive decoy to the FLAGGED cohort instead.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: "0", checksum: null, provenance: "galaxy-workflow.gxwf.yml default"}
+      - workflow_label: tiling_qc_sample_cap
+        label_status: resolved
+        description: workflow default.
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: "10", checksum: null, provenance: "galaxy-workflow.gxwf.yml default"}
+      - workflow_label: tiling_qc_allow_frameshifts
+        label_status: resolved
+        description: "Confirmed OFF/False from nekrut/disassembler's real argparse source."
+        collection_shape: null
+        datatype: null
+        fixture: {storage: null, location: "false", checksum: null, provenance: "test-data-refs.json inputs (tiling_qc_allow_frameshifts)"}
+    expected_outputs:
+      - workflow_label: kmindex_accession_union
+        label_status: resolved
+        description: "Not this case's focus; see omissions[1]."
+        output_kind: dataset
+        collection_shape: null
+        assertion_intent: []
+      - workflow_label: clean_full_length_cds_haplotypes
+        label_status: resolved
+        description: >-
+          Per-gene clean haplotype FASTA. Gene E should contain exactly the wildtype-clean decoy
+          (the am3-positive decoy is routed to FLAGGED, not here). Gene J should contain its one
+          clean decoy.
+        output_kind: collection
+        collection_shape: sample_sheet
+        assertion_intent:
+          - family: has_text
+            intent: "Gene E's clean cohort contains the wildtype-clean decoy accession, not the am3-positive one."
+            expected_value: "E_wildtype_ctrl"
+            tolerance: null
+            element_identifier: "E"
+            evidence: intent
+            confidence: medium
+          - family: has_text
+            intent: "Gene J's clean cohort contains its clean decoy accession."
+            expected_value: "J_clean_ctrl"
+            tolerance: null
+            element_identifier: "J"
+            evidence: intent
+            confidence: medium
+      - workflow_label: clean_haplotype_counts
+        label_status: resolved
+        description: "Per-gene clean haplotype counts. Gene E: 1 clean haplotype. Gene J: 1 clean haplotype."
+        output_kind: collection
+        collection_shape: sample_sheet
+        assertion_intent:
+          - {family: has_n_lines, intent: "Header plus exactly 1 clean haplotype row for gene E.", expected_value: 2, tolerance: {kind: delta, magnitude: 1, rationale: "tolerate trailing-newline off-by-one"}, element_identifier: "E", evidence: intent, confidence: medium}
+          - {family: has_n_lines, intent: "Header plus exactly 1 clean haplotype row for gene J.", expected_value: 2, tolerance: {kind: delta, magnitude: 1, rationale: "tolerate trailing-newline off-by-one"}, element_identifier: "J", evidence: intent, confidence: medium}
+      - workflow_label: flagged_accessions
+        label_status: resolved
+        description: "Per-gene flagged (QC-failed) sequences. Gene E should contain exactly the am3-positive decoy. Gene J should be empty."
+        output_kind: collection
+        collection_shape: sample_sheet
+        assertion_intent:
+          - family: has_text
+            intent: "Gene E's flagged cohort contains the am3-positive decoy accession."
+            expected_value: "E_am3_ctrl"
+            tolerance: null
+            element_identifier: "E"
+            evidence: intent
+            confidence: medium
+      - workflow_label: flagged_audit_reasons
+        label_status: resolved
+        description: >-
+          Per-gene flagged.tsv (columns: accession, coverage, mean_pident, flag, n_stops,
+          stop_codons, hsps_merged, per galaxy-workflow.gxwf.yml's confirmed real source read).
+          This is the closest upstream signal to the am3 finding before extraction.
+        output_kind: collection
+        collection_shape: sample_sheet
+        assertion_intent:
+          - family: has_n_lines
+            intent: "Gene E: header plus exactly 1 flagged row (the am3-positive decoy)."
+            expected_value: 2
+            tolerance: {kind: delta, magnitude: 1, rationale: "tolerate trailing-newline off-by-one"}
+            element_identifier: "E"
+            evidence: intent
+            confidence: medium
+          - family: has_text
+            intent: "Gene E's flagged row records the premature stop at codon 7, matching the paper's gpE_W7* diagnostic."
+            expected_value: "7"
+            tolerance: null
+            element_identifier: "E"
+            evidence: intent
+            confidence: medium
+          - family: has_n_lines
+            intent: "Gene J: header only, no flagged accessions (clean decoy only)."
+            expected_value: 1
+            tolerance: {kind: delta, magnitude: 0, rationale: "exact -- this fixture is fully controlled/deterministic by design"}
+            element_identifier: "J"
+            evidence: intent
+            confidence: medium
+      - workflow_label: per_gene_ingestion_summary
+        label_status: resolved
+        description: >-
+          Per-gene summary.json. Deterministic here (tiny controlled fixture, not the
+          stochastic/floating-point-heavy case the existence-only convention targets), so a
+          surgical property assertion is used instead of "starts with {".
+        output_kind: collection
+        collection_shape: sample_sheet
+        assertion_intent:
+          - family: has_json_property_with_value
+            intent: "Gene E evaluated exactly 2 accessions (wildtype-clean + am3-positive decoys)."
+            expected_value: 2
+            tolerance: null
+            element_identifier: "E"
+            evidence: intent
+            confidence: medium
+          - family: has_json_property_with_value
+            intent: "Gene E's cohort breakdown records exactly 1 premature-stop (am3-like) flagged accession."
+            expected_value: 1
+            tolerance: null
+            element_identifier: "E"
+            evidence: intent
+            confidence: medium
+          - family: has_json_property_with_value
+            intent: "Gene J evaluated exactly 1 accession (its one clean decoy)."
+            expected_value: 1
+            tolerance: null
+            element_identifier: "J"
+            evidence: intent
+            confidence: medium
+      - workflow_label: ingestion_manifest_all_genes
+        label_status: resolved
+        description: "All-gene manifest table joining the E and J summary rows."
+        output_kind: dataset
+        collection_shape: null
+        assertion_intent:
+          - family: has_n_lines
+            intent: "Header plus 2 gene rows (E, J)."
+            expected_value: 3
+            tolerance: {kind: delta, magnitude: 1, rationale: "tolerate trailing-newline off-by-one"}
+            element_identifier: null
+            evidence: intent
+            confidence: medium
+          - family: has_text
+            intent: "Manifest's first column is the gene symbol (per flatten_gene_summary_json_to_row's own confirmed column-1-is-gene contract)."
+            expected_value: "gene"
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: medium
+      - workflow_label: gene_e_am3_quarantine_audit
+        label_status: resolved
+        description: >-
+          FLAGSHIP ASSERTION. Gene E element of flagged_tsv, extracted by
+          extract_gene_e_am3_audit (__EXTRACT_DATASET__, by_identifier "E"). With this test
+          case's synthetic index, this should contain exactly one row: the am3-positive decoy,
+          flagged for a premature stop at codon 7 -- the workflow-level, assertable analog of the
+          paper's real finding that 2,215,172/2,392,457 (92.59%) of evaluated Gene E accessions
+          carry the nt587 G->A / gpE_W7* substitution. Real full-scale numbers are recorded only
+          as directional context in test-data-refs.json and are NOT asserted here (see
+          omissions[0]).
+        output_kind: dataset
+        collection_shape: null
+        assertion_intent:
+          - family: has_n_lines
+            intent: "Exactly one flagged row (header plus the single am3-positive decoy) for the tiny controlled fixture."
+            expected_value: 2
+            tolerance: {kind: delta, magnitude: 0, rationale: "exact -- this output is a direct extraction of a fully controlled synthetic fixture, not a stochastic tool result"}
+            element_identifier: null
+            evidence: intent
+            confidence: medium
+          - family: has_text
+            intent: "The flagged row identifies the am3-positive decoy accession."
+            expected_value: "E_am3_ctrl"
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: medium
+          - family: has_text
+            intent: "The flagged row's stop_codons column records position 7, matching the paper's Gene E codon-7 TGG->TAG (gpE_W7*) diagnostic mutation at genome position nt587 G->A."
+            expected_value: "7"
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: medium
+
+unresolved:
+  - kind: fixture
+    description: >-
+      No small real Logan-shard kmindex index or Logan-derived LexicMap domain index exists for
+      any of GENOMIC_PHG/GENOMIC_VRL/METAGENOMIC_ENV or Viral/BacteriaMetagenomic;
+      kmindex_db_selection and lexicmap_index_selection therefore cannot be bound to fixtures
+      carrying genuine phiX174 containment content at any tier smaller than usegalaxy.org's
+      production Logan indices, in either test case.
+    blocking: true
+    suggested_resolution: >-
+      Either obtain usegalaxy.org history/API access to run a real (if slow) end-to-end pass, or
+      build a tiny local kmindex/LexicMap index (via kmindex_query's kmindex_build wrapper /
+      lexicmap-index.xml) seeded with cds/E.fasta, cds/J.fasta plus the 3 decoy accessions
+      described in test case gene_e_j_am3_diagnostic_synthetic_lexicmap_index, named to satisfy
+      db_opts|kmindex / db_opts|lexicmap_index's data-table lookup.
+  - kind: fixture
+    description: >-
+      The synthetic 3-decoy LexicMap index (wildtype-clean Gene E, am3-positive Gene E, clean
+      Gene J) that test case gene_e_j_am3_diagnostic_synthetic_lexicmap_index depends on does not
+      yet exist as a buildable artifact; this plan only specifies its required composition and
+      the accession identifiers (E_wildtype_ctrl, E_am3_ctrl, J_clean_ctrl) its assertions
+      reference.
+    blocking: true
+    suggested_resolution: >-
+      implement-galaxy-workflow-test (or a follow-on find-test-data pass) should construct the 3
+      decoy sequences (derived from real cds/E.fasta / cds/J.fasta with the am3 decoy carrying
+      the exact nt587 G->A substitution) and build/register a tiny LexicMap index from them, or
+      hand-construct the equivalent LexicMap hit-table TSV directly (per
+      test-data-refs.json's confirmed lexicmap_search column schema) if index construction
+      proves impractical.
+  - kind: fixture
+    description: >-
+      Whether kmindex's test-only "register" value and lexicmap's db.lmi+db2.lmi test-data names
+      (used in test case kmindex_wiring_smoke_generic_fixtures) are addressable from a
+      workflow-level Planemo test job the same way they are from each tool's own functional test
+      harness is unconfirmed.
+    blocking: false
+    suggested_resolution: >-
+      Confirm via a trial planemo workflow_test invocation; the plan's existing existence-only
+      assertion design for that test case already tolerates either outcome.
+  - kind: fixture
+    description: >-
+      No verified phiX174-negative-control SRA accession is documented anywhere in the source
+      project (test-data-refs.json gap "no-verified-phix174-negative-control-accession"); a true
+      negative-control test case is therefore out of scope for this plan rather than fabricated.
+    blocking: false
+    suggested_resolution: >-
+      User-supplied: name a specific SRA accession known/expected to have zero phiX174
+      gene-panel containment, for use as a true-negative case in a future revision of this plan.
+  - kind: output-label
+    description: >-
+      This skill's own declared inputs are the earlier template-era interface/data-flow briefs,
+      but all workflow_label values in this plan were instead taken from the concrete
+      gxformat2 draft (galaxy-workflow.gxwf.yml), per this run's explicit grounding instruction.
+      A strict re-check of every label against the live draft (and against the workflow-label
+      cross-check implement-galaxy-workflow-test already performs) is still worthwhile before
+      finalizing, since this plan itself was not produced by that cross-check tool.
+    blocking: false
+    suggested_resolution: null
+
+omissions:
+  - target: "Full production-scale run (10 genes x 109 kmindex shards x up to 25 LexicMap indices, ~2.1M accessions)"
+    reason: >-
+      Explicitly out of scope for a fast workflow test. The real, already-computed full-scale
+      numbers in test-data-refs.json
+      (expected_output_ground_truth_full_scale_only: gene E total_accessions_evaluated=2392457,
+      flagged_internal_stops=2215172, am3_stop_fraction_pct=92.59; gene J
+      total_accessions_evaluated=2278534, flagged_internal_stops=63) are retained only as
+      directional/sanity-bound references for a future full-scale validation pass against
+      usegalaxy.org, not as exact-match assertions in this plan.
+    category: out-of-scope
+  - target: "kmindex_accession_union content assertions, and all lexicmap/streamer/manifest/am3-audit outputs in test case kmindex_wiring_smoke_generic_fixtures"
+    reason: >-
+      No small real Logan-shard kmindex index or Logan-derived LexicMap index exists; content in
+      that test case has no phiX174 biological relationship, so only existence-level checks are
+      asserted there. The content-bearing assertions live in the sibling test case instead.
+    category: no-stable-checkpoint
+  - target: "True negative-control test case (a confirmed phiX174-negative SRA accession)"
+    reason: >-
+      No accession is documented anywhere in the source project as a confirmed phiX174 non-hit;
+      fabricating one would violate the no-fabrication rule this plan inherits from
+      find-test-data (test-data-refs.json gap "no-verified-phix174-negative-control-accession").
+    category: out-of-scope
+  - target: "LexicMap raw per-gene hit table (lexicmap_search's out_file port)"
+    reason: >-
+      Not a promoted top-level workflow output (absent from galaxy-workflow.gxwf.yml's outputs:
+      block); per galaxy-workflow-testability-design, only labeled workflow-level outputs are
+      assertable by a Galaxy workflow test. This intermediate is exercised only indirectly via
+      lexicmap_streamer_tiling_qc's own outputs.
+    category: no-stable-checkpoint
+
+warnings:
+  - code: workflow-label-source-draft-not-brief
+    message: >-
+      This plan's declared inputs are the earlier template-era interface/data-flow briefs, but a
+      concrete gxformat2 workflow draft (galaxy-workflow.gxwf.yml) and resolved test-data-refs.json
+      were additionally available and used for grounding, per this run's explicit instructions.
+      All workflow_label values were taken from the concrete draft's actual input/output ids, not
+      re-derived from the brief's earlier proposed labels, which differ in places (e.g. the
+      brief's prose "Gene E am3 quarantine audit" vs. the draft's actual id
+      gene_e_am3_quarantine_audit).
+    path: "workflow.label_source"
+  - code: missing-fixture
+    message: >-
+      Two shared job inputs (kmindex_db_selection's and lexicmap_index_selection's backing
+      indices) and one entire synthetic fixture (the 3-decoy LexicMap index) have no concrete,
+      buildable location yet; see unresolved[0] and unresolved[1].
+    path: "test_cases[*].job_inputs"
+  - code: expression-derived-shape
+    message: >-
+      flatten_gene_summary_json_to_row's summary_row TSV column list (used for the
+      ingestion-manifest and per-gene-summary assertions) was taken from
+      galaxy-workflow.gxwf.yml's own step doc text, which itself cites the vendored
+      lexicmap_streamer.py source at a pinned commit; this plan's assertion_intent values are
+      best-effort against that documented contract, not against an actual executed run.
+    path: "test_cases[1].expected_outputs"

@@ -1,0 +1,91 @@
+{
+  "workflow_path": "galaxy-workflow.gxwf.yml",
+  "test_file_path": "galaxy-workflow.gxwf-tests.yml",
+  "status": "fail",
+  "not_run_reason": null,
+  "static_validation": {
+    "command": "gxwf validate-tests galaxy-workflow.gxwf-tests.yml --workflow galaxy-workflow.gxwf.yml --json",
+    "valid": true,
+    "errors": []
+  },
+  "galaxy_mode": {
+    "kind": "planemo-managed",
+    "install_flags": ["--install_galaxy"],
+    "galaxy_branch_pinned": false,
+    "galaxy_checkout": "~/.planemo/gx_repo (reused cached checkout from phase 9, HEAD 18bb36a9f49071da5e502b162c9a6905d7b78aae, 2026-09-17)",
+    "galaxy_venv": "~/.planemo/gx_venv_3 (Python 3.13.5, reused cached venv)",
+    "udt_supply_attempt": {
+      "mechanism_tried": "planemo test --extra_tools <dir containing the 3 GalaxyUserTool YAML files>",
+      "outcome": "did not register any of the 3 UDTs",
+      "evidence": "planemo wrote `<tool_dir dir=\".../udt-tools\" />` into the generated tool_conf.xml (confirmed by reading the file directly from the live Planemo temp config dir); Galaxy's toolbox parsed that tool_conf.xml but zero log lines in either run's planemo log reference any of the 3 UDT ids/filenames or `GalaxyUserTool`. The subsequent workflow-invocation HTTP 400 for test case 2 explicitly listed `lexicmap_streamer (version 1.0.0)`, `flatten_gene_summary_json_to_row (version 1.0.0)`, and `kmindex_hit_dedup_max_score (version 1.0.0)` among tools 'not installed', confirming the toolbox never registered them.",
+      "root_cause": "Galaxy's classic `tool_dir` toolbox scanner auto-discovers XML tool wrappers only. A GalaxyUserTool YAML document (per author-galaxy-tool-wrapper's own SKILL.md: 'a single GalaxyUserTool YAML document, not Galaxy XML') has no lowering step to XML documented anywhere in this Foundry's packaged references, no `gxwf` subcommand performs this conversion, and no other planemo flag was found that accepts this format directly.",
+      "classification": "genuinely unresolved infrastructural gap, not a transient install failure -- logged as feedback ledger entry run-workflow-test-no-mechanism-to-install-authored-galaxyusertool-udts"
+    }
+  },
+  "test_cases": [
+    {
+      "id": "galaxy-workflow.gxwf.yml_0",
+      "name": "kmindex_wiring_smoke_generic_fixtures",
+      "test_index": 1,
+      "planemo_command": "planemo test --install_galaxy --test_index 1 --extra_tools <udt-dir> --test_output_json planemo-test1-output.json --test_output planemo-test1-output.html galaxy-workflow.gxwf.yml",
+      "status": "fail",
+      "modality": "staging failure (client-side, pre-invocation)",
+      "planemo_result": {
+        "execution_problem": "'rows'",
+        "status": "error",
+        "invocation_details": null,
+        "job": null,
+        "output_problems": []
+      },
+      "root_cause": "Uncaught KeyError: 'rows' in galaxy.tool_util.cwl.util.replacement_collection (galaxy-tool-util==25.1.2, vendored into planemo==0.75.47). That function unconditionally executes `kwds[\"rows\"] = value[\"rows\"]` for any collection_type starting with 'sample_sheet'. This test case's gene_query_panel Collection intentionally omits `rows:` (not meaningful for generic non-phiX174 fixture content, per the test file's own comment), which tests-format.schema.json's Collection $def treats as optional -- and this exact test file passed gxwf validate-tests --workflow cleanly with rows absent. No Galaxy invocation was ever created; no tool (kmindex, lexicmap, collapse_dataset, or any UDT) was exercised by this test case.",
+      "traceback_tail": "planemo/galaxy/activity.py:441 stage_in -> galaxy/tool_util/client/staging.py:275 stage -> galaxy/tool_util/cwl/util.py:388 galactic_job_json -> :234 replacement_item -> :362 replacement_collection -> KeyError: 'rows'",
+      "artifacts": {
+        "test_output_json": "planemo-test1-output.json",
+        "test_output_html": "planemo-test1-output.html",
+        "raw_log": "planemo-test1.log"
+      },
+      "next_reference_surface": "galaxy.tool_util.cwl.util.replacement_collection source (galaxy_tool_util-25.1.2, vendored in planemo's venv) -- fix or work around the unconditional `value[\"rows\"]` access before this test case can stage at all; see feedback ledger entry galaxy-tool-util-replacement-collection-requires-rows-key-unconditionally"
+    },
+    {
+      "id": "galaxy-workflow.gxwf.yml_1",
+      "name": "gene_e_j_am3_diagnostic_synthetic_lexicmap_index",
+      "test_index": 2,
+      "planemo_command": "planemo test --install_galaxy --test_index 2 --extra_tools <udt-dir> --test_timeout 600 --test_output_json planemo-test2-output.json --test_output planemo-test2-output.html galaxy-workflow.gxwf.yml",
+      "status": "fail",
+      "modality": "tool-install failure (workflow invocation refused by Galaxy before any job ran)",
+      "planemo_result": {
+        "execution_problem": "Unexpected HTTP status code: 400: {\"err_msg\":\"Workflow was not invoked; the following required tools are not installed: toolshed.g2.bx.psu.edu/repos/nml/collapse_collections/collapse_dataset (version 5.1.0), toolshed.g2.bx.psu.edu/repos/iuc/lexicmap/lexicmap_search (version 0.9.0+galaxy1), toolshed.g2.bx.psu.edu/repos/iuc/kmindex/kmindex_query (version 0.6.1+galaxy4), lexicmap_streamer (version 1.0.0), flatten_gene_summary_json_to_row (version 1.0.0), kmindex_hit_dedup_max_score (version 1.0.0), toolshed.g2.bx.psu.edu/repos/iuc/collection_column_join/collection_column_join (version 0.0.3)\",\"err_code\":0}",
+        "status": "error",
+        "invocation_details": null,
+        "job": null,
+        "output_problems": []
+      },
+      "root_cause_notes": [
+        "The 3 authored UDTs (lexicmap_streamer, flatten_gene_summary_json_to_row, kmindex_hit_dedup_max_score) were never in the toolbox at all -- consistent with test case 1's finding and the confirmed absence of any UDT-related toolbox log lines (see udt_supply_attempt above). This part is a confirmed, structural block.",
+        "The real Tool Shed tools (collapse_dataset, lexicmap_search, kmindex_query, collection_column_join) were also reported not-installed, despite install_manager log lines showing 'Cloning repository' for all four (collapse_collections was even logged as already 'Installed' from a cached prior run). Only ~15-48s elapsed between each clone and the invocation attempt. Given a `Solving environment: ...working... failed / PackagesNotFoundError: coreutils=8.25` conda resolution failure was observed for at least one dependency shortly before the invocation attempt (coreutils=8.25 predates osx-arm64 conda-forge/bioconda builds -- a plausible platform-specific limitation of this macOS Apple Silicon host, not necessarily a Galaxy/Foundry defect), this looks like either (a) a genuine dependency-resolution failure for these wrappers on this platform, or (b) a race where planemo attempted the invocation before the async toolbox reload/install-completion signal caught up. This phase did not have time/scope to distinguish (a) from (b); it is deliberately left as the concrete next-step question rather than guessed at."
+      ],
+      "artifacts": {
+        "test_output_json": "planemo-test2-output.json",
+        "test_output_html": "planemo-test2-output.html",
+        "raw_log": "planemo-test2.log"
+      },
+      "next_reference_surface": "Galaxy's /api/tool_shed_repositories install-status API and the per-repository dependency-install logs (job_working_directory / conda build logs) for collapse_collections, kmindex, lexicmap, and collection_column_join on this host's osx-arm64 platform -- to determine whether the coreutils=8.25 (or similar) conda resolution genuinely failed for these wrappers versus a toolbox-reload timing race; galaxy-workflow-invocation-failure-reference.md's install/dependency guidance and the already-open feedback entry tool-util-cli-toolshed-fetch-rejects-real-filtered-list-collection-output are related but do not by themselves resolve this.",
+      "known_preexisting_deferral": "This test case's lexicmap_index_selection is a documented placeholder (\"PhiX174E_J_Am3ToyIndex\", galaxy-test-plan.yml unresolved[0]/[1]); even if tool-install were resolved, this case was already expected by its own authors to fail/stall at lexicmap_search pending a real toy LexicMap index. That downstream gap was not reached this run because tool-install failed first."
+    }
+  ],
+  "feedback": {
+    "entries_appended": [
+      "run-workflow-test-no-mechanism-to-install-authored-galaxyusertool-udts",
+      "galaxy-tool-util-replacement-collection-requires-rows-key-unconditionally"
+    ],
+    "ledger_path": "foundry-feedback.ledger.yml"
+  },
+  "handoff_to_phase_12": {
+    "recommended_focus_order": [
+      "1. Decide whether to fix/work around galaxy-tool-util's replacement_collection 'rows' KeyError (blocks test case 1 from staging at all) -- this is the cheapest unblock and does not depend on tool installation.",
+      "2. Resolve the UDT-installation gap: either author an XML lowering of the 3 GalaxyUserTool definitions for toolbox loading, or find/confirm a genuine Planemo/Galaxy mechanism for YAML-defined tools (none confirmed working in this run).",
+      "3. Re-investigate why the 3 real Tool Shed tools also reported not-installed at invocation time on this host/platform -- rule out a conda dependency-resolution failure (coreutils=8.25 on osx-arm64) vs. a toolbox-reload race before concluding tool-install itself is broken.",
+      "4. Only after 1-3, the still-open lexicmap_index_selection placeholder (test case 2) becomes the next real blocker."
+    ]
+  }
+}

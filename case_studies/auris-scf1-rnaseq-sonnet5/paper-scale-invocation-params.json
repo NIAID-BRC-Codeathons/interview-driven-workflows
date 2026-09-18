@@ -1,0 +1,42 @@
+{
+  "_comment": [
+    "Paper-scale parameter values for galaxy-workflow.gxwf.yml, targeting",
+    "paper/draft_manuscript.tex Table tab:ingestion.",
+    "Index selections are NOT invocation parameters. Both db_opts|kmindex and db_opts|lexicmap_index",
+    "are `multiple: true` selects that REJECT a comma-delimited string ('an invalid option ... was",
+    "selected') and require a JSON array, which a gxformat2 `text` input cannot carry. The 109",
+    "kmindex shards and all 25 LexicMap Logan index categories are therefore literal lists in the",
+    "step state; to change them, edit galaxy-workflow.gxwf.yml steps kmindex_containment_screen /",
+    "lexicmap_search and redeploy with ./deploy_workflow.sh.",
+    "Array-form evidence: job bbd44e69cb8906b5eadd64618b449770 (history bbd44e69cb8906b57012ea23efccb56e)",
+    "produced 32 GENOMIC_PHG + 33 GENOMIC_VRL datasets.",
+    "LexicMap scope is ALL 25, matching submit_all_structural_logan.py:66 (B/D/F/G/H/J) and",
+    "submit_remaining_logan.py:101 (A/C/E/K). The 5-name TARGETED_PHAGE_INDICES subset named in",
+    "freeform-summary.md Stage C is only a default in pull_logan_alignments.py and never produced",
+    "Table 1; at 5 indices gene C evaluated 851,229 accessions vs the paper's 2,319,761.",
+    "Requires lexicmap_streamer >= 1.0.2 (the query-column filter) AND the",
+    "nest_gene_panel_for_search step (one gene per search job); without either, per-gene cohorts are",
+    "invalid regardless of these values. See galaxy-vs-paper-comparison.md."
+  ],
+  "parameters": {
+    "kmindex_zvalue": 6,
+    "kmindex_threshold": 0.3,
+    "kmindex_output_format": "json",
+    "kmindex_fast": false,
+    "lexicmap_top_n_genomes": 0,
+    "lexicmap_advanced_all": true,
+    "tiling_qc_min_coverage": 0.8,
+    "tiling_qc_min_coverage_partial": 0.5,
+    "tiling_qc_min_pident": 60,
+    "tiling_qc_max_internal_stops": 0,
+    "tiling_qc_sample_cap": 10,
+    "tiling_qc_allow_frameshifts": false
+  },
+  "data_inputs_note": {
+    "gene_query_panel": "list collection of the 11 per-gene CDS FASTAs (hids 1-11 in the reference history). Record ids MUST be phiX174_<gene>: lexicmap_streamer v1.0.2 matches them against the hit table's query column.",
+    "gene_align_min_match_pident_panel": "parallel list; element identifiers must match gene_query_panel",
+    "gene_align_min_match_len_panel": "parallel list, same identifiers",
+    "gene_seed_min_prefix_panel": "parallel list, same identifiers",
+    "gene_min_qcov_per_genome_panel": "parallel list, same identifiers"
+  }
+}

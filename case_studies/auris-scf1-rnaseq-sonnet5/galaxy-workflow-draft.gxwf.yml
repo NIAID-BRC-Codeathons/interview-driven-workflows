@@ -1,0 +1,708 @@
+class: GalaxyWorkflowDraft
+id: phix174_sra_landscape_spikein_sieve
+label: "ΦX174 SRA Landscape & Spike-In Sieve (Workflow A)"
+doc: |
+  Workflow A from the ΦX174 planetary-scale retrospective DMS pipeline (draft_manuscript.tex,
+  Stages A, B, C, D2 only): combine the 10-gene CDS query panel, run a petabase k-mer
+  containment screen (kmindex) across Logan SRA index shards, run a LexicMap streaming search
+  per gene against Logan domain indices, run the custom LexicMapStreamer multi-HSP
+  tiling/codon-QC/haplotype-collapsing pass, aggregate per-gene summaries into an ingestion
+  manifest, and extract the Gene E am3 spike-in quarantine audit.
+
+  Scope and provenance: freeform-summary.md (Stages A/B/C/D2), freeform-galaxy-interface.md
+  (Workflow A section), freeform-galaxy-data-flow.md (nodes N1-N7), iwc-comparison-notes.md,
+  open-requirements.ledger.yml. Workflows B/C/D from the interface brief are out of scope here.
+
+  Two source-brief inputs are intentionally NOT declared as workflow inputs, per topology
+  review in this Mold (see open-requirements ledger for citations):
+  - `Reference genome (NC_001422.1)` — no node in this settled N1-N7 topology consumes the
+    whole-genome FASTA; only the per-gene CDS FASTAs (gene_query_panel) are used, matching the
+    source's own language about the "canonical gene coordinate frame."
+  - `Nominal-taxonomy BioProject classification table` — a manual/registry-based curation
+    artifact wired to no computational node; kept as external documentation/provenance, not a
+    workflow input.
+
+inputs:
+  - id: gene_query_panel
+    type: collection
+    collection_type: sample_sheet
+    format: [fasta]
+    doc: |
+      Per-gene CDS query panel, 10 elements (element_identifier = gene symbol: A, B, C, D, E,
+      F, G, H, J, K). Column definitions carry the per-gene LexicMap sensitivity overrides used
+      for genes A/C/E/K (freeform-summary.md Stage C); populated only for those four genes, left
+      unset (falling back to workflow-default LexicMap parameters) for the other six.
+    column_definitions:
+      - name: align_min_match_pident
+        type: float
+        optional: true
+        description: "Per-gene LexicMap align_min_match_pident override (~60.0 for A/C/E/K); unset for other genes."
+      - name: align_min_match_len
+        type: int
+        optional: true
+        description: "Per-gene LexicMap align_min_match_len override (35-50 range for A/C/E/K); unset for other genes."
+      - name: seed_min_prefix
+        type: int
+        optional: true
+        description: "Per-gene LexicMap seed_min_prefix override (15-17 range for A/C/E/K); unset for other genes."
+      - name: min_qcov_per_genome
+        type: float
+        optional: true
+        description: "Per-gene LexicMap min_qcov_per_genome override (~30.0 for A/C/E/K); unset for other genes."
+
+  - id: kmindex_db_selection
+    type: text
+    optional: false
+    default: "GENOMIC_BCT,GENOMIC_HUMAN,GENOMIC_VRL,METAGENOMIC_ENV,METATRANSCRIPTOMIC_*,SYNTHETIC_*,VIRALRNA_*,TRANSCRIPTOMICSINGLECELL_*,...(109 Logan shard names, ALL_KMINDEX_DBS)"
+    doc: |
+      Multi-value selection over the 109 hardcoded Logan k-mer index shard names
+      (freeform-summary.md Stage B, `ALL_KMINDEX_DBS`). Modeled as a single delimited string
+      parameter consumed entirely inside the kmindex_query tool call (the tool's own multi-index
+      query surface produces one JSON output per selected shard) rather than as a Galaxy
+      workflow-level collection map-over axis. The wrapper-side widget is now confirmed (direct
+      XML inspection of the pinned iuc/kmindex/kmindex_query 0.6.1+galaxy4 changeset): a native
+      Galaxy `select` with `multiple="true"` (`db_opts|kmindex`, options from the `kmindex` Tool
+      Shed data table) — not a repeat, not a per-element data input. Whether this scalar `text`
+      workflow input's delimited-string value is accepted directly by that multi-select port at
+      runtime, or needs adaptation to a literal array, remains open and non-blocking — see
+      open-requirements ledger entry `kmindex-lexicmap-index-selection-mechanism`.
+
+  - id: kmindex_zvalue
+    type: integer
+    optional: false
+    default: 6
+  - id: kmindex_threshold
+    type: float
+    optional: false
+    default: 0.3
+  - id: kmindex_output_format
+    type: text
+    optional: false
+    default: "json"
+  - id: kmindex_fast
+    type: boolean
+    optional: false
+    default: false
+
+  - id: lexicmap_index_selection
+    type: text
+    optional: false
+    default: "Viral,BacteriaMetagenomic,HumanMetagenomic,OtherMetagenomic,Synthetic"
+    doc: |
+      Multi-value selection over LexicMap domain indices — defaults to the 5-index
+      `TARGETED_PHAGE_INDICES` subset used for per-gene runs (freeform-summary.md Stage C); the
+      full 25-index set is the alternative. Modeled the same way as `kmindex_db_selection`: a
+      delimited string consumed inside the lexicmap_search tool call, whose own per-index output
+      declaration produces the inner axis of the gene x index nested collection (see N4/lexicmap
+      _search below). Same open mechanism question as kmindex — ledger
+      `kmindex-lexicmap-index-selection-mechanism`.
+  - id: lexicmap_top_n_genomes
+    type: integer
+    optional: false
+    default: 0
+  - id: lexicmap_advanced_all
+    type: boolean
+    optional: false
+    default: true
+
+  - id: tiling_qc_min_coverage
+    type: float
+    optional: false
+    default: 0.80
+  - id: tiling_qc_min_coverage_partial
+    type: float
+    optional: false
+    default: 0.50
+  - id: tiling_qc_min_pident
+    type: float
+    optional: false
+    default: 60.0
+  - id: tiling_qc_max_internal_stops
+    type: integer
+    optional: false
+    default: 0
+  - id: tiling_qc_sample_cap
+    type: integer
+    optional: false
+    default: 10
+  - id: tiling_qc_allow_frameshifts
+    type: boolean
+    optional: true
+    doc: |
+      No default asserted — production default of stream_lexicmap_msa.py's --allow-frameshifts
+      flag is unconfirmed from prose alone. See open-requirements ledger entry
+      `allow-frameshifts-default-unconfirmed`; expected to be resolved by reading the
+      nekrut/disassembler repo during wrapper authoring (`lexicmapstreamer-wrapper-authoring-pending`).
+
+outputs:
+  - id: kmindex_accession_union
+    outputSource: kmindex_hit_dedup_max_score/accession_union
+    type: data
+    doc: "Deduplicated, max-containment-score accession union across all queried kmindex shards."
+  - id: clean_full_length_cds_haplotypes
+    outputSource: lexicmap_streamer_tiling_qc/clean_msa_fasta
+    type: collection
+    doc: "Per-gene clean full-length CDS haplotype MSA FASTA (sample_sheet, element_identifier = gene)."
+  - id: clean_haplotype_counts
+    outputSource: lexicmap_streamer_tiling_qc/clean_haplotypes_tsv
+    type: collection
+    doc: "Per-gene clean haplotype counts (weighted by observation count)."
+  - id: flagged_accessions
+    outputSource: lexicmap_streamer_tiling_qc/flagged_accessions_fasta
+    type: collection
+    doc: "Per-gene flagged (QC-failed) accession sequences."
+  - id: flagged_audit_reasons
+    outputSource: lexicmap_streamer_tiling_qc/flagged_tsv
+    type: collection
+    doc: "Per-gene flagged-accession audit reasons table."
+  - id: per_gene_ingestion_summary
+    outputSource: lexicmap_streamer_tiling_qc/summary_json
+    type: collection
+    doc: "Per-gene summary.json (quantile distributions, regime diagnostics, multi-HSP recovery counts) — source of the paper's Table 1 numbers."
+  - id: ingestion_manifest_all_genes
+    outputSource: join_gene_summary_rows_into_manifest/tabular_output
+    type: data
+    doc: "lexicmap_9genes_ingestion_manifest.csv equivalent — all 10 per-gene summaries joined into one table."
+  - id: gene_e_am3_quarantine_audit
+    outputSource: extract_gene_e_am3_audit/output
+    type: data
+    doc: "Gene E am3 (nt587 G->A, codon-7 stop) spike-in quarantine diagnostic — the Gene E element of the per-gene flagged-accession audit table (flagged.tsv: accession, coverage, mean_pident, flag, n_stops, stop_codons, hsps_merged)."
+
+comments:
+  - type: frame
+    label: "Stage A — input assembly"
+    title: "Stage A — input assembly"
+    contains_steps: [combine_gene_panel_to_bulk_fasta]
+  - type: frame
+    label: "Stage B — kmindex containment screen"
+    title: "Stage B — kmindex containment screen"
+    contains_steps: [kmindex_containment_screen, kmindex_hit_concat, kmindex_hit_dedup_max_score]
+  - type: frame
+    label: "Stage C — LexicMap search + LexicMapStreamer tiling/QC"
+    title: "Stage C — LexicMap search + LexicMapStreamer tiling/QC"
+    contains_steps: [lexicmap_search, lexicmap_streamer_tiling_qc]
+  - type: frame
+    label: "Aggregation + Gene E am3 audit (Stage D2)"
+    title: "Aggregation + Gene E am3 audit (Stage D2)"
+    contains_steps: [flatten_gene_summary_json_to_row, join_gene_summary_rows_into_manifest, extract_gene_e_am3_audit]
+
+steps:
+  # ---- N1: fan-in / combine (Resolution: Identity-pinned) ----
+  - id: combine_gene_panel_to_bulk_fasta
+    label: combine_gene_panel_to_bulk_fasta
+    doc: |
+      Combine per-gene panel into bulk query FASTA: plain concatenation of the 10-element
+      sample_sheet's FASTA files into one multi-FASTA dataset (nml/collapse_collections/
+      collapse_dataset v5.1.0, changeset 90981f86000f; confirmed via discover-shed-tool,
+      single dominant hit). Per galaxy-collection-semantics.yml (SAMPLE_SHEET_MATCHES_LIST),
+      a `sample_sheet` collection satisfies the wrapper's `list`-shaped multi-data
+      `input_list` directly, no reshape needed. `one_header: false` and
+      `filename.add_name: false` (tool defaults) preserve plain FASTA concatenation with no
+      per-line headers or filename prepending. Output (port `output`, format_source:
+      input_list) feeds kmindex_containment_screen's FASTA input.
+    tool_id: toolshed.g2.bx.psu.edu/repos/nml/collapse_collections/collapse_dataset
+    tool_version: 5.1.0
+    tool_shed_repository:
+      tool_shed: toolshed.g2.bx.psu.edu
+      owner: nml
+      name: collapse_collections
+      changeset_revision: 90981f86000f
+    in:
+      input_list: gene_query_panel
+    state:
+      input_list:
+        __class__: ConnectedValue
+      one_header: false
+      filename:
+        add_name: false
+    out:
+      - output
+
+  # ---- N2: kmindex containment screen (Resolution: Identity-pinned) ----
+  - id: kmindex_containment_screen
+    label: kmindex_containment_screen
+    doc: |
+      kmindex containment screen (109 Logan shards) — iuc/kmindex/kmindex_query v0.6.1+galaxy4,
+      changeset b6fa25b6b436; identity+version pin confirmed via discover-shed-tool (single
+      dominant hit, no contradiction) and cross-verified directly against the pinned changeset's
+      real upstream XML source (tools-iuc commit 7681be7f40, matching the Tool Shed's own
+      remote_repository_url for this changeset) because galaxy-tool-cache add/summarize cannot
+      parse this wrapper for any galaxy-suffixed version (0.6.0+galaxy1 through 0.6.1+galaxy5) —
+      see galaxy-tool-summary.json warnings[] and the feedback ledger for the reproducible defect.
+
+      `db_opts_selector: db` ("Locally installed kmindex indexes") binds `kmindex_db_selection`
+      (delimited shard-name text input) to the wrapper's `kmindex` multi-select
+      (`db_opts|kmindex`, native Galaxy `multiple: true`, options from the `kmindex` Tool Shed
+      data table) — a single job accepts the full multi-value shard selection and internally
+      queries each index in turn, matching the already-committed in-tool-call binding (ledger
+      `kmindex-lexicmap-index-selection-mechanism`, now further confirmed for the kmindex side by
+      direct XML inspection: the command template loops `#for $i, $INDEX in enumerate($INDICES)`
+      over `$db_opts.kmindex.fields.path.split(",")`), not a second Galaxy-level map-over axis.
+
+      `threshold` has no wrapper-side default in this changeset (tools-iuc#8305 "remove threshold
+      default" predates +galaxy4); the param is `optional=false` with no `value=` attribute, so it
+      must bind explicitly — which it does via `kmindex_threshold`.
+
+      Output binds to the wrapper's `output` collection (`list`, discover_datasets over
+      `query_output/*.json`, active when format!='matrix') — one JSON element per selected shard,
+      matching _plan_out exactly. The sibling `output_matrix` collection never populates for this
+      step (format is always "json" here) and is correctly left unwired.
+    tool_id: toolshed.g2.bx.psu.edu/repos/iuc/kmindex/kmindex_query
+    tool_version: 0.6.1+galaxy4
+    tool_shed_repository:
+      tool_shed: toolshed.g2.bx.psu.edu
+      owner: iuc
+      name: kmindex
+      changeset_revision: b6fa25b6b436
+    in:
+      fastx: combine_gene_panel_to_bulk_fasta/output
+      db_opts|kmindex: kmindex_db_selection
+      zvalue: kmindex_zvalue
+      threshold: kmindex_threshold
+      format: kmindex_output_format
+      fast: kmindex_fast
+    state:
+      fastx:
+        __class__: ConnectedValue
+      db_opts:
+        db_opts_selector: db
+        kmindex:
+          __class__: ConnectedValue
+      zvalue:
+        __class__: ConnectedValue
+      threshold:
+        __class__: ConnectedValue
+      format:
+        __class__: ConnectedValue
+      fast:
+        __class__: ConnectedValue
+      verbose: error
+    out:
+      - output
+
+  # ---- N3a: fan-in concat half (Resolution: Identity-pinned, confirmed) ----
+  - id: kmindex_hit_concat
+    label: kmindex_hit_concat
+    doc: |
+      Concatenate the 109-element per-shard kmindex hit JSON list collection into one dataset
+      (nml/collapse_collections/collapse_dataset v5.1.0, changeset 90981f86000f; confirmed via
+      discover-shed-tool, single dominant hit — same wrapper and pinned version already used by
+      combine_gene_panel_to_bulk_fasta in this workflow). `input_list`'s `gx_data`/`multiple: true`
+      shape accepts the `kmindex_containment_screen/output` list collection directly, no reshape
+      needed. `one_header: false` and `filename.add_name: false` (tool defaults) preserve plain
+      concatenation with no per-line headers or filename prepending, matching this wrapper's other
+      use in the workflow. Output (port `output`, format_source: input_list) feeds
+      kmindex_hit_dedup_max_score's dedup/max-score reduction — the built-in half of N3's
+      "merge/union" node (iwc-comparison-notes.md: Collapse Collection handles concatenation; the
+      dedup+max-score reduction is a separate custom step, see kmindex_hit_dedup_max_score below).
+      This split exists because no single wrapper realizes both concatenation and keyed reduction
+      (galaxy-workflow-draft-format.md's missing-combine-node rule).
+    tool_id: toolshed.g2.bx.psu.edu/repos/nml/collapse_collections/collapse_dataset
+    tool_version: 5.1.0
+    tool_shed_repository:
+      tool_shed: toolshed.g2.bx.psu.edu
+      owner: nml
+      name: collapse_collections
+      changeset_revision: 90981f86000f
+    in:
+      input_list: kmindex_containment_screen/output
+    state:
+      input_list:
+        __class__: ConnectedValue
+      one_header: false
+      filename:
+        add_name: false
+    out:
+      - output
+
+  # ---- N3b: fan-in custom dedup/max-score (Resolution: Deferred) ----
+  - id: kmindex_hit_dedup_max_score
+    label: kmindex_hit_dedup_max_score
+    doc: |
+      Deduplicate kmindex per-shard hit records by accession, keeping the maximum containment
+      score per accession (GalaxyUserTool, authored this iteration): single-input pure transform
+      reading kmindex_hit_concat's concatenated ~109-shard JSON hit maps, emitting the
+      deduplicated accession union as one txt dataset (2,114,904 unique accessions per the
+      paper; freeform-summary.md Stage B/C', today implemented ad hoc as `harvest_collection()`
+      in process_kmindex_with_disassembler.py).
+
+      WRAPPER RESOLUTION (discover-shed-tool then author-galaxy-tool-wrapper, 2026-09-17):
+      `gxwf tool-search` on "datamash", "sort", "unique", and "group by" surfaced no wrapper
+      performing key-based dedup-with-max-score reduction over JSON input (see
+      galaxy-tool-pin.json, status "miss"). The closest structural match, GNU datamash
+      (iuc/datamash_ops, agordon/datamash_wrapper -- `groupby -g <col> max <col>`), was rejected:
+      it requires already-tabular, pre-sorted-by-key delimited input and cannot parse JSON, so
+      adopting it would only relocate the custom transform (a JSON-to-TSV flatten + sort)
+      upstream rather than eliminate it. This resolves open-requirements ledger entry
+      `kmindex-hit-merge-no-corpus-precedent` (Collapse Collection, the prior step, handles
+      concatenation; this is the small custom reduction that ledger entry recommended). A
+      purpose-built GalaxyUserTool was authored at
+      `galaxy-user-tool-kmindex-hit-dedup-max-score.yml` -- id `kmindex_hit_dedup_max_score`,
+      version `1.0.0`, container `python:3.13-slim`, pure-stdlib (json/argparse) script run via
+      `python kmindex_hit_dedup_max_score.py`. Per the already-recorded provenance
+      (`advance-galaxy-draft-step-udt-binding-undocumented`), this step's `tool_id`/`tool_version`
+      mirror the UDT's own declared identity, matching the same reasoned convention already used
+      for this run's other two authored UDTs (lexicmap_streamer, flatten_gene_summary_json_to_row).
+
+      Input shape assumption carried into the UDT itself (documented there, not fabricated here):
+      Collapse Collection concatenates the per-shard JSON files with no inserted separator, and
+      kmindex's own per-shard JSON could nest per-query or be a flat accession->score map (its
+      schema could not be fetched this run, ledger
+      `tool-util-cli-toolshed-fetch-rejects-real-filtered-list-collection-output`) -- the script
+      handles both via a recursive numeric-leaf walk over a repeated-`raw_decode` document stream.
+    tool_id: kmindex_hit_dedup_max_score
+    tool_version: "1.0.0"
+    in:
+      concatenated_hits: kmindex_hit_concat/output
+    state:
+      concatenated_hits:
+        __class__: ConnectedValue
+    out:
+      - accession_union
+
+  # ---- N4a: LexicMap streaming search, per-gene map-over (Resolution: Resolved) ----
+  - id: lexicmap_search
+    label: lexicmap_search
+    doc: |
+      LexicMap streaming search, mapped over gene_query_panel (sample_sheet, 10 elements) —
+      one query call per gene (iuc/lexicmap/lexicmap_search v0.9.0+galaxy1, changeset
+      bcb6caec41eb; identity+version pin confirmed via discover-shed-tool, single dominant
+      hit, no contradiction). `db_opts_selector: db` ("Locally installed LexicMap indexes")
+      binds `lexicmap_index_selection` (delimited index-name text input) to the wrapper's
+      `lexicmap_index` multi-select — the same in-tool-call binding already committed for
+      `kmindex_db_selection` (ledger `kmindex-lexicmap-index-selection-mechanism`), not a
+      second Galaxy-level map-over axis. The four per-gene sensitivity overrides
+      (align_min_match_pident, align_min_match_len, seed_min_prefix, min_qcov_per_genome)
+      bind to `gene_query_panel`'s matching optional per-element columns, falling through to
+      the wrapper's own defaults (70 / 50 / 17 / unset) when a gene's columns are unset —
+      realizing the two-regime design (freeform-summary.md Stage C) without a separate
+      pick_value step, per _plan_state's now-discharged idiom.
+
+      CORRECTION vs. prior plan (see open-requirements ledger, new entry
+      `lexicmap-search-flatten-shape-mismatch`): the pinned changeset's `parsed_tool` declares
+      exactly one output, `out_file` (plain `data`, format `tabular`, no `discover_datasets`,
+      no per-index collection output) — there is no "tool's own per-index output declaration"
+      to supply an inner axis. Mapped over the single `gene_query_panel` axis, this step's
+      real output shape is a flat `list` (one aggregate hits table per gene, covering all
+      selected indices for that gene), not the `list:list` the template's _plan_out assumed.
+      This refutes the specific "inner axis" claim recorded against
+      `kmindex-lexicmap-index-selection-mechanism`; that entry's note has been updated
+      in place rather than left standing uncorrected.
+    tool_id: toolshed.g2.bx.psu.edu/repos/iuc/lexicmap/lexicmap_search
+    tool_version: 0.9.0+galaxy1
+    tool_shed_repository:
+      tool_shed: toolshed.g2.bx.psu.edu
+      owner: iuc
+      name: lexicmap
+      changeset_revision: bcb6caec41eb
+    in:
+      query: gene_query_panel
+      db_opts|lexicmap_index: lexicmap_index_selection
+      top_n_genomes: lexicmap_top_n_genomes
+      advanced_settings|all: lexicmap_advanced_all
+      advanced_settings|align_min_match_pident: gene_query_panel
+      advanced_settings|align_min_match_len: gene_query_panel
+      advanced_settings|seed_min_prefix: gene_query_panel
+      advanced_settings|min_qcov_per_genome: gene_query_panel
+    state:
+      query:
+        __class__: ConnectedValue
+      db_opts:
+        db_opts_selector: db
+        lexicmap_index:
+          __class__: ConnectedValue
+      top_n_genomes:
+        __class__: ConnectedValue
+      advanced_settings:
+        align_band: 100
+        align_ext_len: 1000
+        align_max_gap: 20
+        align_min_match_len:
+          __class__: ConnectedValue
+        align_min_match_pident:
+          __class__: ConnectedValue
+        all:
+          __class__: ConnectedValue
+        load_whole_seeds: false
+        max_evalue: 10
+        max_query_conc: 12
+        min_qcov_per_genome:
+          __class__: ConnectedValue
+        min_qcov_per_hsp: null
+        seed_max_dist: 1000
+        seed_max_gap: 1000
+        seed_min_prefix:
+          __class__: ConnectedValue
+        seed_min_single_prefix: 19
+        top_n_chains: 10
+    out:
+      - out_file
+
+  # ---- N4b: index-axis reduce — REMOVED by repair-galaxy-draft-topology, see below ----
+
+  # ---- N5: LexicMapStreamer, map-over gene, 8 parallel per-gene outputs (Resolution: Deferred) ----
+  - id: lexicmap_streamer_tiling_qc
+    label: lexicmap_streamer_tiling_qc
+    doc: |
+      LexicMapStreamer: multi-HSP tiling, codon QC, haplotype collapsing.
+
+      TOPOLOGY REPAIR (repair-galaxy-draft-topology, 2026-09-17, closing ledger blocking
+      entry `lexicmap-search-flatten-shape-mismatch`): the former N4b `flatten_lexicmap_
+      results_by_gene` (`__FLATTEN__`, gene x index list:list -> list) has been removed.
+      lexicmap_search's real, confirmed wrapper output (`out_file`, mapped over
+      `gene_query_panel`) is already a flat `list` — one aggregate hits table per gene,
+      covering all selected indices for that gene — with no index axis to collapse.
+      `__FLATTEN__` had nothing to flatten and its declared output was therefore
+      uncomputable as specified. This step's input is rewired directly onto
+      `lexicmap_search/out_file`, which already carries the exact shape (list, 10 elements,
+      gene-keyed) this step's own doc says it expects ("Mapped one call per gene over the
+      flattened LexicMap results (list, 10 elements)") — no substitute producer was needed.
+
+      WRAPPER RESOLUTION (author-galaxy-tool-wrapper, 2026-09-17): discover-shed-tool ran
+      three query variants ("lexicmap streamer", "haplotype tiling qc", "disassembler")
+      against the Tool Shed lexical index — zero hits on all three (see
+      galaxy-tool-pin.json, status "miss"). Per the already-recorded provenance
+      (`lexicmapstreamer-implementation-provenance`), this is not a from-scratch tool: the
+      real implementation was cloned and read directly from its private source,
+      https://github.com/nekrut/disassembler (MIT license, (c) Anton Nekrutenko; repo HEAD
+      a3999eb60ae78a804d0200b4a1241038077b6e6a; python/lexicmap_streamer.py last touched at
+      commit a51eb58d6c1ca941d3fb8d6adf5e8160c3926b91). Confirmed by direct read: the
+      script is pure Python 3 standard library (os, sys, gzip, math, json, time, argparse,
+      urllib.request, pathlib, collections) — no third-party imports; the repo's
+      environment.yml conda pins (biopython, mafft, fasttree, blast, ...) are for the
+      repo's *other* scripts (disassemble.py, build_walker_codon_msa.py, the Rust walker),
+      not this one. A GalaxyUserTool wrapper vendoring the script verbatim (as a
+      `configfiles` entry, run via `python lexicmap_streamer.py`) was authored at
+      `galaxy-user-tool.yml` — id `lexicmap_streamer`, version `1.0.0`, container
+      `python:3.13-slim`, `--no-a2m` passed since the settled 8-output shape has no A2M
+      port. This discharges open-requirements ledger entry
+      `lexicmapstreamer-wrapper-authoring-pending`, and separately resolves
+      `allow-frameshifts-default-unconfirmed`: the script's argparse declares
+      `--allow-frameshifts` as `action="store_true"` with no `default=True` — the
+      confirmed production default is OFF/False.
+
+      CORRECTION vs. prior `_plan_in` (superseded, kept below for provenance): reading the
+      real script's argparse shows it requires TWO inputs, not one — the per-gene
+      reference CDS FASTA (`-q/--ref`, required, used to project HSPs onto and to
+      translate/QC) in addition to the LexicMap hit table (`-f`). The reference FASTA is
+      wired here to `gene_query_panel`, the exact same per-gene collection already
+      consumed by `lexicmap_search`'s own `query` port a few steps upstream (see that
+      step's `in: query: gene_query_panel`) — not a new workflow input, and not a
+      topology change (the mapped gene axis is unchanged), just a previously-missed
+      second data port on this step.
+
+      UNRESOLVED ASSUMPTION carried forward (see feedback ledger entry
+      `advance-galaxy-draft-step-udt-binding-undocumented`): the packaged reference set
+      (galaxy-workflow-draft-format notes, the galaxy-workflow-draft JSON Schema, and
+      implement-galaxy-tool-step's own SKILL.md) documents how a step resolves to a Tool
+      Shed pin (tool_id + tool_shed_repository + changeset) or a bare/stock built-in id,
+      but nowhere documents the concrete step shape once author-galaxy-tool-wrapper
+      produces a `GalaxyUserTool` — no `tool_shed_repository` block applies, and no
+      convention is given for whether `tool_id`/`tool_version` should mirror the UDT's own
+      `id`/`version` fields. This step's `tool_id: lexicmap_streamer` / `tool_version:
+      "1.0.0"` is a reasoned choice (mirror the UDT's own declared identity, by analogy to
+      how a bare/stock id like `Filter1` carries no tool_shed_repository either), not a
+      documented contract. `gxwf draft-validate --concrete` accepted this shape without
+      complaint (2 ok / 0 fail on tool state, this step among the "ok"), which is
+      reassuring runtime evidence but still not a documented guarantee.
+    tool_id: lexicmap_streamer
+    tool_version: "1.0.0"
+    in:
+      reference_fasta: gene_query_panel
+      lexicmap_results: lexicmap_search/out_file
+      min_coverage: tiling_qc_min_coverage
+      min_coverage_partial: tiling_qc_min_coverage_partial
+      min_pident: tiling_qc_min_pident
+      max_internal_stops: tiling_qc_max_internal_stops
+      sample_cap: tiling_qc_sample_cap
+      allow_frameshifts: tiling_qc_allow_frameshifts
+    state:
+      reference_fasta:
+        __class__: ConnectedValue
+      lexicmap_results:
+        __class__: ConnectedValue
+      min_coverage:
+        __class__: ConnectedValue
+      min_coverage_partial:
+        __class__: ConnectedValue
+      min_pident:
+        __class__: ConnectedValue
+      max_internal_stops:
+        __class__: ConnectedValue
+      sample_cap:
+        __class__: ConnectedValue
+      allow_frameshifts:
+        __class__: ConnectedValue
+    out:
+      - clean_msa_fasta
+      - clean_haplotypes_tsv
+      - clean_accessions_fasta
+      - clean_expanded_accessions_fasta
+      - flagged_accessions_fasta
+      - flagged_tsv
+      - cohort_ledger_tsv
+      - summary_json
+
+  # ---- N6a: JSON-to-row flatten (Resolution: Resolved) ----
+  - id: flatten_gene_summary_json_to_row
+    label: flatten_gene_summary_json_to_row
+    doc: |
+      Flatten per-gene summary.json into one manifest row (GalaxyUserTool, authored this
+      iteration): mapped one call per gene over lexicmap_streamer_tiling_qc's summary_json
+      collection.
+
+      WRAPPER RESOLUTION (discover-shed-tool then author-galaxy-tool-wrapper, 2026-09-17):
+      `gxwf tool-search "json to tabular"` surfaced only generic JSON-transform tools, the
+      closest being `iuc/jq` ("query and transform JSON documents"; confirmed via
+      galaxy-tool-cache add/summarize, changeset 4e62e523c2b6, version 1.8.2+galaxy0 -- a real,
+      installable Tool Shed wrapper with a `tsv_output` option that marks its output tabular).
+      Rejected as the wrapper for this step: `iuc/jq`'s `filter`/`arguments` parameters are
+      plain text/JSON values with no access to the mapped input dataset's Galaxy collection
+      `element_identifier`; using it here would require inserting a separate
+      `collection_element_identifiers`-style producer step and a second wired port purely to
+      recover the gene symbol as a manifest column -- an avoidable topology change, not a
+      genuine tool-shape gap. A small purpose-built GalaxyUserTool
+      (`galaxy-user-tool-flatten-gene-summary.yml`, id `flatten_gene_summary_json_to_row`,
+      version `1.0.0`, container `python:3.13-slim`, pure stdlib) reads the input dataset's
+      `element_identifier` directly in its `shell_command`
+      (`$(inputs.summary_json.element_identifier)`) -- confirmed valid against the installed
+      `@galaxy-tool-util/schema` package's `gx-data.js` parameter schema, whose `job_runtime`
+      state representation's File object declares `element_identifier: S.optional(S.String)`
+      alongside `path`, the same idiom documented for classic Galaxy tool XML
+      (`convert-nfcore-module-to-galaxy-tool` note: "Galaxy's `$input.element_identifier` is
+      the right substitute"). No extra port or producer step needed.
+
+      Discharges open-requirements ledger `n6-json-flatten-no-corpus-precedent`'s remaining
+      Deferred obligation: the wrapper's own vendored script writes a two-line TSV (header +
+      one data row) whose first column, `gene`, is this dataset's `element_identifier` --
+      preserving it end-to-end into the row content itself (not just Galaxy metadata), matching
+      join_gene_summary_rows_into_manifest's plan ("identifier_column pointing at the
+      gene-symbol column"). Remaining columns mirror summary.json's flat scalar fields (status,
+      reference_name/length/is_cds, regime + regime_warning, total_streamed_rows,
+      total_accessions_evaluated, cohort_breakdown.*, recovery_metrics.* [including
+      multi_hsp_rescued_accessions], coverage_quantiles.* / pident_quantiles.*
+      [p10/p25/p50_median/p75/p90/mean], clean_unique_haplotypes, shannon_entropy_bits,
+      wildtype_count, wildtype_fraction, runtime_seconds) -- read directly from this run's own
+      vendored lexicmap_streamer.py (galaxy-user-tool.yml, `summary_data` construction,
+      commit a51eb58d6c1ca941d3fb8d6adf5e8160c3926b91) rather than reverse-engineered from
+      prose. `top_10_haplotypes` (a nested list) is intentionally excluded -- not a flat
+      per-gene scalar.
+
+      `gxwf validate-tool-source galaxy-user-tool-flatten-gene-summary.yml` returns `OK`.
+    tool_id: flatten_gene_summary_json_to_row
+    tool_version: "1.0.0"
+    in:
+      summary_json: lexicmap_streamer_tiling_qc/summary_json
+    state:
+      summary_json:
+        __class__: ConnectedValue
+    out:
+      - summary_row
+
+  # ---- N6b: tabular join/concat (Resolution: Identity-pinned) ----
+  - id: join_gene_summary_rows_into_manifest
+    label: join_gene_summary_rows_into_manifest
+    doc: |
+      Join per-gene summary rows into ingestion manifest.
+
+      WRAPPER RESOLUTION (advance-galaxy-draft-step, discover-shed-tool discovery-confirm,
+      2026-09-17): the phase-5 identity pin (iuc/collection_column_join, tool_id
+      `collection_column_join`, version 0.0.3) was confirmed rather than re-derived. Query
+      `column join` against the Tool Shed lexical index (the underscored token
+      `collection_column_join` was not queried verbatim per component-tool-shed-search's
+      normalization guidance) returns iuc/collection_column_join ("Column join" / "on multiple
+      datasets") as the single dominant hit (score 44.85), tied on score with an mvdbeek fork of
+      the identical tool id/name -- iuc retained as the maintained/canonical owner, matching the
+      pin. `gxwf tool-versions` lists 0.0.3 as a real, currently published version (alongside
+      0.0.1/0.0.2); `gxwf tool-revisions --latest` resolves it to changeset `3ddd99c7efee`. No
+      contradiction found; identity and version pin stand as confirmed, not corrected.
+
+      PORT BINDING: the wrapper's real input port is `input_tabular` (gx_data, multiple=true) --
+      exactly the shape of flatten_gene_summary_json_to_row's mapped-over `summary_row` output
+      (one single-row-plus-header TSV per gene, first column `gene`). Bound
+      `identifier_column: 1` (the corpus-confirmed gene-symbol column, now concretely column 1
+      per flatten_gene_summary_json_to_row's own column-1-is-`gene` contract) and
+      `has_header: 1` (each upstream summary_row TSV carries exactly one header line, per that
+      step's own doc). `old_col_in_header` left at the wrapper default (`true`). `fill_char` is
+      schema-required with no wrapper default; bound to `""` since this is a uniform single-row
+      per-gene join with no expected missing cells across the 10-element collection.
+      `include_outputs` left empty (`[]`) -- the optional `output_shell_script` side output is
+      not needed. Real output port is `tabular_output` (data, format tabular); `script_output`
+      is the include_outputs-gated side output and is not wired anywhere. This discharges the
+      `_plan_out` intent: `tabular_output` is the single joined manifest table, matching the
+      `lexicmap_9genes_ingestion_manifest.csv` equivalent wired to workflow output
+      `ingestion_manifest_all_genes`.
+    tool_id: toolshed.g2.bx.psu.edu/repos/iuc/collection_column_join/collection_column_join
+    tool_version: "0.0.3"
+    tool_shed_repository:
+      tool_shed: toolshed.g2.bx.psu.edu
+      owner: iuc
+      name: collection_column_join
+      changeset_revision: 3ddd99c7efee
+    in:
+      input_tabular: flatten_gene_summary_json_to_row/summary_row
+    state:
+      input_tabular:
+        __class__: ConnectedValue
+      identifier_column: 1
+      has_header: 1
+      old_col_in_header: true
+      fill_char: ""
+      include_outputs: []
+    out:
+      - tabular_output
+
+  # ---- N7: extract-by-identifier (Resolution: Identity-pinned) ----
+  - id: extract_gene_e_am3_audit
+    label: extract_gene_e_am3_audit
+    doc: |
+      Extract Gene E am3 quarantine audit: element_identifier == "E" from N5's per-gene
+      `flagged_tsv` collection (toolshed built-in `__EXTRACT_DATASET__` 1.0.2, resolved via
+      `galaxy-tool-cache list`/`summarize` — a bare/stock id, no Tool Shed discovery or
+      changeset pin applies).
+
+      PORT CORRECTION vs. prior plan (closes the caveat tracked at open-requirements ledger
+      `n7-am3-diagnostic-granularity-unconfirmed`): re-read
+      https://github.com/nekrut/disassembler python/lexicmap_streamer.py directly this
+      iteration (same commit as before, a51eb58d6c1ca941d3fb8d6adf5e8160c3926b91; repo HEAD
+      a3999eb60ae78a804d0200b4a1241038077b6e6a) to settle summary.json vs. flagged.tsv/
+      cohort_ledger.tsv for this step's actual need. Evidence:
+        - `summary.json`'s only per-haplotype detail is `top_10_haplotypes` (lines 623-697,
+          727), built exclusively from `sorted_haplotypes`/`clean_full_haps` — the CLEAN
+          cohort. An am3 accession is a premature-stop mutant, so by construction
+          (`process_accession_block`, lines 439-480) it is routed to status
+          `FLAGGED_PREMATURE_STOPS` / tier 3, never into `clean_full_haps`. summary.json's
+          `cohort_breakdown.flagged_premature_stops` (line 713) is an aggregate count only —
+          no per-accession record for any flagged accession appears in summary.json at all.
+        - `flagged.tsv` (header at line 365; rows written at lines 471/478) carries one row
+          per FLAGGED accession with columns `accession, coverage, mean_pident, flag, n_stops,
+          stop_codons, hsps_merged` — `stop_codons` (line 430-432) is the actual codon
+          position(s) of the internal stop(s) for that accession (e.g. "7" for the paper's
+          codon-7 stop), i.e. real per-accession, locus-specific detail, already filtered to
+          just the anomalous cohort. `cohort_ledger.tsv` (header line 366, rows line 480)
+          carries the same per-accession stop_codons column but for ALL accessions
+          (clean+flagged), an unfiltered superset.
+        - Conclusion: `flagged_tsv` is the correct port — it is the smallest collection that
+          already carries per-accession, locus-specific (codon-position) detail for exactly
+          the anomalous/quarantine cohort the am3 audit needs. `cohort_ledger_tsv` would also
+          work but requires the consumer to filter by flag, which flagged_tsv already does.
+          Neither TSV records the literal nucleotide substitution letters (only the codon
+          index), so exact "nt587 G->A" reconstruction still requires the reference sequence
+          alongside this table — a residual, non-blocking limitation, not a missing-port
+          problem (this step's own job, extracting the Gene E element, is unaffected by it).
+        - Rewired this step's `in:`/state from `lexicmap_streamer_tiling_qc/summary_json` to
+          `lexicmap_streamer_tiling_qc/flagged_tsv`. This is a same-step port correction (N7
+          still reads N5, just a different one of N5's 8 already-declared output ports), not a
+          topology repair — no producer node was inserted or removed.
+    tool_id: __EXTRACT_DATASET__
+    tool_version: "1.0.2"
+    in:
+      input: lexicmap_streamer_tiling_qc/flagged_tsv
+    state:
+      input:
+        __class__: ConnectedValue
+      which:
+        which_dataset: by_identifier
+        identifier: "E"
+    out:
+      - output

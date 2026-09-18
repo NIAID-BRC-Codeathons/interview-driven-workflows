@@ -1,0 +1,54 @@
+{
+  "command": "gxwf validate galaxy-workflow.gxwf.yml --json --strict",
+  "workflow_path": "galaxy-workflow.gxwf.yml",
+  "status": "pass",
+  "not_run_reason": null,
+  "diagnostics": [
+    {
+      "severity": "major",
+      "message": "Fixed during this phase: the workflow's 4 `comments: type: frame` entries (Stage A / Stage B / Stage C / Stage D2) were authored with `label`/`title`/`contains_steps` but no `position`/`size` geometry. Per the phase-9 finding, real Galaxy's `WorkflowCommentModel` requires both fields (HTTP 400 'Field required' on import) even though `gxwf validate` (including `--strict-structure --strict-encoding --strict-state`) reports this workflow clean either way -- confirmed both before and after the fix (`structure_errors: []`, `encoding_errors: []`, identical 5 ok / 0 fail / 4 skip tool-state summary in both runs). gxwf's own schema does not enforce Galaxy's stricter runtime requirement for this field, so a clean `gxwf validate` alone cannot be relied on to catch it.",
+      "step_or_field": "comments[0..3] (type: frame)",
+      "routes_to_phase": "freeform-summary-to-galaxy-template (phase 5, original author of these frame comments)",
+      "status": "fixed_in_place",
+      "resolution": "Added `position: [x, y]` and `size: [width, height]` (float-pair arrays, per the packaged galaxy-workflow-comments.md convention) to all 4 frame comments directly in galaxy-workflow.gxwf.yml: Stage A position [0,0] size [400,300]; Stage B position [450,0] size [400,700]; Stage C position [900,0] size [400,500]; Stage D2 position [1350,0] size [400,700] -- non-overlapping, left-to-right by pipeline stage order, each frame's size loosely scaled to its contains_steps count. Values are reasonable placeholder canvas geometry (display-only, no topology/execution effect), not derived from an actual editor layout session."
+    },
+    {
+      "severity": "minor",
+      "message": "Tool-state fetch for `toolshed.g2.bx.psu.edu/repos/iuc/kmindex/kmindex_query` (0.6.1+galaxy4) fails to decode (`outputs[1].structure: is missing`) and degrades to `skip_tool_not_found` for step 1 (kmindex_containment_screen). Already tracked as an upstream `@galaxy-tool-util/cli` decoder gap.",
+      "step_or_field": "steps[1] kmindex_containment_screen (tool_id toolshed.g2.bx.psu.edu/repos/iuc/kmindex/kmindex_query)",
+      "routes_to_phase": "already tracked, not new",
+      "status": "known_deferred",
+      "resolution": "No action this phase. See feedback ledger entry `tool-util-cli-toolshed-fetch-rejects-real-filtered-list-collection-output` (already open, raised phase 6)."
+    },
+    {
+      "severity": "minor",
+      "message": "Tool-state fetch for the 3 authored GalaxyUserTool steps (kmindex_hit_dedup_max_score, lexicmap_streamer, flatten_gene_summary_json_to_row) returns 404 against the Tool Shed (expected: these are local UDTs, never published) and degrades to `skip_tool_not_found` for steps 3, 5, 6.",
+      "step_or_field": "steps[3], steps[5], steps[6] (GalaxyUserTool ids)",
+      "routes_to_phase": "already tracked, not new",
+      "status": "known_deferred",
+      "resolution": "Expected behavior for locally-authored UDTs with no tool_shed_repository block. See feedback ledger entry `implement-galaxy-tool-step-udt-binding-undocumented` (already open, raised phase 6) for the undocumented-convention angle."
+    },
+    {
+      "severity": "major",
+      "message": "`gxwf validate galaxy-workflow.gxwf.yml --json --connections` (with or without `--strict`) crashes uncaught (`TypeError: step.in is not iterable` in @galaxy-tool-util/cli's toNative.js, exit 1, no JSON emitted at all) on this workflow's ordinary gxformat2 dict-shaped `in:` blocks. Connection/collection-algebra/map-over compatibility checking could not be run for this workflow at all.",
+      "step_or_field": "all steps (in: mapping shape, e.g. steps[0].in)",
+      "routes_to_phase": "gxwf CLI defect, not a workflow authoring defect",
+      "status": "new_diagnostic_reported_upstream",
+      "resolution": "Reproduced and filed as feedback ledger entry `gxwf-validate-connections-flag-crashes-uncaught-on-format2-dict-shaped-step-in` (new, this phase). Worked around by validating without `--connections`; collection/map-over shape compatibility is carried forward as a residual runtime risk below."
+    }
+  ],
+  "residual_runtime_risks": [
+    {
+      "risk": "Collection algebra / map-over compatibility across the 9-step chain (e.g. kmindex's list output into collapse_dataset, lexicmap_search's per-gene mapped output into lexicmap_streamer_tiling_qc's two-input UDT, the sample_sheet gene_query_panel axis threading through multiple steps) was never checked by `gxwf validate --connections` because that flag crashes uncaught on this workflow (see diagnostics). Static validation cannot rule out a shape mismatch here.",
+      "proving_artifact": "Phase 11 run-workflow-test (Planemo execution) -- a real invocation will either schedule cleanly or surface `collection_failed`/shape-mismatch invocation messages per the packaged galaxy-workflow-invocation-failure-reference.md."
+    },
+    {
+      "risk": "Tool state for kmindex_containment_screen (real Tool Shed pin, fetch fails to decode) and the 3 GalaxyUserTool steps (no Tool Shed presence at all) was never validated against a real schema by gxwf -- all 4 are `skip_tool_not_found`, not `ok`. The hand-reconstructed parsed_tool for kmindex_query and the UDTs' own tool_id/state binding convention (documented as undocumented in the feedback ledger) remain unverified against a real Galaxy tool-state check.",
+      "proving_artifact": "Phase 11 run-workflow-test (Planemo install + invocation) -- tool installation and job scheduling will directly confirm or refute these 4 steps' state shapes."
+    },
+    {
+      "risk": "The frame comments' newly-added `position`/`size` values are reasonable, non-overlapping placeholder canvas geometry (chosen by stage order and step count), not derived from an actual Galaxy workflow-editor layout session. They satisfy the field-presence requirement that caused the phase-9 HTTP 400, but a real Galaxy import has not yet been re-attempted to confirm the comments block as a whole (position/size plus whatever else WorkflowCommentModel requires) now passes real-Galaxy import end to end.",
+      "proving_artifact": "A real Planemo-managed Galaxy import (the same `planemo test --test_index 1 --install_galaxy` path phase 9 used) -- this is the only artifact that can confirm real-Galaxy acceptance, since gxwf's own schema does not check this field at all (confirmed clean both before and after the fix)."
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+    "exit_code": null,
+    "summary": {
+        "num_errors": 1,
+        "num_failures": 0,
+        "num_skips": 0,
+        "num_tests": 1
+    },
+    "tests": [
+        {
+            "data": {
+                "end_datetime": "2026-09-17T11:50:58.532058",
+                "execution_problem": "Unexpected HTTP status code: 400: {\"err_msg\":\"Workflow was not invoked; the following required tools are not installed: toolshed.g2.bx.psu.edu/repos/nml/collapse_collections/collapse_dataset (version 5.1.0), toolshed.g2.bx.psu.edu/repos/iuc/lexicmap/lexicmap_search (version 0.9.0+galaxy1), toolshed.g2.bx.psu.edu/repos/iuc/kmindex/kmindex_query (version 0.6.1+galaxy4), lexicmap_streamer (version 1.0.0), flatten_gene_summary_json_to_row (version 1.0.0), kmindex_hit_dedup_max_score (version 1.0.0), toolshed.g2.bx.psu.edu/repos/iuc/collection_column_join/collection_column_join (version 0.0.3)\",\"err_code\":0}",
+                "inputs": {
+                    "gene_query_panel": {
+                        "class": "Collection",
+                        "collection_type": "sample_sheet",
+                        "elements": [
+                            {
+                                "class": "File",
+                                "filetype": "fasta",
+                                "identifier": "E",
+                                "path": "test-data/E.fasta"
+                            },
+                            {
+                                "class": "File",
+                                "filetype": "fasta",
+                                "identifier": "J",
+                                "path": "test-data/J.fasta"
+                            }
+                        ],
+                        "rows": {
+                            "align_min_match_len": [
+                                35,
+                                null
+                            ],
+                            "align_min_match_pident": [
+                                60.0,
+                                null
+                            ],
+                            "min_qcov_per_genome": [
+                                30.0,
+                                null
+                            ],
+                            "seed_min_prefix": [
+                                15,
+                                null
+                            ]
+                        }
+                    },
+                    "kmindex_db_selection": "GENOMIC_PHG,GENOMIC_VRL,METAGENOMIC_ENV",
+                    "kmindex_fast": false,
+                    "kmindex_output_format": "json",
+                    "kmindex_threshold": 0.3,
+                    "kmindex_zvalue": 6,
+                    "lexicmap_advanced_all": true,
+                    "lexicmap_index_selection": "PhiX174E_J_Am3ToyIndex",
+                    "lexicmap_top_n_genomes": 0,
+                    "tiling_qc_allow_frameshifts": false,
+                    "tiling_qc_max_internal_stops": 0,
+                    "tiling_qc_min_coverage": 0.8,
+                    "tiling_qc_min_coverage_partial": 0.5,
+                    "tiling_qc_min_pident": 60.0,
+                    "tiling_qc_sample_cap": 10
+                },
+                "invocation_details": null,
+                "job": null,
+                "output_problems": [],
+                "problem_log": null,
+                "start_datetime": "2026-09-17T11:50:43.971101",
+                "status": "error"
+            },
+            "doc": "gene_e_j_am3_diagnostic_synthetic_lexicmap_index: primary functional test for the paper's Sanger am3 spike-in diagnostic (freeform-summary.md Stage D2: genome position nt587 G->A causes a premature TGG->TAG stop at Gene E codon 7, gpE_W7*). Exercises lexicmap_streamer_tiling_qc -> {flatten_gene_summary_json_to_row -> join_gene_summary_rows_into_manifest} and -> extract_gene_e_am3_audit against a hand-built synthetic 3-decoy LexicMap hits fixture (test-data/synthetic_am3/) seeded with real cds/E.fasta and cds/J.fasta content: (1) a Gene-E wildtype-clean decoy (E_wildtype_ctrl, sseq == real E.fasta verbatim), (2) a Gene-E am3-positive decoy (E_am3_ctrl, sseq carries the exact nt587 G->A / codon-7 TGG->TAG substitution), (3) a Gene-J clean decoy (J_clean_ctrl, sseq == real J.fasta verbatim). All assertion values below were confirmed by directly executing the real vendored lexicmap_streamer.py against this fixture with the workflow's default tiling_qc_* parameters (see test-data/synthetic_am3/*.tsv header comments for full provenance). The kmindex chain shares the same job but is not this case's focus and is left unasserted (kmindex_accession_union), matching galaxy-test-plan.yml omissions[1].\nKNOWN BLOCKING GAP: `lexicmap_index_selection` here is a placeholder (\"PhiX174E_J_Am3ToyIndex\") -- no real small LexicMap index backs it, and the tests-format `job:` block cannot bind the synthetic hits fixture directly onto lexicmap_streamer_tiling_qc's internal `lexicmap_results` port (see the file header comment above and galaxy-test-plan.yml unresolved[0]/[1]). A full `planemo test` run of this case is expected to fail/stall at lexicmap_search until a real toy index is constructed and registered; that construction is deferred to a later phase.",
+            "has_data": true,
+            "id": "galaxy-workflow.gxwf.yml_1",
+            "test_type": "galaxy_workflow"
+        }
+    ],
+    "version": "0.1"
+}

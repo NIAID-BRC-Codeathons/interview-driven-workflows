@@ -1,0 +1,210 @@
+topology_repair:
+  escalations: 1
+  cap: 5
+  open_history: [0]
+
+entries:
+  - id: workflow-scope-boundary-unresolved
+    status: resolved
+    kind: gap
+    raised_by: freeform-summary-to-galaxy-interface
+    unmet: "Whether the target Galaxy workflow covers only Stages A-D2 (SRA landscape / spike-in sieve, the only content currently in draft_manuscript.tex) or the full Stage A-K project pipeline (through HyphAeon VEP benchmarking, dual-coding shadow-effect calibration, and Fane-mechanics synthesis)"
+    missing: "The source freeform-summary explicitly leaves this scoping question open (its Section 7, item 1) rather than resolving it"
+    resolved_by: freeform-summary-to-galaxy-data-flow
+    supersedes: null
+    note: "User-confirmed scope decision (2026-09-17): this pipeline run builds only Workflow A (SRA landscape/spike-in sieve, Stages A/B/C/D2) as a single Galaxy workflow. Workflow B (Stage E, experimental-evolution validation, bowtie2/samtools/mpileup) is a confirmed nice-to-have the user wants built as a separate, later workflow -- out of scope for this run, not abandoned. Workflows C and D (Stages C'/F/G/H and Stage I) are out of scope for this run's data-flow design entirely. This brief modeled the full A-K pipeline shape as labeled stages/candidate subworkflows so nothing was silently dropped before this decision; that record is preserved above for provenance."
+
+  - id: kmindex-lexicmap-index-selection-mechanism
+    status: resolved
+    kind: gap
+    raised_by: freeform-summary-to-galaxy-interface
+    step: kmindex_containment_screen
+    unmet: "How the 109 kmindex Logan DB shards and the 25 LexicMap domain indices (5-index TARGETED_PHAGE_INDICES subset for per-gene runs) should be exposed as Galaxy tool/workflow-level inputs"
+    missing: "The freeform-summary only records the DB/index names as hardcoded Python lists (ALL_KMINDEX_DBS, TARGETED_PHAGE_INDICES); the real kmindex_query/lexicmap_search Tool Shed wrapper's parameter schema has not yet been inspected (summarize-galaxy-tool has not run)"
+    resolved_by: "Live verification against usegalaxy.org, 2026-09-18. Both `db_opts|kmindex` (kmindex_query 0.6.1+galaxy4) and `db_opts|lexicmap_index` (lexicmap_search 0.9.0+galaxy1) are `type: select, multiple: true` (tool io_details API). A comma-delimited string is REJECTED at parameter validation -- POSTing db_opts|kmindex=\"GENOMIC_PHG,GENOMIC_VRL\" returns \"Parameter 'kmindex': an invalid option ('GENOMIC_PHG,GENOMIC_VRL') was selected\", because a multi-select reads the whole string as ONE option value. The JSON array [\"GENOMIC_PHG\",\"GENOMIC_VRL\"] is accepted and fans out correctly: job bbd44e69cb8906b5eadd64618b449770 in history bbd44e69cb8906b57012ea23efccb56e completed with 32 GENOMIC_PHG + 33 GENOMIC_VRL result datasets. Since a gxformat2 `text` workflow input cannot carry an array, the delimited-string modeling this entry assumed is unusable: the `kmindex_db_selection` and `lexicmap_index_selection` text inputs were REMOVED and the 109 shard names / 5 TARGETED_PHAGE_INDICES are now literal lists in the kmindex_containment_screen and lexicmap_search step state. Trade-off accepted: index sets are no longer settable at invocation time and require editing the workflow."
+    supersedes: null
+    note: "This brief models index selection as a controlled-vocabulary select/multi-select parameter carrying the known DB/index name lists. Must be reconciled against the actual tool XML during implement-galaxy-tool-step / discover-shed-tool. [freeform-summary-to-galaxy-data-flow, Workflow A only] Cross-checked against the newly confirmed LexicMapStreamer provenance (see lexicmapstreamer-implementation-provenance): the nekrut/disassembler repo implements the multi-HSP tiling/QC client, not the kmindex_query/lexicmap_search Tool Shed wrappers' own DB/index parameter schema, so that discovery does not bear on this entry. Still open pending inspection of the pinned IUC changesets themselves (kmindex_query 0.6.1+galaxy4, lexicmap_search 0.9.0+galaxy1). [compare-against-iwc-exemplar, 2026-09-17] Corpus check (galaxyproject/iwc, 115 workflows) found no workflow exposing a >20-way controlled-vocabulary shard/index select as a workflow input or map-over axis -- the largest comparable case, data-fetching/parallel-accession-download's split_file_to_collection, dynamically chunks an arbitrary-length input file rather than enumerating a fixed named list, a different mechanism. No corpus precedent to draw on; still open, unchanged. [freeform-summary-to-galaxy-template, 2026-09-17] Topology settled `kmindex_db_selection` (N2) and `lexicmap_index_selection` (N4) as plain multi-value `text` workflow inputs consumed entirely inside each tool's own call -- kmindex_containment_screen's declared output is a `list` collection (one element per selected shard) and lexicmap_search's declared output is a `list:list` collection (gene outer axis from the real sample_sheet map-over, index inner axis from the tool's own per-index output declaration), rather than modeling either selection as a second Galaxy-level map-over collection. This is a topology commitment (see galaxy-workflow-draft.gxwf.yml steps kmindex_containment_screen / lexicmap_search); the exact tool-side input widget realizing it is still open and unchanged by this note. [advance-galaxy-draft-step, 2026-09-17] REFUTED in part: summarize-galaxy-tool on the pinned changeset (iuc/lexicmap/lexicmap_search 0.9.0+galaxy1, bcb6caec41eb) shows the wrapper's `parsed_tool` declares exactly one output, `out_file` (plain `data`, format `tabular`) -- no `discover_datasets`, no per-index collection output. There is no 'tool's own per-index output declaration'; that specific claim above is struck. `lexicmap_index` (case `db_opts_selector: db`, 'Locally installed LexicMap indexes') is a `gx_select` with `multiple: true` and dynamic `options: null` -- a single job accepts the full multi-value index selection and returns one aggregate hits table, so lexicmap_search's real per-gene output shape (mapped over `gene_query_panel`) is a flat `list`, not `list:list`. The kmindex/lexicmap side of the index-selection-mechanism question (delimited-text -> multi-select binding; dynamic option population) remains open and unchanged. The invalidated inner-axis/list:list claim's downstream consequence (flatten_lexicmap_results_by_gene's `__FLATTEN__` step assumed a nested input) is tracked separately as blocking entry `lexicmap-search-flatten-shape-mismatch`, superseded by this note. [advance-galaxy-draft-step, 2026-09-17] kmindex side CONFIRMED by direct XML inspection: galaxy-tool-cache add/summarize cannot parse the pinned iuc/kmindex/kmindex_query changeset (0.6.1+galaxy4, b6fa25b6b436) or any other galaxy-suffixed version -- a reproducible cache/parser defect (see galaxy-tool-summary.json warnings[] and the feedback ledger) -- so the wrapper's real upstream XML was read directly (tools-iuc commit 7681be7f40, confirmed via the Tool Shed API's remote_repository_url for this exact changeset) in place of the normal automated summarize-galaxy-tool path. Result: `db_opts|kmindex` (case `db_opts_selector: db`) is a `gx_select` with `multiple: true`, dynamic `options: null` (populated from the `kmindex` Tool Shed data table) -- the same shape as lexicmap_index, confirming this is a native Galaxy multi-select in both wrappers, not a repeat or per-element data input. The command template loops over indices internally (`#for $i, $INDEX in enumerate($INDICES)` on `$db_opts.kmindex.fields.path.split(',')`) and the `output` collection output (`list`, discover_datasets over `query_output/*.json`) fans out to one JSON element per selected shard -- matching the already-settled topology commitment exactly, no scatter/map-over needed. kmindex_containment_screen implemented on this basis this iteration. Still open and non-blocking: whether the scalar `kmindex_db_selection` `text` workflow input's delimited-string value is accepted as-is by a `multiple: true` select at runtime, or needs adaptation to a literal array -- this is a runtime parameter-shape question, not a topology gap, and does not block draft-validate."
+
+  - id: allow-frameshifts-default-unconfirmed
+    status: resolved
+    kind: gap
+    raised_by: freeform-summary-to-galaxy-interface
+    step: multi_hsp_tiling_qc
+    unmet: "Production default of stream_lexicmap_msa.py's --allow-frameshifts flag"
+    missing: "Source prose states the default/production setting could not be confirmed from prose alone"
+    resolved_by: advance-galaxy-draft-step
+    supersedes: null
+    note: "Exposed in this brief as an explicit boolean workflow parameter with no default asserted, rather than assuming reject-by-default. [freeform-summary-to-galaxy-data-flow] User-confirmed (2026-09-17): stream_lexicmap_msa.py's multi-HSP tiling/QC logic (\"LexicMapStreamer\") is not custom glue authored for this project from scratch -- it is backed by a real, existing implementation at https://github.com/nekrut/disassembler (private repo). The --allow-frameshifts production default is therefore expected to be readable directly from that repo's source, not an unrecoverable prose ambiguity. Still open (the value itself has not been read/confirmed) -- tracked as concrete follow-up work in the new lexicmapstreamer-wrapper-authoring-pending entry, to be resolved when that repo is inspected during wrapper authoring. [freeform-summary-to-galaxy-template, 2026-09-17] Carried into galaxy-workflow-draft.gxwf.yml as workflow input `tiling_qc_allow_frameshifts`: type boolean, `optional: true`, no `default:` -- a legal, non-TODO topology expression of \"value genuinely unknown,\" distinct from a topology TODO. Still open. [advance-galaxy-draft-step, 2026-09-17] RESOLVED: the private repo https://github.com/nekrut/disassembler was cloned and python/lexicmap_streamer.py read directly. Its argparse declares `parser.add_argument(\"--allow-frameshifts\", action=\"store_true\", help=...)` with no `default=True` -- Python's argparse gives a bare `action=\"store_true\"` flag an implicit default of `False`. Confirmed production default: OFF/False. The workflow input `tiling_qc_allow_frameshifts` remains `optional: true` with no asserted default at the workflow-input level (a user can still override per-run), but the wrapper itself (galaxy-user-tool.yml, tool_id `lexicmap_streamer`) now reflects the real tool's off-by-default semantics."
+
+  - id: host-biome-platform-stratification-script-gap
+    status: open
+    kind: dropped
+    raised_by: freeform-summary-to-galaxy-interface
+    units: "Stage D host/biome/platform metadata stratification of the 2,114,904-accession Logan hit set (the paper's Fig 1B/C percentages)"
+    because: "freeform-summary Section 5 (Stage D) states no corresponding script was identified among the root-level .py files; likely produced via ad hoc NCBI Entrez/SRA-metadata queries or manual curation not captured in the repo snapshot"
+    unmet: "A reproducible Galaxy step that recomputes the biome/platform stratification numbers"
+    missing: "No discoverable tool or script to wrap for this stratification"
+    resolved_by: null
+    supersedes: null
+    note: "Not modeled as an executable workflow step in this brief; recorded as a labelled gap rather than invented as a fabricated step."
+
+  - id: nominal-taxonomy-audit-not-modeled-as-step
+    status: resolved
+    kind: dropped
+    raised_by: freeform-summary-to-galaxy-interface
+    units: "Stage D nominal-taxonomy SRA metadata audit (136 runs / 18 BioProjects, manual classification into Experimental Evolution / Platform Benchmarking / Paleogenomics Control / etc.), including the candidate `Nominal-taxonomy BioProject classification table` declared workflow input"
+    because: "Source describes this as a manual/registry-based certification exercise, not a computational tool invocation over data the workflow would produce"
+    unmet: "N/A — not intended as an executable Galaxy step"
+    missing: "No tool; this is curated reference/provenance data, not a computation"
+    resolved_by: freeform-summary-to-galaxy-template
+    supersedes: null
+    note: "Modeled in this brief as a static reference-data input (a BioProject classification table) rather than a workflow step. Downstream data-flow phase should confirm this framing. [freeform-summary-to-galaxy-data-flow, 2026-09-17] Confirmed: no Workflow A node (N1-N7) consumes this table; carried forward as an open framing question (data-flow brief section 7, item 2) rather than dropped outright. [freeform-summary-to-galaxy-template, 2026-09-17] Resolved: the settled N1-N7 topology has no node wired to this table, and per the data-flow brief's own suggestion (\"an unconnected input is unusual for a runnable workflow ... consider dropping it\"), this Mold drops it from galaxy-workflow-draft.gxwf.yml's declared workflow inputs entirely. It remains documentation/provenance context (see this workflow draft's top-level `doc:`), not a Galaxy input or step."
+
+  - id: chronaeon-synthetic-metadata-phase0
+    status: open
+    kind: dropped
+    raised_by: freeform-summary-to-galaxy-interface
+    units: "run_chronaeon_phix174_sieve.py Phase 0 fabricated pseudo-collection_date construction feeding hyphaeon autoclock"
+    because: "freeform-summary Section 7, item 7 confirms by direct script inspection that Phase 0's collection_date values are hash-derived synthetic placeholders, not real SRA/BioSample metadata"
+    unmet: "A genuine collection-date-bearing input to the autoclock step"
+    missing: "No real per-accession collection_date source was identified in this repo snapshot"
+    resolved_by: null
+    supersedes: null
+    note: "This brief models autoclock's date-bearing metadata input as an open/external requirement (real SRA BioSample collection dates to be sourced) rather than porting the synthetic generator as if it were a genuine step."
+
+  - id: chronaeon-hardcoded-statistics-phases
+    status: open
+    kind: dropped
+    raised_by: freeform-summary-to-galaxy-interface
+    units: "run_chronaeon_phix174_sieve.py Phases 2, 6, 7, 8 (e.g. the Gene D/E and Gene B/A Mann-Whitney medians/p-values, and a per-gene VEP correlation table)"
+    because: "freeform-summary Section 7, item 7 confirms these values appear as hardcoded constants written directly into the script, not recomputed from input data at run time"
+    unmet: "Genuine, re-executable recomputation of the statistics these phases report"
+    missing: "The phases as written are reporting/munging of pre-baked numbers, not real computations"
+    resolved_by: null
+    supersedes: null
+    note: "Only Phases 1/3/4 (the confirmed genuine hyphaeon autoclock/r0/meme CLI invocations) are modeled as real workflow steps in this brief. Phases 2/6/7/8 are excluded pending reimplementation as genuine pandas/scipy steps over live inputs."
+
+  - id: wei-2026-dms-dataset-external-sourcing
+    status: open
+    kind: gap
+    raised_by: freeform-summary-to-galaxy-interface
+    unmet: "Concrete, fetchable source location for the Wei, Li & Lehner (2026) whole-genome DMS ground-truth table, a hard input dependency for Stages E/G/H/J"
+    missing: "Dataset is not present in the repo; every downstream script expects it at a fixed local path (phix174_WGM/data/...zip) that does not exist in this checkout"
+    resolved_by: null
+    supersedes: null
+    note: "Modeled in this brief as an external reference-data input (bioRxiv doi:10.64898/2026.07.25.740675 supplement / GitHub, exact download mechanism TBD). Must be resolved before test-data resolution phases can fixture it."
+
+  - id: hyphaeon-toolshed-status-unverified
+    status: open
+    kind: gap
+    raised_by: freeform-summary-to-galaxy-interface
+    unmet: "Whether HyphAeon (github.com/veg/hyphaeon, CLI + Python package) and the companion hyphaeon_overlaps package are already Tool-Shed-wrapped, conda/pip-installable, or need to be authored from scratch as Galaxy tools"
+    missing: "freeform-summary Section 7, item 3 flags this as unverified from the repo alone"
+    resolved_by: null
+    supersedes: null
+    note: "This brief assumes new Galaxy tool wrappers will be authored for both packages; discover-shed-tool should check Tool Shed availability before author-galaxy-tool-wrapper is invoked for either."
+
+  - id: lexicmapstreamer-implementation-provenance
+    status: resolved
+    kind: gap
+    raised_by: freeform-summary-to-galaxy-data-flow
+    step: lexicmap_streamer_tiling_qc
+    unmet: "Whether stream_lexicmap_msa.py's multi-HSP coordinate tiling / codon QC / haplotype-collapsing logic (the user's \"LexicMapStreamer\") has any existing implementation to wrap, or must be authored as new Galaxy tool code from scratch"
+    missing: "freeform-summary's tool inventory (Section 5, 'Custom/internal orchestration code') characterized stream_lexicmap_msa.py as code with no separate installable tool"
+    resolved_by: freeform-summary-to-galaxy-data-flow
+    supersedes: null
+    note: "User-confirmed (2026-09-17): LexicMapStreamer already exists as a real, working implementation in the private repository https://github.com/nekrut/disassembler -- this is the actual code behind stream_lexicmap_msa.py's multi-HSP tiling/QC logic, not something to author from scratch by reverse-engineering the summary's prose. This does not itself discharge the wrapper-authoring obligation -- see lexicmapstreamer-wrapper-authoring-pending for the remaining open work."
+
+  - id: lexicmapstreamer-wrapper-authoring-pending
+    status: resolved
+    kind: gap
+    raised_by: freeform-summary-to-galaxy-data-flow
+    step: lexicmap_streamer_tiling_qc
+    unmet: "A Galaxy tool wrapper (XML + macros, or a Planemo-testable CLI wrapper) for LexicMapStreamer's multi-HSP tiling/QC/haplotype-collapsing step (Workflow A, node N5)"
+    missing: "No Tool Shed wrapper is known to exist yet; the real implementation lives in the private repo https://github.com/nekrut/disassembler and its CLI/API surface, install method, and license have not been inspected in this run"
+    resolved_by: advance-galaxy-draft-step
+    supersedes: null
+    note: "Not a from-scratch authoring problem (see lexicmapstreamer-implementation-provenance) -- discover-shed-tool should first check whether a wrapper already exists for this repo; if not, author-galaxy-tool-wrapper should target the disassembler repo's actual CLI/API rather than reverse-engineering behavior from stream_lexicmap_msa.py prose alone. The --allow-frameshifts default (see allow-frameshifts-default-unconfirmed) and the exact shape of N5's 8 per-gene output artifacts (see freeform-galaxy-data-flow.md §2, node N5) should both be confirmed by reading this repo's source during that authoring pass. [compare-against-iwc-exemplar, 2026-09-17] Corpus search for kmindex/lexicmap/comparable multi-HSP-tiling or haplotype-calling tools returned zero hits across the full IWC corpus -- confirms no shortcut via an existing IWC-adjacent wrapper; the nekrut/disassembler-backed wrapper-authoring path remains the only route. Still open, unchanged. [freeform-summary-to-galaxy-template, 2026-09-17] Topology settled: `lexicmap_streamer_tiling_qc` in galaxy-workflow-draft.gxwf.yml declares all 8 output ports concretely (see n5-output-collection-shape-no-record-precedent, resolved) and is mapped one call per gene. Still open on wrapper identity/authoring; also now the anchor for the am3-diagnostic-granularity question raised in n7-am3-diagnostic-granularity-unconfirmed, since that question turns on the same repo's summary.json / flagged.tsv schema. [advance-galaxy-draft-step, 2026-09-17] RESOLVED: discover-shed-tool re-confirmed the miss this iteration (3 query variants, 0 hits; galaxy-tool-pin.json). https://github.com/nekrut/disassembler was cloned (git clone succeeded; the repo, while described by the user as private, was accessible with this environment's ambient `gh`/git credentials -- no access blocker encountered). python/lexicmap_streamer.py (817 lines) was read directly: pure Python 3 stdlib, no third-party imports; full argparse CLI confirmed (see galaxy-user-tool.yml for the complete flag table). author-galaxy-tool-wrapper produced galaxy-user-tool.yml: `GalaxyUserTool` id `lexicmap_streamer`, version `1.0.0`, container `python:3.13-slim`, the script vendored verbatim (MIT license, (c) Anton Nekrutenko, commit a51eb58) as a `configfiles` entry. All 8 of N5's declared output ports map 1:1 onto the script's real fixed-suffix output files (`.clean.msa.fasta`, `.clean.haplotypes.tsv`, `.clean.accessions.fasta`, `.clean_expanded.accessions.fasta`, `.flagged.accessions.fasta`, `.flagged.tsv`, `.cohort_ledger.tsv`, `.summary.json`) -- no invented outputs, no port left unresolved; `--no-a2m` passed to suppress the one script output (`.a2m`) with no corresponding declared port. galaxy-workflow-draft.gxwf.yml's `lexicmap_streamer_tiling_qc` step now carries this concrete `tool_id`/`tool_version`/`in`/`state`/`out`. CORRECTION surfaced by this reading: the step's `_plan_in` (single semantic port) undercounted the real input surface -- the script requires the per-gene reference CDS FASTA (`-q/--ref`) in addition to the LexicMap hit table; wired to `gene_query_panel`, the same collection `lexicmap_search` already consumes, so no new workflow input or topology change was needed, just an added `in:` entry. `gxwf draft-validate --concrete` returns `draft valid` / `Concrete: OK` on the mutated draft (this step's tool_id resolves to a `skip_tool_not_found` Tool Shed-lookup skip, exactly like the pre-existing kmindex_query skip, not a hard failure)."
+
+  - id: reference-genome-workflow-input-dropped
+    status: resolved
+    kind: dropped
+    raised_by: freeform-summary-to-galaxy-template
+    units: "`Reference genome (NC_001422.1)` as a declared Workflow A workflow-level input"
+    because: "The settled N1-N7 topology (galaxy-workflow-draft.gxwf.yml) has no node that consumes the whole-genome FASTA -- only the per-gene CDS FASTAs in `gene_query_panel` are used by N1 (combine) and N4 (LexicMap search), matching freeform-summary.md's own language about the 'canonical ΦX174 gene coordinate frame.' freeform-galaxy-data-flow.md §1 and §7 item 1 already flagged this input as unwired and recommended dropping it from Workflow A's declared inputs if the template phase found no consumer, which is what this Mold confirmed."
+    unmet: "N/A -- not a computational dependency of any Workflow A step"
+    missing: "No node in Workflow A reads the whole-genome FASTA"
+    resolved_by: freeform-summary-to-galaxy-template
+    supersedes: null
+    note: "Dropped from galaxy-workflow-draft.gxwf.yml's declared `inputs:`; recorded in the draft's top-level `doc:` for provenance. This input may belong to Workflow B (Stage E), where `NC_001422.1:2395-2919` is genuinely used for bowtie2/samtools alignment -- out of scope for this run."
+
+  - id: n7-gene-e-audit-source-resolved
+    status: resolved
+    kind: gap
+    raised_by: freeform-summary-to-galaxy-data-flow
+    step: extract_gene_e_am3_audit
+    unmet: "Whether N7's Gene E am3 quarantine audit is literally the Gene E element of N5's (lexicmap_streamer_tiling_qc's) per-gene summary.json sample_sheet, or a ninth, separate per-gene artifact N5 also emits"
+    missing: "freeform-galaxy-data-flow.md §2 N5/N7 and §7 item 3 left this open, resolvable only once the nekrut/disassembler-backed wrapper's real output surface is known"
+    resolved_by: freeform-summary-to-galaxy-template
+    supersedes: null
+    note: "TOPOLOGY DECISION (this Mold must never leave a topology choice as TODO): modeled N7 as an EXTRACTION of the Gene E element of N5's summary.json collection (collection-unbox-singleton / __EXTRACT_DATASET__ by element_identifier == \"E\"), not a distinct ninth artifact. Rationale: freeform-summary.md Stage D2 states the am3 detection logic 'lives inside the QC step of stream_lexicmap_msa.py' (i.e. inside N5) and is only 'summarized in results/02_layer1_quasispecies/gene_e_am3_quarantine_audit.json' -- a path under ChronAeon Phase 2 (freeform-summary.md Stage I), a stage this run's scope decision (workflow-scope-boundary-unresolved) places out of scope for Workflow A, and which freeform-summary.md §7 item 7 / chronaeon-synthetic-metadata-phase0 / chronaeon-hardcoded-statistics-phases flag as partly fabricated-metadata / hardcoded-statistics rather than a reliable recomputation path. Treating N7 as a literal extraction of N5's own Gene E output avoids manufacturing a dependency on that unreliable, out-of-scope stage, and matches the source's own statement that the detection is internal to N5's QC rather than a separate computation. See galaxy-workflow-draft.gxwf.yml step `extract_gene_e_am3_audit`'s `_plan_state` for the full reasoning as carried in the draft itself. This resolution carries one caveat, tracked separately: n7-am3-diagnostic-granularity-unconfirmed."
+
+  - id: n7-am3-diagnostic-granularity-unconfirmed
+    status: resolved
+    kind: gap
+    blocking: false
+    raised_by: freeform-summary-to-galaxy-template
+    step: extract_gene_e_am3_audit
+    unmet: "Whether N5's (lexicmap_streamer_tiling_qc's) per-gene summary.json / flagged.tsv actually carries locus-specific detail (genome position nt587, G->A, codon 7 TGG->TAG) sufficient to reconstruct the paper's '2,215,172/2,392,457 (92.59%) of evaluated Gene E accessions carry this substitution' statistic, as opposed to only an aggregate premature-internal-stop count"
+    missing: "freeform-summary.md describes stream_lexicmap_msa.py's QC step as flagging premature internal stop codons generally (via codon-table translation) and describes summary.json as carrying 'quantile distributions, regime diagnostics, multi-HSP recovery counts' -- it does not explicitly confirm the summary.json (or flagged.tsv) schema records the specific substituted nucleotide/codon per flagged accession, only that a stop was found"
+    resolved_by: advance-galaxy-draft-step
+    supersedes: null
+    note: "Not treated as blocking: the underlying computation (per-accession codon-level translation and stop-codon detection) is plausibly already granular enough, since stream_lexicmap_msa.py must inspect individual codons to flag a stop at all -- the open question is only whether that per-accession locus detail is surfaced into N5's declared outputs (summary.json / flagged.tsv) or needs an additional field. To be confirmed during the same nekrut/disassembler wrapper-authoring pass tracked by lexicmapstreamer-wrapper-authoring-pending; if the real repo's outputs do not carry this detail, author-galaxy-tool-wrapper / implement-galaxy-tool-step should add it as a wrapper-level enhancement rather than escalate a topology repair, since the wiring (N7 reads N5's per-gene summary output) remains correct either way. [advance-galaxy-draft-step, 2026-09-17] PARTIALLY CONFIRMED, still open, still non-blocking, but the concern sharpens rather than dissolves: python/lexicmap_streamer.py was read directly. `summary.json` (`summary_data` dict) carries only aggregate quantiles/cohort counts/Shannon entropy plus a `top_10_haplotypes` preview limited to the CLEAN FULL-LENGTH cohort (ranked by count, with `aa_mutations`/`nt_mutations` string fields like `W7*` / `587G>A` that DO encode exact codon/nt position when present) -- it carries no per-accession stop-codon locus list. The literal per-accession, 1-based codon-position detail (`stop_codons` column, e.g. \"2,15\") lives in `flagged.tsv` and `cohort_ledger.tsv`, which N5 also emits as separate declared output ports (`flagged_tsv`, `cohort_ledger_tsv`) but which N7 (`extract_gene_e_am3_audit`, per n7-gene-e-audit-source-resolved) does NOT read -- N7 is wired only to `summary_json`. Since am3 is specifically a PREMATURE STOP mutant, an am3-carrying accession is by construction routed to the FLAGGED cohort (not the CLEAN top_10_haplotypes preview), so summary.json's per-haplotype mutation strings will not surface it either. Net: if the Gene E am3 quarantine audit needs the exact per-accession locus (not just the aggregate `flagged_premature_stops` count that summary.json does carry), N7 is reading the wrong port -- it should read `flagged_tsv` (or `cohort_ledger_tsv`) instead of/in addition to `summary_json`. Left open and non-blocking per this entry's own standing guidance (a topology question for the template tier, out of scope for this single-step iteration, which was scoped to lexicmap_streamer_tiling_qc only) rather than escalated to repair-galaxy-draft-topology on this pass. [advance-galaxy-draft-step, 2026-09-17] RESOLVED while implementing extract_gene_e_am3_audit itself: re-read python/lexicmap_streamer.py (same commit a51eb58d6c1ca941d3fb8d6adf5e8160c3926b91) and re-confirmed the above analysis line-by-line (process_accession_block lines 400-480; flagged.tsv header/rows at lines 365/471/478; cohort_ledger.tsv header/rows at lines 366/480; summary.json construction at lines 599-730). Rewired extract_gene_e_am3_audit's `in:` from `lexicmap_streamer_tiling_qc/summary_json` to `lexicmap_streamer_tiling_qc/flagged_tsv` -- flagged_tsv is the smallest N5 output already filtered to the anomalous/quarantine cohort and already carrying a per-accession `stop_codons` (codon-position) column, which is exactly the per-accession, locus-specific detail this audit needs, whereas cohort_ledger_tsv is an unfiltered superset requiring the consumer to filter by flag itself. This was a same-step port correction (N7 still reads N5, just the correct one of its 8 already-declared output ports), not a topology repair -- no producer node was inserted or removed, so repair-galaxy-draft-topology was not invoked. One residual, explicitly non-blocking limitation remains: neither flagged.tsv nor cohort_ledger.tsv records the literal nucleotide-substitution letters (only the codon index), so reconstructing the paper's exact 'nt587 G->A' phrasing still requires cross-referencing the reference sequence -- this does not affect the correctness of this step's own job (extracting the Gene E element), only a downstream reporting nicety."
+
+  - id: kmindex-hit-merge-no-corpus-precedent
+    status: resolved
+    kind: gap
+    blocking: false
+    raised_by: compare-against-iwc-exemplar
+    step: kmindex_hit_union
+    unmet: "A concrete Galaxy tool/idiom for N3's per-shard kmindex hit-map merge: dedup accessions across ~109 shard JSON files while keeping the max containment score per accession"
+    missing: "IWC corpus (galaxyproject/iwc, cloned/pulled 2026-09-17, 115 workflows) has no workflow performing key-based dedup-with-max-score reduction over a list collection. The closest built-in idiom found, Collapse Collection (toolshed.g2.bx.psu.edu/repos/nml/collapse_collections/collapse_dataset, used in microbiome/mags-building/MAGs-generation.ga steps 21-22 and microbiome/metagenomic-genes-catalogue.ga), performs plain concatenation of a list collection into one dataset with no per-key reduction -- it could serve as a first pass (concatenate, then a custom sort/dedup script) but does not implement the max-score-keeping semantics itself."
+    resolved_by: freeform-summary-to-galaxy-template
+    supersedes: null
+    note: "Was carried only as prose in freeform-galaxy-data-flow.md section 4 item 1, never previously promoted to this ledger. Promoted here per compare-against-iwc-exemplar's mandate to record structural divergences with no corpus precedent. Template phase should plan a small custom aggregation step (e.g. a Python/pandas tool) fed by Collapse Collection's concatenated output, rather than expect a single built-in tool to do both. [freeform-summary-to-galaxy-template, 2026-09-17] Resolved: galaxy-workflow-draft.gxwf.yml wires this as two concrete steps -- `kmindex_hit_concat` (Identity-pinned, nml/collapse_collections/collapse_dataset) followed by `kmindex_hit_dedup_max_score` (Deferred, tool_id TODO, _plan_state documents the dedup+max-score reduction). No blocking gap remains; the custom step's wrapper identity is left open for discover-shed-tool / author-galaxy-tool-wrapper, which is an ordinary Deferred-tier obligation, not an unmet topology need. [advance-galaxy-draft-step, 2026-09-17] Wrapper identity now settled: discover-shed-tool re-confirmed the miss (datamash groupby/max rejected -- tabular/pre-sorted input only, cannot parse JSON); author-galaxy-tool-wrapper produced galaxy-user-tool-kmindex-hit-dedup-max-score.yml (GalaxyUserTool, id kmindex_hit_dedup_max_score, version 1.0.0). kmindex_hit_dedup_max_score is now fully concrete in the draft (tool_id/tool_version mirror the UDT identity, ports concatenated_hits/accession_union). No blocking entry raised -- the step's single wired input (kmindex_hit_concat/output) is sufficient to compute its declared output."
+
+  - id: n6-json-flatten-no-corpus-precedent
+    status: resolved
+    kind: gap
+    blocking: false
+    raised_by: compare-against-iwc-exemplar
+    step: ingestion_manifest_aggregation
+    unmet: "A Galaxy tool/idiom to flatten each gene's nested .summary.json (N5 output) into one manifest row before concatenation into Ingestion manifest (all genes)"
+    missing: "IWC corpus has a real, directly relevant built-in tool for the tabular half of this bridge -- collection_column_join (toolshed.g2.bx.psu.edu/repos/iuc/collection_column_join/collection_column_join/0.0.3, used in MAGs-generation.ga steps 66-67 and metagenomic-genes-catalogue.ga) joins a list collection of per-element tabular files by an identifier column into one combined table. No corpus workflow performs the JSON-to-tabular-row flattening half; every per-sample tabular input to collection_column_join in the corpus is already tabular going in (e.g. CoverM/Quast/CheckM2 reports), never raw JSON."
+    resolved_by: freeform-summary-to-galaxy-template
+    supersedes: null
+    note: "Confirms freeform-galaxy-data-flow.md section 4 item 5's claim ('no generic Galaxy tool flattens an arbitrary nested per-gene JSON into one manifest row') is correct for the flatten step, but narrows the remaining gap: only a small per-gene JSON-to-TSV-row flattening tool (jq/python) needs to be authored; the subsequent collection-to-table join can reuse the real, named collection_column_join Tool Shed tool rather than a bespoke merge. [freeform-summary-to-galaxy-template, 2026-09-17] Resolved: galaxy-workflow-draft.gxwf.yml wires this as two concrete steps -- `flatten_gene_summary_json_to_row` (Deferred, tool_id TODO, mapped over the gene collection) followed by `join_gene_summary_rows_into_manifest` (Identity-pinned, iuc/collection_column_join/collection_column_join/0.0.3). No blocking gap remains. [advance-galaxy-draft-step, 2026-09-17] Deferred obligation discharged: `gxwf tool-search \"json to tabular\"` found only generic JSON tools (best hit `iuc/jq`, confirmed installable via galaxy-tool-cache add/summarize, changeset 4e62e523c2b6) -- rejected because its `filter`/`arguments` parameters cannot read the mapped input's Galaxy `element_identifier` without an extra `collection_element_identifiers`-style producer step and port, which would be an avoidable topology change. Authored a small GalaxyUserTool instead (`galaxy-user-tool-flatten-gene-summary.yml`, id `flatten_gene_summary_json_to_row`, version `1.0.0`, pure Python 3 stdlib, container `python:3.13-slim`) whose `shell_command` reads `$(inputs.summary_json.element_identifier)` directly -- confirmed valid against the installed `@galaxy-tool-util/schema` package's `gx-data.js` (`job_runtime` File-object shape declares `element_identifier: S.optional(S.String)` alongside `path`; also flagged as an authoring-note documentation gap in the feedback ledger, entry `galaxy-user-tool-authoring-missing-element-identifier-expression`). Output is a two-line TSV (header + one data row), first column `gene` = element_identifier, remaining columns the flat scalar fields of summary.json (regime diagnostics, cohort-breakdown counts, multi-HSP recovery counts, coverage/pident quantiles), read directly from this run's own vendored lexicmap_streamer.py rather than reverse-engineered from prose. `gxwf validate-tool-source galaxy-user-tool-flatten-gene-summary.yml` returns `OK`; `gxwf draft-validate --concrete galaxy-workflow-draft.gxwf.yml` returns `draft valid` / `Concrete: OK` on the mutated draft. join_gene_summary_rows_into_manifest's stale `in:` reference to this step's placeholder port was updated to the real `summary_row` port name (same-step reference fix, not a topology repair; see that step's own `_plan_state`)."
+
+  - id: n5-output-collection-shape-no-record-precedent
+    status: resolved
+    kind: gap
+    blocking: false
+    raised_by: compare-against-iwc-exemplar
+    step: lexicmap_streamer_tiling_qc
+    unmet: "Whether LexicMapStreamer's 8 per-gene output artifacts should be modeled as one sample_sheet:record (named-slot) collection, or as multiple parallel sample_sheet/list collections sharing the gene element_identifier"
+    missing: "IWC corpus (115 workflows, galaxyproject/iwc, checked 2026-09-17) contains zero workflows using a record/named-slot collection type (grep -rl 'collection_type.*record' *.ga = 0 hits). The corpus's established idiom for a per-element multi-artifact tool step is N separate parallel list/sample_sheet collections that share the same element_identifier and are recombined post hoc (e.g. via collection_column_join or __FLATTEN__) -- observed directly in microbiome/mags-building/MAGs-generation.ga, where per-sample assembly/binning/QC outputs ride as several parallel collections, not one named-slot collection."
+    resolved_by: freeform-summary-to-galaxy-template
+    supersedes: null
+    note: "Does not resolve freeform-galaxy-data-flow.md section 2 N5's open design recommendation (sample_sheet:record vs. 8 parallel collections) -- it is negative corpus evidence against the record-shaped option. Template phase should default to the corpus-precedented 8-parallel-collections-sharing-element_identifier shape unless a specific reason favors the record shape, since the record shape has no IWC exemplar to validate test/lint conventions against. [freeform-summary-to-galaxy-template, 2026-09-17] Resolved: galaxy-workflow-draft.gxwf.yml's `lexicmap_streamer_tiling_qc` step declares 8 named output ports (TODO_clean_msa_fasta, TODO_clean_haplotypes_tsv, TODO_clean_accessions_fasta, TODO_clean_expanded_accessions_fasta, TODO_flagged_accessions_fasta, TODO_flagged_tsv, TODO_cohort_ledger_tsv, TODO_summary_json), each an independent gene-keyed collection sharing the gene `element_identifier`, per this entry's recommendation -- not a `sample_sheet:record`. Topology decision made; only the wrapper's real port names remain TODO."
+
+  - id: lexicmap-search-flatten-shape-mismatch
+    status: resolved
+    kind: gap
+    blocking: true
+    raised_by: advance-galaxy-draft-step
+    step: flatten_lexicmap_results_by_gene
+    unmet: "flatten_lexicmap_results_by_gene's declared behavior (__FLATTEN__, collapse a gene x index list:list down to a gene-keyed list, per its own doc and the microbiome/mags-building/MAGs-generation.ga __FLATTEN__ precedent it cites) requires a nested list:list input"
+    missing: "lexicmap_search's real, pinned Tool Shed wrapper (iuc/lexicmap/lexicmap_search 0.9.0+galaxy1, changeset bcb6caec41eb, confirmed via discover-shed-tool + summarize-galaxy-tool this iteration) declares exactly one output, `out_file` (plain `data`, format `tabular`; no `discover_datasets`, no per-index/collection output). Index selection (`lexicmap_index_selection`) is bound as an in-tool-call multi-select value, not a second Galaxy-level map-over axis (per the already-settled topology commitment in ledger entry `kmindex-lexicmap-index-selection-mechanism`). Mapped over the single `gene_query_panel` axis, lexicmap_search's real output is therefore a flat `list` (one aggregate hits table per gene) -- there is no index axis for `__FLATTEN__` to collapse. draft-validate --concrete already surfaces the immediate symptom: `flatten_lexicmap_results_by_gene: step input \"input\" source \"lexicmap_search/TODO_lexicmap_hits_nested\" references unknown port\" (the port was renamed to the wrapper's real `out_file` while implementing lexicmap_search this iteration); fixing only the reference would silently paper over the deeper shape mismatch."
+    resolved_by: repair-galaxy-draft-topology
+    supersedes: null
+    note: "Raised by advance-galaxy-draft-step (2026-09-17) while implementing lexicmap_search: confirming the real wrapper's output shape refuted the 'tool's own per-index output declaration' claim `kmindex-lexicmap-index-selection-mechanism`'s template-phase note rested on (see that entry's superseding note, same date). lexicmap_search's own step is fully concrete and correct; this entry blocked only on flatten_lexicmap_results_by_gene, which was authored as Resolved against the now-refuted list:list assumption. [repair-galaxy-draft-topology, 2026-09-17] Resolved by narrowing, not by inserting a producer: removed the now-unnecessary `flatten_lexicmap_results_by_gene` (`__FLATTEN__`) step entirely and rewired its sole consumer, `lexicmap_streamer_tiling_qc`'s `TODO_lexicmap_results` port, directly onto `lexicmap_search/out_file`. That real output already carries the exact shape (`list`, 10 elements, gene-keyed) lexicmap_streamer_tiling_qc's own doc says it expects -- no substitute producer was needed, so this is a clean bounded repair, not a workaround. Confirmed no other step or workflow output referenced `flatten_lexicmap_results_by_gene`."

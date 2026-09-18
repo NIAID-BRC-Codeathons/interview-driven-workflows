@@ -1,0 +1,163 @@
+# Galaxy user-defined tool wrapper for flatten_gene_summary_json_to_row (Workflow A, node N6a).
+#
+# Resolves open-requirements ledger entry n6-json-flatten-no-corpus-precedent: no Tool Shed
+# wrapper flattens an arbitrary nested per-gene JSON into one manifest row. discover-shed-tool
+# found only generic JSON tools (e.g. iuc/jq, "query and transform JSON documents") -- jq's own
+# `filter`/`arguments` parameters are plain text/JSON values with no access to the Galaxy
+# collection `element_identifier` of the mapped input dataset, so a generic jq step could not,
+# by itself, preserve the gene identifier as a manifest column without an extra
+# collection-element-identifier-extraction producer step and a second wired port. Authoring a
+# small purpose-built tool avoids that added topology entirely: a GalaxyUserTool's
+# `shell_command`/`configfiles` expressions can read a data input's `element_identifier`
+# directly (`job_runtime` state representation; see gx-data schema, `element_identifier:
+# S.optional(S.String)` alongside `path`), the same idiom documented for classic Galaxy tool
+# XML (`$input.element_identifier` in `<command>`, per
+# convert-nfcore-module-to-galaxy-tool/nfcore-meta-map-to-galaxy-params.md: "Galaxy's
+# `$input.element_identifier` is the right substitute"). This is a one-input, one-output,
+# pure-stdlib script -- correctly small per this step's own `_plan_context` ("small jq or Python
+# script"), authored as Python rather than jq specifically so the gene identifier can be
+# embedded without an extra port.
+#
+# Schema of the input `summary.json` (LexicMapStreamer's `summary_data` dict) was read directly
+# from this run's own vendored lexicmap_streamer.py (galaxy-user-tool.yml, lines ~807-836;
+# same source commit a51eb58d6c1ca941d3fb8d6adf5e8160c3926b91,
+# https://github.com/nekrut/disassembler) rather than reverse-engineered from prose.
+class: GalaxyUserTool
+id: flatten_gene_summary_json_to_row
+version: 1.0.0
+name: Flatten Gene Summary JSON To Manifest Row
+description: >-
+  Flatten one LexicMapStreamer per-gene summary.json into a single tabular manifest row
+  (gene identifier plus regime diagnostics, cohort-breakdown counts, multi-HSP recovery
+  counts, and coverage/pident quantiles as columns) for the downstream ingestion-manifest join.
+license: MIT
+container: python:3.13-slim
+help:
+    format: markdown
+    content: |
+        Reads one LexicMapStreamer `summary.json` (one gene) and writes a two-line tabular
+        file: a header row and one data row.
+
+        The first column, `gene`, carries this dataset's Galaxy collection
+        `element_identifier` (the gene symbol, e.g. `A`) -- preserved end-to-end from
+        `gene_query_panel` through `lexicmap_streamer_tiling_qc`'s per-gene map-over, so the
+        row can be keyed for `join_gene_summary_rows_into_manifest`'s identifier-column join.
+        This tool is likewise mapped one call per gene over the `summary_json` collection.
+
+        Remaining columns are the flat scalar fields of `summary.json`: `status`,
+        `reference_name`, `reference_length_bp`, `is_cds`, `regime`, `regime_warning`,
+        `total_streamed_rows`, `total_accessions_evaluated`, the `cohort_breakdown` counts,
+        the `recovery_metrics` (including the multi-HSP rescue count), the `coverage_quantiles`
+        / `pident_quantiles` (p10/p25/median/p75/p90/mean), `clean_unique_haplotypes`,
+        `shannon_entropy_bits`, `wildtype_count`, `wildtype_fraction`, and `runtime_seconds`.
+        The nested `top_10_haplotypes` preview list is intentionally excluded -- it is not a
+        flat per-gene scalar and does not fit one manifest row.
+
+        No generic Galaxy Tool Shed tool performs this JSON-to-tabular-row flattening for an
+        arbitrary nested schema (open-requirements ledger `n6-json-flatten-no-corpus-precedent`);
+        this is the small custom tool that ledger entry anticipated.
+inputs:
+    - name: summary_json
+      type: data
+      format: [json]
+      label: Per-gene summary.json (LexicMapStreamer output)
+      help: >-
+        One element of lexicmap_streamer_tiling_qc's summary_json collection output
+        (mapped one call per gene).
+outputs:
+    - name: summary_row
+      type: data
+      format: tabular
+      from_work_dir: summary_row.tsv
+      label: Per-gene manifest row (header + one data row)
+configfiles:
+    - filename: flatten_gene_summary_row.py
+      content: |
+          #!/usr/bin/env python3
+          """flatten_gene_summary_row.py: Flatten one LexicMapStreamer per-gene summary.json
+          into a single tabular manifest row (one header line + one data row), prefixed with
+          the gene identifier (the Galaxy collection element_identifier of the input
+          summary.json dataset) so the row can be keyed for downstream collection_column_join.
+
+          Column set mirrors summary.json's flat scalar fields (regime diagnostics,
+          cohort-breakdown counts, multi-HSP recovery counts, coverage/pident quantiles) --
+          the nested top_10_haplotypes preview list is intentionally excluded (not a flat
+          per-gene scalar).
+          """
+          import argparse
+          import json
+
+          FIELDS = [
+              ("gene", None),
+              ("status", ("status",)),
+              ("reference_name", ("reference_name",)),
+              ("reference_length_bp", ("reference_length_bp",)),
+              ("is_cds", ("is_cds",)),
+              ("regime", ("regime",)),
+              ("regime_warning", ("regime_warning",)),
+              ("total_streamed_rows", ("total_streamed_rows",)),
+              ("total_accessions_evaluated", ("total_accessions_evaluated",)),
+              ("clean_full_length", ("cohort_breakdown", "clean_full_length")),
+              ("clean_partial", ("cohort_breakdown", "clean_partial")),
+              ("combined_clean_cohort", ("cohort_breakdown", "combined_clean_cohort")),
+              ("flagged_premature_stops", ("cohort_breakdown", "flagged_premature_stops")),
+              ("flagged_low_coverage", ("cohort_breakdown", "flagged_low_coverage")),
+              ("multi_hsp_rescued_accessions", ("recovery_metrics", "multi_hsp_rescued_accessions")),
+              ("single_hsp_full_length_accessions", ("recovery_metrics", "single_hsp_full_length_accessions")),
+              ("premature_stop_rate_pct_at_50cov", ("recovery_metrics", "premature_stop_rate_pct_at_50cov")),
+              ("coverage_p10", ("coverage_quantiles", "p10")),
+              ("coverage_p25", ("coverage_quantiles", "p25")),
+              ("coverage_p50_median", ("coverage_quantiles", "p50_median")),
+              ("coverage_p75", ("coverage_quantiles", "p75")),
+              ("coverage_p90", ("coverage_quantiles", "p90")),
+              ("coverage_mean", ("coverage_quantiles", "mean")),
+              ("pident_p10", ("pident_quantiles", "p10")),
+              ("pident_p25", ("pident_quantiles", "p25")),
+              ("pident_p50_median", ("pident_quantiles", "p50_median")),
+              ("pident_p75", ("pident_quantiles", "p75")),
+              ("pident_p90", ("pident_quantiles", "p90")),
+              ("pident_mean", ("pident_quantiles", "mean")),
+              ("clean_unique_haplotypes", ("clean_unique_haplotypes",)),
+              ("shannon_entropy_bits", ("shannon_entropy_bits",)),
+              ("wildtype_count", ("wildtype_count",)),
+              ("wildtype_fraction", ("wildtype_fraction",)),
+              ("runtime_seconds", ("runtime_seconds",)),
+          ]
+
+          def get_path(data, path):
+              node = data
+              for key in path:
+                  if not isinstance(node, dict) or key not in node:
+                      return ""
+                  node = node[key]
+              return node
+
+          def main():
+              parser = argparse.ArgumentParser(description=__doc__)
+              parser.add_argument("--input", required=True, help="Per-gene summary.json path")
+              parser.add_argument("--gene", required=True, help="Gene identifier (element_identifier of the summary_json input)")
+              parser.add_argument("--output", required=True, help="Output single-row tabular file path")
+              args = parser.parse_args()
+
+              with open(args.input) as fh:
+                  data = json.load(fh)
+
+              header = [name for name, _ in FIELDS]
+              row = []
+              for name, path in FIELDS:
+                  if name == "gene":
+                      row.append(str(args.gene))
+                      continue
+                  row.append(str(get_path(data, path)))
+
+              with open(args.output, "w") as out:
+                  out.write("\t".join(header) + "\n")
+                  out.write("\t".join(row) + "\n")
+
+          if __name__ == "__main__":
+              main()
+shell_command: >-
+  python flatten_gene_summary_row.py
+  --input $(inputs.summary_json.path)
+  --gene '$(inputs.summary_json.element_identifier)'
+  --output summary_row.tsv

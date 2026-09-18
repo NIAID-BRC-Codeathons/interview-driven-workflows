@@ -1,0 +1,39 @@
+{
+  "status": "miss",
+  "candidate": null,
+  "alternates": [
+    {
+      "tool_shed_url": "https://toolshed.g2.bx.psu.edu",
+      "owner": "iuc",
+      "repo": "datamash_ops",
+      "tool_id": "datamash_ops",
+      "trs_tool_id": "iuc~datamash_ops~datamash_ops",
+      "version": "1.1.0",
+      "changeset_revision": "unresolved",
+      "score": 38.44963372933142,
+      "matched_terms": ["datamash", "group", "max"],
+      "match_fields": ["name", "description"],
+      "rationale": "GNU datamash wrapper supports `groupby -g <col> max <col>` which is the right reduction primitive, but it operates on already-tabular, already-sorted-by-key delimited text -- it does not parse JSON. The concatenated kmindex hit dataset is per-shard JSON (accession -> score records), so datamash_ops alone cannot consume it; a JSON-to-two-column-TSV flatten plus a pre-sort-by-key would still have to be authored as a separate step, which is exactly the custom-transform gap this step exists to close. Rejected as a forced fit -- kept as an alternate to document that it was considered honestly."
+    },
+    {
+      "tool_shed_url": "https://toolshed.g2.bx.psu.edu",
+      "owner": "agordon",
+      "repo": "datamash_wrapper",
+      "tool_id": "DatamashOps",
+      "trs_tool_id": "agordon~datamash_wrapper~DatamashOps",
+      "version": "unresolved",
+      "changeset_revision": "unresolved",
+      "score": 39.69591060922866,
+      "matched_terms": ["datamash", "group", "max"],
+      "match_fields": ["name", "description"],
+      "rationale": "Same underlying GNU datamash binary/limitation as iuc/datamash_ops (older, less-maintained agordon wrapper of the same tool); same JSON-input rejection applies."
+    }
+  ],
+  "rationale": "Searched tool-search for \"datamash\" (groupby/max reduction primitive), \"sort\" (generic coreutils-style sort), \"unique\"/\"uniq\" (dedup idiom), and \"group by\". No candidate performs key-based dedup-with-max-score reduction over JSON input. The 'sort' query returned only domain-specific sort tools (BAM/SAM sorters, chain sort, docking pose sort) -- no generic GNU coreutils `sort` wrapper exists on the Tool Shed. The 'unique' query returned sequence-dedup tools (mothur unique.seqs, vsearch dereplication, redup) that deduplicate FASTA/FASTQ reads by sequence identity, not JSON records by an accession key -- wrong domain entirely. The only structurally-relevant hit, datamash_ops (both iuc and agordon wrappers), implements the right reduction primitive (`groupby -g <keycol> max <scorecol>`) but requires already-tabular, pre-sorted-by-key delimited input and cannot parse the JSON shape this step actually receives; adopting it would not eliminate the custom transform, only relocate it upstream (JSON->TSV flatten + sort), so it is not an acceptable fit. Confirms and extends the already-resolved ledger entry kmindex-hit-merge-no-corpus-precedent (IWC corpus has no precedent either). Falling through to author-galaxy-tool-wrapper for a from-scratch pure-Python transform.",
+  "warnings": [
+    {
+      "code": "other",
+      "message": "No generic GNU coreutils sort/uniq Tool Shed wrapper exists; closest structural match (datamash_ops) rejected for JSON-input incompatibility, not domain mismatch."
+    }
+  ]
+}
