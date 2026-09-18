@@ -53,6 +53,10 @@
       --fs-micro: 0.40em;
     }
 
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
     /* Subtle 28px Galaxy workflow-editor grid background */
     .reveal {
       font-size: 38px;
@@ -64,6 +68,10 @@
       background-size: 28px 28px;
     }
 
+    .reveal section {
+      box-sizing: border-box;
+    }
+
     .reveal h1, .reveal h2, .reveal h3, .reveal h4 {
       font-family: var(--r-heading-font);
       font-weight: 700;
@@ -71,6 +79,7 @@
       letter-spacing: -0.02em;
       margin: 0 0 0.4em 0;
       line-height: 1.15;
+      text-wrap: balance;
     }
     .reveal h1 { font-size: var(--fs-h1); }
     .reveal h2 { font-size: var(--fs-h2); }
@@ -117,10 +126,14 @@
 
     /* Navy dark cover & divider styling */
     .reveal section.galaxy-cover {
+      box-sizing: border-box !important;
+      width: 100% !important;
+      max-width: 1140px !important;
+      margin: 0 auto !important;
       background: radial-gradient(circle at 50% 30%, #2a3b5c 0%, #171d2b 100%) !important;
       color: #f8f9fa !important;
-      border-radius: 14px;
-      padding: 48px 50px !important;
+      border-radius: 16px;
+      padding: 44px 40px !important;
       box-shadow: 0 12px 48px rgba(0,0,0,0.25);
     }
     .reveal section.galaxy-cover h1 {
@@ -162,16 +175,16 @@
       line-height: 1.4;
     }
     .reveal .callout {
-      border-left: 5px solid var(--deck-gold-soft);
+      border-left: 6px solid var(--deck-gold-soft);
       background: rgba(232, 197, 71, 0.08);
-      padding: 14px 20px;
-      border-radius: 0 8px 8px 0;
+      padding: 16px 22px;
+      border-radius: 0 10px 10px 0;
       text-align: left;
       font-size: var(--fs-body);
       font-weight: 600;
       color: var(--deck-navy);
-      margin: 14px auto;
-      max-width: 38em;
+      margin: 16px auto;
+      max-width: 40em;
     }
     .reveal .callout-navy {
       border-left-color: var(--deck-navy);
@@ -186,9 +199,9 @@
     /* Cards grid */
     .reveal .cards {
       display: grid;
-      gap: 18px;
+      gap: 20px;
       text-align: left;
-      margin: 16px auto;
+      margin: 20px auto;
     }
     .reveal .cards-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .reveal .cards-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -197,9 +210,9 @@
       background: #ffffff;
       border: 1px solid #e2e8f0;
       border-top: 4px solid var(--deck-navy);
-      border-radius: 8px;
-      padding: 16px 18px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.03);
+      border-radius: 10px;
+      padding: 18px 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.03);
     }
     .reveal .card-gold { border-top-color: var(--deck-gold); }
     .reveal .card-warn { border-top-color: var(--deck-warn); }
@@ -208,7 +221,7 @@
       font-size: var(--fs-body);
       font-weight: 700;
       color: var(--deck-navy);
-      margin-bottom: 5px;
+      margin-bottom: 6px;
     }
     .reveal .card-eyebrow {
       font-family: var(--r-code-font);
@@ -221,7 +234,7 @@
     .reveal .card-body {
       font-size: var(--fs-small);
       color: #475569;
-      line-height: 1.4;
+      line-height: 1.45;
     }
 
     /* Stat counters */
@@ -229,18 +242,18 @@
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 16px;
-      margin: 14px 0;
+      margin: 18px 0;
     }
     .reveal .stat-box {
       background: #f8fafc;
       border: 1px solid #e2e8f0;
       border-radius: 10px;
-      padding: 12px 10px;
+      padding: 14px 12px;
       text-align: center;
     }
     .reveal .stat-num {
       font-family: var(--r-code-font);
-      font-size: 1.35em;
+      font-size: 1.45em;
       font-weight: 800;
       color: var(--deck-navy);
       line-height: 1.0;
@@ -288,8 +301,8 @@
     .interactive-btn {
       font-family: var(--r-code-font);
       font-size: var(--fs-micro);
-      padding: 8px 14px;
-      border-radius: 7px;
+      padding: 9px 15px;
+      border-radius: 8px;
       border: 1px solid var(--deck-navy);
       background: #ffffff;
       color: var(--deck-navy);
@@ -321,9 +334,9 @@
     .reveal .split {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
+      gap: 22px;
       text-align: left;
-      align-items: start;
+      align-items: stretch;
     }
     .reveal .split-3-2 {
       grid-template-columns: 3fr 2fr;
@@ -358,11 +371,12 @@
       background: #f8fafc;
       border: 1px solid #cbd5e1;
       border-radius: 10px;
-      padding: 20px 24px;
-      min-height: 280px;
+      padding: 24px 28px;
+      min-height: 360px;
       box-sizing: border-box;
       text-align: left;
       font-size: var(--fs-small);
+      line-height: 1.55;
     }
 
     .reveal aside.notes {
@@ -390,15 +404,17 @@
     <!-- ================================================================= -->
     <section class="galaxy-cover">
       <div class="eyebrow">NIAID-BRCs AI Codeathon 2.0 · September 16–18, 2026 · Argonne National Laboratory</div>
-      <h1>Interview-Driven Workflow Construction &amp; Repair</h1>
-      <h3 style="font-weight: 500; font-size: 0.82em; color: #93c5fd !important; margin-bottom: 0.5em;">
+      <h1 style="max-width: 950px; margin: 0 auto 0.25em auto; text-wrap: balance; font-size: 1.85em; line-height: 1.15;">
+        Interview-Driven Workflow Construction &amp; Repair
+      </h1>
+      <h3 style="font-weight: 500; font-size: 0.85em; color: #93c5fd !important; margin-bottom: 0.6em; max-width: 880px; margin-left: auto; margin-right: auto; text-wrap: balance;">
         Autonomous Galaxy Workflow Synthesis for Emerging Pathogen Research
       </h3>
-      <div class="lede" style="max-width: 34em;">
+      <div class="lede" style="max-width: 32em; margin: 0 auto 0.8em auto;">
         Transforming conversational research requests into peer-reviewed, reproducible Galaxy workflows.
       </div>
 
-      <div style="margin-top: 22px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+      <div style="margin-top: 28px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; max-width: 960px; margin-left: auto; margin-right: auto;">
         <span class="author-pill">Marius van den Beek (<a href="https://github.com/mvdbeek" target="_blank">@mvdbeek</a>)</span>
         <span class="author-pill">John Chilton (<a href="https://github.com/jmchilton" target="_blank">@jmchilton</a>)</span>
         <span class="author-pill">Dave Rogers (<a href="https://github.com/NoopDog" target="_blank">@NoopDog</a>)</span>
@@ -406,7 +422,7 @@
         <span class="author-pill">Scott Cain (<a href="https://github.com/scottcain" target="_blank">@scottcain</a>)</span>
       </div>
 
-      <div style="margin-top: 22px; font-size: 0.4em; color: #94a3b8; font-family: var(--r-code-font);">
+      <div style="margin-top: 28px; font-size: 0.4em; color: #94a3b8; font-family: var(--r-code-font);">
         Press <kbd style="background:#334155; padding:2px 5px; border-radius:3px; color:#fff;">SPACE</kbd> or <kbd style="background:#334155; padding:2px 5px; border-radius:3px; color:#fff;">→</kbd> to advance · <kbd style="background:#334155; padding:2px 5px; border-radius:3px; color:#fff;">O</kbd> for overview · <kbd style="background:#334155; padding:2px 5px; border-radius:3px; color:#fff;">S</kbd> for speaker notes
       </div>
 
@@ -1100,7 +1116,7 @@
     transition: 'slide',
     slideNumber: 'c/t',
     width: 1200,
-    height: 750,
+    height: 800,
     margin: 0.04,
     minScale: 0.2,
     maxScale: 2.0,
