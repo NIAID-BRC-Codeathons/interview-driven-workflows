@@ -1,0 +1,79 @@
+- doc: Test outline for Ebola Virus Infection RNA-seq Analysis (A549 WT vs PTPN13-KO)
+  job:
+    reads_paired_collection:
+      class: Collection
+      collection_type: "list:paired"
+      elements:
+        - class: Collection
+          collection_type: paired
+          identifier: SRR5085167
+          elements:
+            - class: File
+              identifier: forward
+              path: test-data/SRR5085167_forward.fastqsanger.gz
+            - class: File
+              identifier: reverse
+              path: test-data/SRR5085167_reverse.fastqsanger.gz
+        - class: Collection
+          collection_type: paired
+          identifier: SRR5085168
+          elements:
+            - class: File
+              identifier: forward
+              path: test-data/SRR5085168_forward.fastqsanger.gz
+            - class: File
+              identifier: reverse
+              path: test-data/SRR5085168_reverse.fastqsanger.gz
+        - class: Collection
+          collection_type: paired
+          identifier: SRR5085169
+          elements:
+            - class: File
+              identifier: forward
+              path: test-data/SRR5085169_forward.fastqsanger.gz
+            - class: File
+              identifier: reverse
+              path: test-data/SRR5085169_reverse.fastqsanger.gz
+        - class: Collection
+          collection_type: paired
+          identifier: SRR5085170
+          elements:
+            - class: File
+              identifier: forward
+              path: test-data/SRR5085170_forward.fastqsanger.gz
+            - class: File
+              identifier: reverse
+              path: test-data/SRR5085170_reverse.fastqsanger.gz
+    salmon_index:
+      class: File
+      path: test-data/transcriptome.fasta
+      filetype: fasta
+    sample_metadata:
+      class: File
+      path: test-data/sample_metadata.tabular
+      filetype: tabular
+    tx2gene_map:
+      class: File
+      path: test-data/tx2gene.tabular
+      filetype: tabular
+  outputs:
+    salmon_quant_collection:
+      class: Collection
+      element_tests:
+        SRR5085167:
+          asserts:
+            has_text:
+              text: "TX_02"
+    deseq2_norm_counts:
+      asserts:
+        has_text:
+          text: "GENE_02"
+    deseq2_differential_results:
+      asserts:
+        has_text:
+          text: "GENE_02"
+    deseq2_plots:
+      asserts:
+        has_size:
+          value: 1000
+          delta: 1000000

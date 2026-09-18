@@ -1,0 +1,20 @@
+{
+  "status": "pass",
+  "command": "planemo test --biocontainers --test_output_json tool_test_output.json galaxy-workflow.gxwf.yml",
+  "workflow_path": "ebola-test/galaxy-workflow.gxwf.yml",
+  "tests_path": "ebola-test/galaxy-workflow.gxwf-tests.yml",
+  "galaxy_mode": "planemo-managed",
+  "container_mode": "biocontainers",
+  "invocation_id": "ab426e56a688ed95",
+  "summary": {
+    "total_tests": 1,
+    "passed": 1,
+    "failed": 0
+  },
+  "jobs_summary": {
+    "total": 5,
+    "terminal": 5,
+    "successful": 5,
+    "failed": 0
+  }
+}

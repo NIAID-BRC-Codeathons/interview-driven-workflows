@@ -1,0 +1,22 @@
+{
+  "command": "gxwf validate ebola-test/galaxy-workflow.gxwf.yml",
+  "workflow_path": "ebola-test/galaxy-workflow.gxwf.yml",
+  "status": "pass",
+  "diagnostics": [],
+  "tool_state": {
+    "validated": 2,
+    "skipped": 0
+  },
+  "residual_runtime_risks": [
+    {
+      "risk": "Salmon mapping rate on real vs toy transcriptome",
+      "description": "If the transcriptome fasta does not match read headers/chromosomes, quantification will be zero or very low.",
+      "runtime_artifact": "salmon_quant_collection quant.sf"
+    },
+    {
+      "risk": "DESeq2 sample table factor alignment",
+      "description": "Column names in sample_metadata must exactly match factor names in the custom design formula (~ Genotype + Timepoint + Condition).",
+      "runtime_artifact": "deseq2_plots, deseq2_differential_results"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+- id: salmon-index-source-type
+  status: resolved
+  kind: gap
+  blocking: false
+  raised_by: freeform-summary-to-galaxy-interface
+  step: salmon_quant
+  unmet: "Salmon reference index source format"
+  missing: "Whether reference target is supplied as pre-built index archive or FASTA for index creation"
+  resolved_by: advance-galaxy-draft-step
+  supersedes: null
+  note: "Resolved to history-supplied reference transcriptome FASTA with on-the-fly k-mer indexing (k=31)."
+
+- id: deseq2-design-formula-specification
+  status: resolved
+  kind: gap
+  blocking: false
+  raised_by: freeform-summary-to-galaxy-interface
+  step: deseq2
+  unmet: "Multi-factor formula and primary contrast"
+  missing: "Exact factor order and whether interaction term Genotype:Condition is modeled"
+  resolved_by: advance-galaxy-draft-step
+  supersedes: null
+  note: "Resolved using sample_sheet_contrasts with custom design formula ~ Genotype + Timepoint + Condition and tximport integration."

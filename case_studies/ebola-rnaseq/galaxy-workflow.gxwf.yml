@@ -1,0 +1,95 @@
+class: GalaxyWorkflow
+label: Ebola Virus Infection RNA-seq Analysis (A549 WT vs PTPN13-KO)
+doc: Transcript quantification with Salmon followed by multi-factor differential expression analysis with DESeq2 for paired-end RNA-seq from human A549 WT and A549 PTPN13-KO cells infected with Ebola virus vs mock infection at 24 and 48 HPI.
+inputs:
+  reads_paired_collection:
+    type: collection
+    collection_type: list:paired
+    format: fastqsanger.gz
+    doc: Paired-end Illumina RNA-seq reads across experimental samples
+  salmon_index:
+    type: data
+    format: fasta
+    doc: Reference transcriptome FASTA for Salmon quantification
+  sample_metadata:
+    type: data
+    format: tabular
+    doc: Tabular sample metadata specifying Genotype, Condition, and Timepoint
+  tx2gene_map:
+    type: data
+    format: tabular
+    doc: Tabular mapping between transcript identifiers and gene identifiers
+outputs:
+  salmon_quant_collection:
+    outputSource: salmon_quant/output_quant
+    doc: Per-sample Salmon transcript abundance and count tables
+  deseq2_norm_counts:
+    outputSource: deseq2/counts_out
+    doc: DESeq2 normalized counts matrix across all samples
+  deseq2_differential_results:
+    outputSource: deseq2/deseq_out
+    doc: DESeq2 differential expression results table
+  deseq2_plots:
+    outputSource: deseq2/plots
+    doc: DESeq2 QC and diagnostic plots (PCA, dispersion)
+steps:
+  salmon_quant:
+    tool_id: toolshed.g2.bx.psu.edu/repos/bgruening/salmon/salmon/1.10.1+galaxy5
+    tool_version: 1.10.1+galaxy5
+    label: salmon_quant
+    doc: Quantify transcripts with Salmon
+    tool_shed_repository:
+      changeset_revision: 29e12b90949d
+      name: salmon
+      owner: bgruening
+      tool_shed: toolshed.g2.bx.psu.edu
+    in:
+      quant_type|input|single_or_paired|input_1: reads_paired_collection
+      quant_type|refTranscriptSource|s_index|fasta: salmon_index
+    out:
+      - id: output_quant
+    tool_state:
+      quant_type:
+        qtype: reads
+        input:
+          single_or_paired:
+            single_or_paired_opts: paired_collection
+            libtype:
+              strandedness: A
+        refTranscriptSource:
+          TranscriptSource: history
+          s_index:
+            kmer: 31
+  deseq2:
+    tool_id: toolshed.g2.bx.psu.edu/repos/iuc/deseq2/deseq2/2.11.40.8+galaxy3
+    tool_version: 2.11.40.8+galaxy3
+    label: deseq2
+    doc: Differential gene expression analysis with DESeq2
+    tool_shed_repository:
+      changeset_revision: b060944b3989
+      name: deseq2
+      owner: iuc
+      tool_shed: toolshed.g2.bx.psu.edu
+    in:
+      select_data|countsFile: salmon_quant/output_quant
+      select_data|sample_sheet: sample_metadata
+      tximport|mapping_format|tabular_file: tx2gene_map
+    out:
+      - id: counts_out
+      - id: deseq_out
+      - id: plots
+    tool_state:
+      select_data:
+        how: sample_sheet_contrasts
+        design_formula_mode:
+          mode: custom
+          design_formula: ~ Condition
+      tximport:
+        tximport_selector: tximport
+        txtype: salmon
+        mapping_format:
+          mapping_format_selector: tabular
+      output_options:
+        output_selector:
+          - pdf
+          - normCounts

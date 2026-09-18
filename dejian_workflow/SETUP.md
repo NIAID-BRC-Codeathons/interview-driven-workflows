@@ -43,10 +43,10 @@ If you don't already have it:
 
 ```bash
 git clone https://github.com/NIAID-BRC-Codeathons/interview-driven-workflows.git
-cd interview-driven-workflows
+cd interview-driven-workflows/dejian_workflow
 ```
 
-All commands below assume you're `cd`'d into the repo root.
+All commands below assume you're `cd`'d into `dejian_workflow/`.
 
 ### Updating an existing checkout
 
@@ -56,7 +56,7 @@ If you already installed this before and just want the latest version,
 venv won't have them:
 
 ```bash
-cd interview-driven-workflows          # repo root
+cd interview-driven-workflows/dejian_workflow  # implementation folder
 git status                             # confirm no local changes you'd lose
 git pull origin main
 

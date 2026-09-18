@@ -1,0 +1,44 @@
+class: GalaxyWorkflow
+label: DESeq2 Differential Expression Subgraph
+inputs:
+  - id: counts_collection
+    type: collection
+    collection_type: list
+    optional: false
+    doc: Collection of count/abundance tables across samples
+  - id: sample_metadata
+    type: data
+    optional: false
+    doc: Tabular sample metadata specifying experimental factors
+outputs:
+  - id: deseq2_plots
+    outputSource: deseq2/plots
+  - id: deseq2_norm_counts
+    outputSource: deseq2/counts_out
+  - id: deseq2_results
+    outputSource: deseq2/deseq_out
+steps:
+  - id: deseq2
+    label: Differential Analysis
+    tool_id: toolshed.g2.bx.psu.edu/repos/iuc/deseq2/deseq2/2.11.40.8+galaxy3
+    tool_version: 2.11.40.8+galaxy3
+    tool_shed_repository:
+      changeset_revision: b060944b3989
+      name: deseq2
+      owner: iuc
+      tool_shed: toolshed.g2.bx.psu.edu
+    in:
+      - id: select_data|countsFile
+        source: counts_collection
+    out:
+      - id: deseq_out
+      - id: counts_out
+      - id: plots
+    tool_state:
+      output_options:
+        output_selector:
+          - pdf
+          - normCounts
+      select_data:
+        how: datasets_per_level
+        __current_case__: 1

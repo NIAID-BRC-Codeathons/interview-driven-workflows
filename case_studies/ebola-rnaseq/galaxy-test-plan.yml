@@ -1,0 +1,121 @@
+plan_version: "1"
+source:
+  kind: freeform
+  name: "Ebola Virus Infection RNA-seq Analysis (A549 WT vs PTPN13-KO)"
+  derived_from: intent
+  notes: "Synthesized from user interview intent and design briefs for paired-end RNA-seq with Salmon and DESeq2."
+workflow:
+  title: "Ebola Virus Infection RNA-seq Analysis (A549 WT vs PTPN13-KO)"
+  label_source: draft
+  notes: "Input and output labels match concrete galaxy-workflow.gxwf.yml."
+test_cases:
+  - id: test_ebola_rnaseq_pe
+    doc: "Execute Salmon quantification on paired reads and run DESeq2 differential analysis across conditions."
+    derived_from: intent
+    provenance: "Interview intent and IWC transcriptomics test fixture conventions."
+    job_inputs:
+      - workflow_label: reads_paired_collection
+        label_status: resolved
+        description: "Collection of paired-end FASTQ reads across experimental samples."
+        collection_shape: "list:paired"
+        datatype: fastqsanger.gz
+        fixture:
+          storage: remote-url
+          location: "https://zenodo.org/records/13987631/files/SRR5085167_forward.fastqsanger.gz"
+          checksum: "SHA-1:f910a2a7764249b690e28d8dcf4d7097d3c533f6"
+          provenance: "IWC rnaseq-pe Zenodo record 13987631"
+      - workflow_label: salmon_index
+        label_status: resolved
+        description: "Reference transcriptome FASTA sequence for Salmon indexing."
+        collection_shape: null
+        datatype: fasta
+        fixture:
+          storage: remote-url
+          location: "https://zenodo.org/records/13987631/files/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa"
+          checksum: null
+          provenance: "IWC transcriptomics cDNA FASTA"
+      - workflow_label: sample_metadata
+        label_status: resolved
+        description: "Tabular sample metadata specifying factors for DESeq2."
+        collection_shape: null
+        datatype: tabular
+        fixture:
+          storage: in-repo
+          location: "test-data/sample_metadata.tabular"
+          checksum: null
+          provenance: "Synthesized sample annotation matching FASTQ identifiers"
+      - workflow_label: tx2gene_map
+        label_status: resolved
+        description: "Tabular mapping between transcript IDs and gene IDs."
+        collection_shape: null
+        datatype: tabular
+        fixture:
+          storage: in-repo
+          location: "test-data/tx2gene.tabular"
+          checksum: null
+          provenance: "Synthesized tx2gene table for transcript aggregation"
+    expected_outputs:
+      - workflow_label: salmon_quant_collection
+        label_status: resolved
+        description: "Collection of per-sample Salmon transcript quantification tables."
+        output_kind: collection
+        collection_shape: list
+        assertion_intent:
+          - family: has_n_lines
+            intent: "Each quant.sf table contains quantified transcript rows."
+            expected_value: 10
+            tolerance:
+              kind: delta
+              magnitude: 50
+              rationale: "Depends on fixture transcriptome size"
+            element_identifier: SRR5085167
+            evidence: intent
+            confidence: medium
+      - workflow_label: deseq2_norm_counts
+        label_status: resolved
+        description: "Size-factor normalized counts table from DESeq2."
+        output_kind: dataset
+        collection_shape: null
+        assertion_intent:
+          - family: has_n_columns
+            intent: "Normalized count matrix contains sample columns."
+            expected_value: 3
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: medium
+      - workflow_label: deseq2_differential_results
+        label_status: resolved
+        description: "DESeq2 statistical test results table."
+        output_kind: dataset
+        collection_shape: null
+        assertion_intent:
+          - family: has_text
+            intent: "Output contains expected DESeq2 header columns (baseMean, log2FoldChange, pvalue, padj)."
+            expected_value: "baseMean"
+            tolerance: null
+            element_identifier: null
+            evidence: intent
+            confidence: high
+      - workflow_label: deseq2_plots
+        label_status: resolved
+        description: "DESeq2 diagnostic PCA and dispersion plots."
+        output_kind: dataset
+        collection_shape: null
+        assertion_intent:
+          - family: has_size
+            intent: "Valid diagnostic PDF is generated with non-zero size."
+            expected_value: 5000
+            tolerance:
+              kind: delta
+              magnitude: 500000
+              rationale: "PDF binary size varies with R graphics device"
+            element_identifier: null
+            evidence: intent
+            confidence: medium
+unresolved: []
+omissions:
+  - target: deseq2_plots
+    reason: "Exact pixel or stream equality of R graphics is non-deterministic; verified by file size and existence."
+    category: nondeterministic
+warnings: []
