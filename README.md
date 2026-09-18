@@ -47,6 +47,10 @@ Team assignments are still being finalized. Participants can review their projec
 
 This repository is the team's working space for the codeathon — code, notebooks, data pointers, and notes. Replace this README with the real thing once the charter is written. Team members get access through the [NIAID-BRC-Codeathons](https://github.com/NIAID-BRC-Codeathons) organization; accept the invitation if you have not already.
 
+## Presentation
+
+- **[Interactive Slides (10-minute presentation)](slides/)**: Complete interactive slide deck with speaker notes, live pipeline phase explorer, router simulator, case study comparisons, research edge discoveries, and upstream commit ledger.
+
 ## Case studies
 
 Two end-to-end runs of the [Galaxy Workflow Foundry](https://github.com/galaxyproject/foundry) pipelines, each with a run dashboard, the generated workflow, tests, validation reports, and a phase-by-phase write-up. The site version of this page is at <https://niaid-brc-codeathons.github.io/interview-driven-workflows/>.
