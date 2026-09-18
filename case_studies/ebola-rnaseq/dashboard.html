@@ -5,372 +5,514 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; connect-src 'none'">
 <title>ebola-rnaseq — interview-to-galaxy</title>
-<style>
+<style>/* Palette read from site/src/styles/global.css at generation time. */
 :root {
-  --brand: #25537b;
-  --chrome: #2c3143;
-  --accent: #e8c547;
-  --surface: #ffffff;
-  --surface-raised: #f6f7f9;
-  --surface-hover: #eef1f5;
-  --text: #1a1d23;
-  --text-secondary: #4a5160;
-  --text-muted: #6b7280;
-  --border: #d9dee6;
-  --border-subtle: #e8ebf0;
-  --link: #25537b;
-  --rail: #b7c3d2;
-  --ok: #18794e;
-  --warn: #b7791f;
-  --error: #c53030;
-  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-  --sans: system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --color-brand: #25537b;
+  --color-chrome: #2c3143;
+  --color-surface: #ffffff;
+  --color-surface-raised: #f6f8fa;
+  --color-surface-hover: #edf4fa;
+  --color-text-primary: #2c3143;
+  --color-text-secondary: #58585a;
+  --color-text-muted: #8b949e;
+  --color-text-on-dark: #f8f9fa;
+  --color-link: #25537b;
+  --color-link-hover: #ffd700;
+  --color-border: #d1d5db;
+  --color-border-subtle: #e1e4e8;
+  --color-accent: #e8c547;
+  --color-rail: #25537b;
+  --color-badge-draft-bg: #fff3cd;
+  --color-badge-draft-text: #856404;
+  --color-badge-reviewed-bg: #d4edda;
+  --color-badge-reviewed-text: #155724;
+  --color-badge-revised-bg: #cce5ff;
+  --color-badge-revised-text: #004085;
+  --color-badge-stale-bg: #f8d7da;
+  --color-badge-stale-text: #721c24;
+  --color-badge-archived-bg: #d6d8db;
+  --color-badge-archived-text: #383d41;
+  --font-sans: 'Atkinson Hyperlegible', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: Monaco, Menlo, Consolas, 'Courier New', monospace;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --brand: #6fa5d4;
-    --chrome: #161b22;
-    --surface: #0d1117;
-    --surface-raised: #161b22;
-    --surface-hover: #1c232c;
-    --text: #e6edf3;
-    --text-secondary: #b3bdc9;
-    --text-muted: #8b949e;
-    --border: #2b323c;
-    --border-subtle: #21262d;
-    --link: #6fa5d4;
-    --rail: #3d4552;
-    --ok: #4ac07f;
-    --warn: #e0b341;
-    --error: #f2777a;
+    --color-surface: #0d1117;
+    --color-surface-raised: #161b22;
+    --color-surface-hover: #21262d;
+    --color-text-primary: #e6edf3;
+    --color-text-secondary: #b6bfca;
+    --color-text-muted: #8b94a0;
+    --color-link: #6fa5d4;
+    --color-border: #30363d;
+    --color-border-subtle: #21262d;
+    --color-rail: #6fa5d4;
+    --color-badge-draft-bg: #3d2e00;
+    --color-badge-draft-text: #f0c000;
+    --color-badge-reviewed-bg: #0f2d16;
+    --color-badge-reviewed-text: #56d364;
+    --color-badge-revised-bg: #0c2d6b;
+    --color-badge-revised-text: #79b8ff;
+    --color-badge-stale-bg: #3d1418;
+    --color-badge-stale-text: #f85149;
+    --color-badge-archived-bg: #21262d;
+    --color-badge-archived-text: #8b949e;
   }
+}
+
+:root[data-theme="dark"] {
+  --color-surface: #0d1117;
+  --color-surface-raised: #161b22;
+  --color-surface-hover: #21262d;
+  --color-text-primary: #e6edf3;
+  --color-text-secondary: #b6bfca;
+  --color-text-muted: #8b94a0;
+  --color-link: #6fa5d4;
+  --color-border: #30363d;
+  --color-border-subtle: #21262d;
+  --color-rail: #6fa5d4;
+  --color-badge-draft-bg: #3d2e00;
+  --color-badge-draft-text: #f0c000;
+  --color-badge-reviewed-bg: #0f2d16;
+  --color-badge-reviewed-text: #56d364;
+  --color-badge-revised-bg: #0c2d6b;
+  --color-badge-revised-text: #79b8ff;
+  --color-badge-stale-bg: #3d1418;
+  --color-badge-stale-text: #f85149;
+  --color-badge-archived-bg: #21262d;
+  --color-badge-archived-text: #8b949e;
 }
 
 * { box-sizing: border-box; }
 
+html { color-scheme: light dark; }
+
 body {
   margin: 0;
-  background: var(--surface);
-  color: var(--text);
-  font-family: var(--sans);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
   font-size: 15px;
-  line-height: 1.55;
+  line-height: 1.6;
+  /* The site's brand-at-6% grid. Stated as a mix of the token rather than a flat rgba, so it
+     still says "the brand" after the brand changes. */
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--color-brand) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--color-brand) 6%, transparent) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
-.wrap { max-width: 1180px; margin: 0 auto; padding: 32px 16px 96px; }
+@media (prefers-color-scheme: dark) {
+  body:not([data-theme="light"]) {
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  }
+}
 
-a { color: var(--link); }
-a:hover { text-decoration: underline; }
-code, pre, .mono { font-family: var(--mono); }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 8px 16px 96px; }
 
-/* ---- header ---- */
+a { color: var(--color-link); text-decoration: none; }
+a:hover { text-decoration: underline; text-decoration-color: var(--color-link-hover); text-underline-offset: 2px; }
+code, pre, .mono { font-family: var(--font-mono); }
 
-.page-head { border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 24px; }
+/* ---- hero ---- */
+
+.page-hero { padding: 1.25rem 0 1.5rem; margin-bottom: 0.5rem; }
+
 .eyebrow {
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--text-muted);
-  margin: 0 0 6px;
+  color: var(--color-text-muted);
+  margin: 0 0 0.6rem;
 }
-h1 { font-size: 26px; margin: 0 0 8px; font-weight: 650; }
-h2 { font-size: 18px; margin: 0; font-weight: 620; }
-.lede { color: var(--text-secondary); margin: 0; max-width: 72ch; }
+.eyebrow::before { content: ""; width: 1.5rem; height: 2px; background: var(--color-accent); }
 
-.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
-.chip {
-  font-family: var(--mono);
-  font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: var(--surface-raised);
-  color: var(--text-secondary);
+.page-title {
+  margin: 0 0 0.75rem;
+  color: var(--color-text-primary);
+  font-size: clamp(1.8rem, 3vw + 0.25rem, 2.6rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
 }
-.chip-accent { border-color: var(--brand); color: var(--brand); }
-.chip-warn { border-color: var(--warn); color: var(--warn); }
+.page-lede {
+  max-width: 48rem;
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.9rem; }
+.chip {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background-color: var(--color-surface-hover);
+  color: var(--color-link);
+}
+.chip-brand { background-color: var(--color-brand); color: var(--color-text-on-dark); }
+.chip-accent { background-color: var(--color-accent); color: var(--color-chrome); }
 
 .banner {
-  border: 1px solid var(--warn);
-  border-left-width: 4px;
-  background: color-mix(in srgb, var(--warn) 8%, transparent);
-  padding: 10px 14px;
-  border-radius: 4px;
-  margin: 16px 0;
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-accent);
+  border-radius: 0.5rem;
+  background: var(--color-surface-raised);
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
 }
-.banner-error { border-color: var(--error); background: color-mix(in srgb, var(--error) 8%, transparent); }
-.banner p { margin: 4px 0; }
+.banner-error { border-left-color: var(--color-license-copyleft, var(--color-badge-stale-text)); }
+.banner p { margin: 0; color: var(--color-text-secondary); }
+.banner strong { color: var(--color-text-primary); }
 
 /* ---- sections ---- */
 
-section { margin: 40px 0 0; scroll-margin-top: 16px; }
+section { margin: 2.75rem 0 0; scroll-margin-top: 1rem; }
 .section-rule {
   display: flex;
   align-items: baseline;
-  gap: 10px;
-  border-bottom: 1px solid var(--border-subtle);
-  padding-bottom: 6px;
-  margin-bottom: 16px;
+  gap: 0.6rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding-bottom: 0.4rem;
+  margin-bottom: 1rem;
 }
-.section-tail { font-family: var(--mono); font-size: 12px; color: var(--text-muted); }
-.empty { color: var(--text-muted); font-style: italic; }
+.section-rule h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+.section-tail { font-family: var(--font-mono); font-size: 0.72rem; color: var(--color-text-muted); }
+.empty { color: var(--color-text-muted); font-style: italic; }
 
-/* ---- health tiles ---- */
+/* ---- stat tiles ---- */
 
 .tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 10px;
-  margin: 0;
+  grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
+  gap: 0.75rem;
+  margin: 0 0 0.5rem;
 }
 .tile {
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 10px 12px;
-  background: var(--surface-raised);
   display: block;
-  text-decoration: none;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--color-border-subtle);
+  border-left-width: 3px;
+  border-radius: 0.5rem;
+  background: var(--color-surface-raised);
   color: inherit;
 }
-.tile:hover { background: var(--surface-hover); text-decoration: none; }
+.tile:hover { background: var(--color-surface-hover); text-decoration: none; }
 .tile-label {
-  font-family: var(--mono);
-  font-size: 10px;
+  margin: 0 0 0.2rem;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--text-muted);
 }
-.tile-value { font-family: var(--mono); font-size: 19px; margin: 2px 0; }
-.tile-detail { font-size: 12px; color: var(--text-secondary); }
-.tile[data-state="ok"] { border-left: 3px solid var(--ok); }
-.tile[data-state="warn"] { border-left: 3px solid var(--warn); }
-.tile[data-state="error"] { border-left: 3px solid var(--error); }
+.tile-value { color: var(--color-brand); font-size: 1.5rem; font-weight: 700; line-height: 1.1; }
+.tile-detail { margin-top: 0.25rem; font-size: 0.78rem; color: var(--color-text-secondary); }
+.tile[data-state="ok"] { border-left-color: var(--color-badge-reviewed-text); }
+.tile[data-state="warn"] { border-left-color: var(--color-badge-draft-text); }
+.tile[data-state="error"] { border-left-color: var(--color-badge-stale-text); }
+
+/* ---- badges: the site's five status colours, mapped onto run vocabulary ---- */
+
+.badge {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.badge[data-tone="good"] { background-color: var(--color-badge-reviewed-bg); color: var(--color-badge-reviewed-text); }
+.badge[data-tone="warn"] { background-color: var(--color-badge-draft-bg); color: var(--color-badge-draft-text); }
+.badge[data-tone="bad"] { background-color: var(--color-badge-stale-bg); color: var(--color-badge-stale-text); }
+.badge[data-tone="info"] { background-color: var(--color-badge-revised-bg); color: var(--color-badge-revised-text); }
+.badge[data-tone="mute"] { background-color: var(--color-badge-archived-bg); color: var(--color-badge-archived-text); }
 
 /* ---- subway map ---- */
 
-.subway { list-style: none; margin: 0; padding: 0 0 0 28px; position: relative; }
+.subway { list-style: none; margin: 0; padding: 0 0 0 1.9rem; position: relative; }
 .subway::before {
   content: "";
   position: absolute;
-  left: 9px;
-  top: 10px;
-  bottom: 10px;
+  left: 0.5rem;
+  top: 0.9rem;
+  bottom: 0.9rem;
   width: 2px;
-  background: var(--rail);
+  background: var(--color-rail);
+  opacity: 0.35;
 }
-.stop { position: relative; padding: 7px 0 7px 6px; display: flex; gap: 10px; align-items: baseline; }
+.stop {
+  position: relative;
+  padding: 0.45rem 0 0.45rem 0.35rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: baseline;
+}
 .stop-marker {
   position: absolute;
-  left: -24px;
-  top: 12px;
-  width: 12px;
-  height: 12px;
+  left: -1.63rem;
+  top: 0.78rem;
+  width: 0.7rem;
+  height: 0.7rem;
   border-radius: 999px;
-  background: var(--surface);
-  border: 2px solid var(--rail);
+  background: var(--color-surface);
+  border: 2px solid var(--color-rail);
 }
 .stop-branch .stop-marker { border-radius: 2px; transform: rotate(45deg); }
-.stop[data-status="done"] .stop-marker { background: var(--ok); border-color: var(--ok); }
-.stop[data-status="failed"] .stop-marker { background: var(--error); border-color: var(--error); }
-.stop[data-status="running"] .stop-marker { background: var(--warn); border-color: var(--warn); }
-.stop.stop-furthest .stop-marker { box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 55%, transparent); }
-.stop-num { font-family: var(--mono); font-size: 12px; color: var(--text-muted); min-width: 22px; }
-.stop-name { font-weight: 560; }
+.stop[data-status="done"] .stop-marker { background: var(--color-badge-reviewed-text); border-color: var(--color-badge-reviewed-text); }
+.stop[data-status="failed"] .stop-marker { background: var(--color-badge-stale-text); border-color: var(--color-badge-stale-text); }
+.stop[data-status="running"] .stop-marker { background: var(--color-badge-draft-text); border-color: var(--color-badge-draft-text); }
+.stop[data-status="pending"] .stop-marker { background: var(--color-surface); border-color: var(--color-border); }
+.stop-furthest .stop-marker { box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 55%, transparent); }
+.stop-num { font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-text-muted); min-width: 1.4rem; }
+.stop-name { font-weight: 700; }
 .stop-tag {
-  font-family: var(--mono);
-  font-size: 10px;
-  padding: 1px 6px;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  padding: 0.05rem 0.45rem;
   border-radius: 999px;
-  border: 1px solid var(--border);
-  color: var(--text-secondary);
+  background: var(--color-surface-hover);
+  color: var(--color-link);
 }
-.stop-note { font-size: 12px; color: var(--text-muted); }
+.stop-note { font-size: 0.75rem; color: var(--color-text-muted); }
 
 /* ---- tables ---- */
 
-.data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.5rem 0 1.25rem;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  background: var(--color-surface);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
 .data-table th {
   text-align: left;
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  border-bottom: 1px solid var(--border);
-  padding: 6px 8px 6px 0;
+  padding: 0.5rem 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-on-dark);
+  background-color: var(--color-brand);
+  border-bottom: 1px solid var(--color-border-subtle);
   white-space: nowrap;
 }
-.data-table td { border-bottom: 1px solid var(--border-subtle); padding: 6px 8px 6px 0; vertical-align: top; }
-.data-table tbody tr:hover { background: var(--surface-hover); }
-.data-table .num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.data-table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+  vertical-align: top;
+}
+.data-table tbody tr { transition: background-color 100ms; }
+.data-table tbody tr:hover { background-color: var(--color-surface-hover); }
+.data-table .num { white-space: nowrap; }
 .sortable { cursor: pointer; user-select: none; }
-.sortable::after { content: " ⇅"; opacity: 0.35; }
+.sortable::after { content: " ⇅"; opacity: 0.5; }
 
-.badge {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  padding: 1px 7px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  white-space: nowrap;
-}
-.badge[data-state="ok"], .badge[data-v="present"], .badge[data-v="done"], .badge[data-v="resolved"], .badge[data-v="complete"] {
-  border-color: var(--ok); color: var(--ok);
-}
-.badge[data-state="error"], .badge[data-v="missing"], .badge[data-v="failed"], .badge[data-v="blocker"] {
-  border-color: var(--error); color: var(--error);
-}
-.badge[data-state="warn"], .badge[data-v="running"], .badge[data-v="open"], .badge[data-v="surrendered"], .badge[data-v="major"] {
-  border-color: var(--warn); color: var(--warn);
-}
+/* ---- controls ---- */
 
-/* ---- filters ---- */
-
-.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+.controls { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin-bottom: 0.75rem; }
 .filter {
-  font-family: var(--mono);
-  font-size: 11.5px;
-  padding: 3px 10px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 0.2rem 0.65rem;
   border-radius: 999px;
-  border: 1px solid var(--border);
-  background: var(--surface-raised);
-  color: var(--text-secondary);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-raised);
+  color: var(--color-text-secondary);
   cursor: pointer;
 }
-.filter[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: #fff; }
+.filter:hover { background: var(--color-surface-hover); }
+.filter[aria-pressed="true"] {
+  background: var(--color-brand);
+  border-color: var(--color-brand);
+  color: var(--color-text-on-dark);
+}
 .search {
-  font-family: var(--mono);
-  font-size: 12px;
-  padding: 4px 10px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.25rem 0.7rem;
   border-radius: 999px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text);
-  min-width: 200px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  min-width: 13rem;
 }
 .hidden-row { display: none; }
 
 /* ---- detail panels ---- */
 
 details.panel {
-  border: 1px solid var(--border-subtle);
-  border-radius: 6px;
-  margin: 8px 0;
-  background: var(--surface-raised);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0.5rem;
+  margin: 0.4rem 0;
+  background: var(--color-surface-raised);
 }
 details.panel > summary {
   cursor: pointer;
-  padding: 8px 12px;
+  padding: 0.5rem 0.75rem;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 0.5rem;
   align-items: baseline;
+  list-style: none;
 }
 details.panel > summary::-webkit-details-marker { display: none; }
-details.panel > summary::before { content: "▸"; color: var(--text-muted); margin-right: 4px; }
+details.panel > summary::before { content: "▸"; color: var(--color-text-muted); }
 details.panel[open] > summary::before { content: "▾"; }
-.panel-body { padding: 0 12px 12px; }
-.panel-title { font-family: var(--mono); font-weight: 600; }
-.panel-sub { font-size: 12px; color: var(--text-muted); }
+details.panel[open] { background: var(--color-surface); }
+.panel-body { padding: 0 0.75rem 0.75rem; }
+.panel-title { font-family: var(--font-mono); font-weight: 700; color: var(--color-text-primary); }
+.panel-sub { font-size: 0.75rem; color: var(--color-text-muted); margin: 0.4rem 0; }
 
-.tabs { display: flex; gap: 4px; margin: 10px 0 8px; flex-wrap: wrap; }
+.tabs { display: flex; gap: 0.25rem; margin: 0.6rem 0 0.5rem; flex-wrap: wrap; }
 .tab {
-  font-family: var(--mono);
-  font-size: 11.5px;
-  padding: 3px 10px;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  background: var(--surface);
-  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 0.2rem 0.65rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.35rem;
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
   cursor: pointer;
 }
-.tab[aria-selected="true"] { background: var(--brand); border-color: var(--brand); color: #fff; }
+.tab[aria-selected="true"] {
+  background: var(--color-brand);
+  border-color: var(--color-brand);
+  color: var(--color-text-on-dark);
+}
 .tabpanel[hidden] { display: none; }
 
 pre.source {
   margin: 0;
-  padding: 10px 12px;
-  background: var(--surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: 4px;
+  padding: 0.7rem 0.85rem;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0.35rem;
   overflow: auto;
-  max-height: 460px;
-  font-size: 12px;
-  line-height: 1.5;
+  max-height: 28rem;
+  font-size: 0.75rem;
+  line-height: 1.55;
   white-space: pre-wrap;
   word-break: break-word;
+  color: var(--color-text-secondary);
 }
 
-.kv { display: grid; grid-template-columns: max-content 1fr; gap: 2px 14px; font-size: 13px; margin: 0; }
-.kv dt { font-family: var(--mono); font-size: 11.5px; color: var(--text-muted); }
-.kv dd { margin: 0; }
+.kv { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 0.15rem 1rem; font-size: 0.85rem; margin: 0.5rem 0; }
+.kv dt {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  padding-top: 0.15rem;
+}
+.kv dd { margin: 0; color: var(--color-text-secondary); min-width: 0; overflow-wrap: anywhere; }
 
-.outline { margin: 0; padding-left: 18px; font-size: 13px; color: var(--text-secondary); }
-.outline li[data-depth="1"] { font-weight: 600; color: var(--text); }
-.outline li[data-depth="3"], .outline li[data-depth="4"] { color: var(--text-muted); }
+.outline { margin: 0.25rem 0; padding-left: 1.1rem; font-size: 0.82rem; color: var(--color-text-secondary); }
+.outline li[data-depth="1"] { font-weight: 700; color: var(--color-text-primary); }
+.outline li[data-depth="3"], .outline li[data-depth="4"] { color: var(--color-text-muted); }
 
-.prose-block { white-space: pre-wrap; margin: 4px 0; }
+.prose-block { white-space: pre-wrap; margin: 0.35rem 0; color: var(--color-text-secondary); }
 
 /* ---- timeline ---- */
 
-.commit { display: flex; gap: 10px; align-items: baseline; padding: 3px 0; font-size: 13px; }
-.commit-sha { font-family: var(--mono); font-size: 11.5px; color: var(--text-muted); }
-.commit-date { font-family: var(--mono); font-size: 11px; color: var(--text-muted); white-space: nowrap; }
-.commit[data-kind="ad-hoc"] .commit-subject { color: var(--text-muted); font-style: italic; }
-.commit[data-failed="true"] .commit-subject { color: var(--error); }
-.growth { border: 1px solid var(--border-subtle); border-radius: 6px; padding: 10px; background: var(--surface-raised); }
+.commit {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: baseline;
+  padding: 0.25rem 0;
+  font-size: 0.82rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.commit-sha { font-family: var(--font-mono); font-size: 0.72rem; color: var(--color-link); }
+.commit-date { font-family: var(--font-mono); font-size: 0.7rem; color: var(--color-text-muted); white-space: nowrap; }
+.commit[data-kind="ad-hoc"] .commit-subject { color: var(--color-text-muted); font-style: italic; }
+.commit[data-failed="true"] .commit-subject { color: var(--color-badge-stale-text); font-weight: 700; }
+
+.growth {
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  background: var(--color-surface-raised);
+  margin-bottom: 1rem;
+}
 .growth svg { display: block; width: 100%; height: auto; }
 
-.meter { height: 8px; border-radius: 999px; background: var(--border-subtle); overflow: hidden; margin: 6px 0; }
-.meter > span { display: block; height: 100%; background: var(--warn); }
+.meter {
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--color-border-subtle);
+  overflow: hidden;
+  margin: 0.4rem 0 0.75rem;
+  max-width: 24rem;
+}
+.meter > span { display: block; height: 100%; background: var(--color-accent); }
 
 footer.page-foot {
-  margin-top: 56px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-  font-size: 12px;
-  color: var(--text-muted);
+  margin-top: 3.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
 }
+footer.page-foot p { margin: 0.3rem 0; overflow-wrap: anywhere; }
 
 @media (max-width: 640px) {
-  .wrap { padding: 20px 16px 72px; }
-  .data-table { font-size: 12.5px; }
-  h1 { font-size: 21px; }
+  .wrap { padding: 8px 16px 72px; }
+  .data-table { font-size: 0.78rem; }
+  .kv { grid-template-columns: minmax(0, 1fr); gap: 0 0; }
+  .kv dd { margin-bottom: 0.4rem; }
 }
 </style>
 </head>
 <body>
 <!-- generated-by: foundry-build run-dashboard v1 -->
 <div class="wrap">
-<header class="page-head">
+<header class="page-hero">
 <p class="eyebrow">conversion run</p>
-<h1>ebola-rnaseq</h1>
-<p class="lede"><a href="https://galaxyproject.github.io/foundry/pipelines/interview-to-galaxy/">interview-to-galaxy</a> — 2026-09-18 13:57 to 2026-09-18 15:10, 1.3 MB on disk.</p>
-<div class="chips"><span class="chip chip-accent">interview-to-galaxy</span><span class="chip">rev 2</span><span class="chip">pipeline-interview-to-galaxy</span><span class="chip chip-warn">reconstructed</span></div>
+<h1 class="page-title">ebola-rnaseq</h1>
+<p class="page-lede"><a href="https://galaxyproject.github.io/foundry/pipelines/interview-to-galaxy/">interview-to-galaxy</a> — 2026-09-18 13:57 to 2026-09-18 17:42, 1.5 MB on disk.</p>
+<div class="chips"><span class="chip chip-brand">interview-to-galaxy</span><span class="chip">rev 2</span><span class="chip">pipeline-interview-to-galaxy</span><span class="chip chip-accent">reconstructed</span></div>
 </header>
-<div class="banner"><p><strong>Reconstructed, not recorded.</strong> This run carries no <code>foundry-run.yml</code>, so its pipeline was inferred from the files on disk and the phase order comes from today's assembled harness. Which phase wrote each file is not recorded anywhere, so the artifact table attributes by declaration rather than by fact. 14 of 19 files map to a declared artifact.</p></div>
+<div class="banner"><p><strong>Reconstructed, not recorded.</strong> This run carries no <code>foundry-run.yml</code>, so its pipeline was inferred from the files on disk and the phase order comes from today's assembled harness. Which phase wrote each file is not recorded anywhere, so the artifact table attributes by declaration rather than by fact. 14 of 21 files map to a declared artifact.</p></div>
 <div class="tiles"><a class="tile" data-state="warn" href="#phases"><div class="tile-label">run</div><div class="tile-value">unknown</div><div class="tile-detail">the record last said unknown</div></a>
 <a class="tile" data-state="warn" href="#phases"><div class="tile-label">phases</div><div class="tile-value">11/12</div><div class="tile-detail">furthest reached was phase 12</div></a>
 <a class="tile" data-state="ok" href="#artifacts"><div class="tile-label">artifacts</div><div class="tile-value">14/16</div><div class="tile-detail">every artifact due so far is on disk</div></a>
 <a class="tile" data-state="ok" href="#obligations"><div class="tile-label">obligations</div><div class="tile-value">0 open</div><div class="tile-detail">2 resolved, 0 surrendered, 0 blocking</div></a>
 <a class="tile" data-state="ok" href="#feedback"><div class="tile-label">feedback</div><div class="tile-value">off</div><div class="tile-detail">the run was not invoked with feedback mode</div></a>
-<a class="tile" data-state="ok" href="#unmapped"><div class="tile-label">unmapped</div><div class="tile-value">6</div><div class="tile-detail">1.3 MB no Mold declares</div></a></div>
+<a class="tile" data-state="ok" href="#unmapped"><div class="tile-label">unmapped</div><div class="tile-value">8</div><div class="tile-detail">1.5 MB no Mold declares</div></a></div>
 <section id="phases">
 <div class="section-rule"><h2>Phases</h2><span class="section-tail">where the run got to</span></div>
-<ol class="subway"><li class="stop stop-mold" data-status="done" data-phase-filter="1"><span class="stop-marker" aria-hidden="true"></span><span class="stop-num">01</span><span class="stop-name"><a href="https://galaxyproject.github.io/foundry/molds/interview-to-freeform-summary/">interview-to-freeform-summary</a></span><span class="stop-note">done · from artifact presence</span></li>
-<li class="stop stop-mold" data-status="done" data-phase-filter="2"><span class="stop-marker" aria-hidden="true"></span><span class="stop-num">02</span><span class="stop-name"><a href="https://galaxyproject.github.io/foundry/molds/freeform-summary-to-galaxy-interface/">freeform-summary-to-galaxy-interface</a></span><span class="stop-note">done · from artifact presence</span></li>
-<li class="stop stop-mold" data-status="done" data-phase-filter="3"><span class="stop-marker" aria-hidden="true"></span><span class="stop-num">03</span><span class="stop-name"><a href="https://galaxyproject.github.io/foundry/molds/freeform-summary-to-galaxy-data-flow/">freeform-summary-to-galaxy-data-flow</a></span><span class="stop-note">done · from artifact presence</span></li>
-<li class="stop stop-mold" data-status="done" data-phase-filter="4"><span class="stop-marker" aria-hidden="true"></span><span class="stop-num">04</span><span class="stop-name"><a href="https://galaxyproject.github.io/foundry/molds/compare-against-iwc-exemplar/">compare-against-iwc-exemplar</a></span><span class="stop-note">done · from artifact presence</span></li>
-<li class="stop stop-mold" data-status="unknown" data-phase-filter="5"><span class="stop-marker" aria-hidden="true"></span><span class="stop-num">05</span><span class="stop-name"><a href="https://galaxyproject.github.io/foundry/molds/freeform-summary-to-galaxy-template/">freeform-summary-to-galaxy-template</a></span><span class="stop-note">no source recorded this phase</span></li>
-<li class="stop stop-mold" data-status="done" data-phase-filter="6"><span class="stop-marker" aria-hidden="true"></span><span class="stop-num">06</span><span class="stop-name"><a href="https://galaxyproject.github.io/foundry/molds/advance-galaxy-draft-step/">advance-galaxy-draft-step</a></span><span class="stop-tag">loop</span><span class="stop-note">done · from artifact presence</span></li>
+<ol class="subway"><li class="stop" data-status="done" data-phase-filter="1"><span class="stop-marker" aria-hidden="true"></span><span class="stop-num">01</span><span class="stop-name"><a href="https://galaxyproject.github.io/foundry/molds/interview-to-freeform-summary/">interview-to-freeform-summary</a></span><span class="stop-note">done · from artifact presence</span></li>
+<li class="stop" data-status="done" data-phase-filter="2"><span class="stop-marker" aria-hidden="true"></span><span class="stop-num">02</span><span class="stop-name"><a href="https://galaxyproject.github.io/foundry/molds/freeform-summary-to-galaxy-interface/">freeform-summary-to-galaxy-interface</a></span><span class="stop-note">done · from artifact presence</span></li>
+<li class="stop" data-status="done" data-phase-filter="3"><span class="stop-marker" aria-hidden="true"></span><span class="stop-num">03</span><span class="stop-name"><a href="https://galaxyproject.github.io/foundry/molds/freeform-summary-to-galaxy-data-flow/">freeform-summary-to-galaxy-data-flow</a></span><span class="stop-note">done · from artifact presence</span></li>
+<li class="stop" data-status="done" data-phase-filter="4"><span class="stop-marker" aria-hidden="true"></span><span class="stop-num">04</span><span class="stop-name"><a href="https://galaxyproject.github.io/foundry/molds/compare-against-iwc-exemplar/">compare-against-iwc-exemplar</a></span><span class="stop-note">done · from artifact presence</span></li>
+<li class="stop" data-status="unknown" data-phase-filter="5"><span class="stop-marker" aria-hidden="true"></span><span class="stop-num">05</span><span class="stop-name"><a href="https://galaxyproject.github.io/foundry/molds/freeform-summary-to-galaxy-template/">freeform-summary-to-galaxy-template</a></span><span class="stop-note">no source recorded this phase</span></li>
+<li class="stop" data-status="done" data-phase-filter="6"><span class="stop-marker" aria-hidden="true"></span><span class="stop-num">06</span><span class="stop-name"><a href="https://galaxyproject.github.io/foundry/molds/advance-galaxy-draft-step/">advance-galaxy-draft-step</a></span><span class="stop-tag">loop</span><span class="stop-note">done · from artifact presence</span></li>
 <li class="stop stop-branch" data-status="done" data-phase-filter="7"><span class="stop-marker" aria-hidden="true"></span><span class="stop-num">07</span><span class="stop-name">test-data-resolution</span><span class="stop-note">done · from artifact presence</span></li>
-<li class="stop stop-mold" data-status="done" data-phase-filter="8"><span class="stop-marker" aria-hidden="true"></span><span class="stop-num">08</span><span class="stop-name"><a href="https://galaxyproject.github.io/foundry/molds/freeform-summary-to-galaxy-test-plan/">freeform-summary-to-galaxy-test-plan</a></span><span class="stop-note">done · from artifact presence</span></li>
-<li class="stop stop-mold" data-status="done" data-phase-filter="9"><span class="stop-marker" aria-hidden="true"></span><span class="stop-num">09</span><span class="stop-name"><a href="https://galaxyproject.github.io/foundry/molds/implement-galaxy-workflow-test/">implement-galaxy-workflow-test</a></span><span class="stop-note">done · from artifact presence</span></li>
-<li class="stop stop-mold" data-status="done" data-phase-filter="10"><span class="stop-marker" aria-hidden="true"></span><span class="stop-num">10</span><span class="stop-name"><a href="https://galaxyproject.github.io/foundry/molds/validate-galaxy-workflow/">validate-galaxy-workflow</a></span><span class="stop-note">done · from artifact presence</span></li>
-<li class="stop stop-mold" data-status="done" data-phase-filter="11"><span class="stop-marker" aria-hidden="true"></span><span class="stop-num">11</span><span class="stop-name"><a href="https://galaxyproject.github.io/foundry/molds/run-workflow-test/">run-workflow-test</a></span><span class="stop-note">done · from artifact presence</span></li>
-<li class="stop stop-mold stop-furthest" data-status="done" data-phase-filter="12"><span class="stop-marker" aria-hidden="true"></span><span class="stop-num">12</span><span class="stop-name"><a href="https://galaxyproject.github.io/foundry/molds/debug-galaxy-workflow-output/">debug-galaxy-workflow-output</a></span><span class="stop-note">done · from artifact presence</span></li></ol>
+<li class="stop" data-status="done" data-phase-filter="8"><span class="stop-marker" aria-hidden="true"></span><span class="stop-num">08</span><span class="stop-name"><a href="https://galaxyproject.github.io/foundry/molds/freeform-summary-to-galaxy-test-plan/">freeform-summary-to-galaxy-test-plan</a></span><span class="stop-note">done · from artifact presence</span></li>
+<li class="stop" data-status="done" data-phase-filter="9"><span class="stop-marker" aria-hidden="true"></span><span class="stop-num">09</span><span class="stop-name"><a href="https://galaxyproject.github.io/foundry/molds/implement-galaxy-workflow-test/">implement-galaxy-workflow-test</a></span><span class="stop-note">done · from artifact presence</span></li>
+<li class="stop" data-status="done" data-phase-filter="10"><span class="stop-marker" aria-hidden="true"></span><span class="stop-num">10</span><span class="stop-name"><a href="https://galaxyproject.github.io/foundry/molds/validate-galaxy-workflow/">validate-galaxy-workflow</a></span><span class="stop-note">done · from artifact presence</span></li>
+<li class="stop" data-status="done" data-phase-filter="11"><span class="stop-marker" aria-hidden="true"></span><span class="stop-num">11</span><span class="stop-name"><a href="https://galaxyproject.github.io/foundry/molds/run-workflow-test/">run-workflow-test</a></span><span class="stop-note">done · from artifact presence</span></li>
+<li class="stop stop-furthest" data-status="done" data-phase-filter="12"><span class="stop-marker" aria-hidden="true"></span><span class="stop-num">12</span><span class="stop-name"><a href="https://galaxyproject.github.io/foundry/molds/debug-galaxy-workflow-output/">debug-galaxy-workflow-output</a></span><span class="stop-note">done · from artifact presence</span></li></ol>
 </section>
 <section id="artifacts">
 <div class="section-rule"><h2>Artifacts</h2><span class="section-tail">what it declared and what is on disk</span></div>
@@ -382,43 +524,43 @@ footer.page-foot {
 </div>
 <table class="data-table" data-sortable><thead><tr>
 <th data-sort="number">phase</th><th data-sort="text">artifact</th><th data-sort="text">file</th><th data-sort="text">kind</th><th data-sort="text">presence</th><th data-sort="number">size</th><th data-sort="text">modified</th><th data-sort="number">copies</th>
-</tr></thead><tbody id="artifact-rows"><tr data-row data-presence="present" data-kind="markdown"><td class="num" data-value="1">phase 1</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/freeform-summary/">freeform-summary</a></td><td class="mono"><a href="./freeform-summary.md">freeform-summary.md</a></td><td class="mono">markdown</td><td><span class="badge" data-v="present" data-state="ok">present</span></td><td class="num" data-value="4153">4.1 KB</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
-<tr data-row data-presence="present" data-kind="markdown"><td class="num" data-value="2">phase 2</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/freeform-galaxy-interface/">freeform-galaxy-interface</a></td><td class="mono"><a href="./freeform-galaxy-interface.md">freeform-galaxy-interface.md</a></td><td class="mono">markdown</td><td><span class="badge" data-v="present" data-state="ok">present</span></td><td class="num" data-value="3460">3.4 KB</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
-<tr data-row data-presence="present" data-kind="yaml"><td class="num" data-value="2">phase 2</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/open-requirements-ledger/">open-requirements-ledger</a></td><td class="mono"><a href="./open-requirements.ledger.yml">open-requirements.ledger.yml</a></td><td class="mono">yaml</td><td><span class="badge" data-v="present" data-state="ok">present</span></td><td class="num" data-value="969">969 B</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
-<tr data-row data-presence="present" data-kind="markdown"><td class="num" data-value="3">phase 3</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/freeform-galaxy-data-flow/">freeform-galaxy-data-flow</a></td><td class="mono"><a href="./freeform-galaxy-data-flow.md">freeform-galaxy-data-flow.md</a></td><td class="mono">markdown</td><td><span class="badge" data-v="present" data-state="ok">present</span></td><td class="num" data-value="3383">3.3 KB</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
-<tr data-row data-presence="present" data-kind="markdown"><td class="num" data-value="4">phase 4</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/iwc-comparison-notes/">iwc-comparison-notes</a></td><td class="mono"><a href="./iwc-comparison-notes.md">iwc-comparison-notes.md</a></td><td class="mono">markdown</td><td><span class="badge" data-v="present" data-state="ok">present</span></td><td class="num" data-value="2938">2.9 KB</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
-<tr data-row data-presence="present" data-kind="yaml"><td class="num" data-value="4">phase 4</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/iwc-exemplar-gxformat2/">iwc-exemplar-gxformat2</a></td><td class="mono"><a href="./iwc-exemplar.gxwf.yml">iwc-exemplar.gxwf.yml</a></td><td class="mono">yaml</td><td><span class="badge" data-v="present" data-state="ok">present</span></td><td class="num" data-value="1177">1.1 KB</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
-<tr data-row data-presence="present" data-kind="yaml"><td class="num" data-value="5">phase 5</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/galaxy-workflow-draft/">galaxy-workflow-draft</a></td><td class="mono"><a href="./galaxy-workflow-draft.gxwf.yml">galaxy-workflow-draft.gxwf.yml</a></td><td class="mono">yaml</td><td><span class="badge" data-v="present" data-state="ok">present</span></td><td class="num" data-value="3159">3.1 KB</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
-<tr data-row data-presence="present" data-kind="yaml"><td class="num" data-value="6">phase 6</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/galaxy-workflow/">galaxy-workflow</a></td><td class="mono"><a href="./galaxy-workflow.gxwf.yml">galaxy-workflow.gxwf.yml</a></td><td class="mono">yaml</td><td><span class="badge" data-v="present" data-state="ok">present</span></td><td class="num" data-value="3190">3.1 KB</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
-<tr data-row data-presence="present" data-kind="json"><td class="num" data-value="7">phase 7</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/test-data-refs/">test-data-refs</a></td><td class="mono"><a href="./test-data-refs.json">test-data-refs.json</a></td><td class="mono">json</td><td><span class="badge" data-v="present" data-state="ok">present</span></td><td class="num" data-value="1981">1.9 KB</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
-<tr data-row data-presence="present" data-kind="yaml"><td class="num" data-value="8">phase 8</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/galaxy-test-plan/">galaxy-test-plan</a></td><td class="mono"><a href="./galaxy-test-plan.yml">galaxy-test-plan.yml</a></td><td class="mono">yaml</td><td><span class="badge" data-v="present" data-state="ok">present</span></td><td class="num" data-value="4992">4.9 KB</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
-<tr data-row data-presence="present" data-kind="yaml"><td class="num" data-value="9">phase 9</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/galaxy-workflow-test/">galaxy-workflow-test</a></td><td class="mono"><a href="./galaxy-workflow.gxwf-tests.yml">galaxy-workflow.gxwf-tests.yml</a></td><td class="mono">yaml</td><td><span class="badge" data-v="present" data-state="ok">present</span></td><td class="num" data-value="2404">2.3 KB</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
-<tr data-row data-presence="present" data-kind="json"><td class="num" data-value="10">phase 10</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/galaxy-workflow-validation-result/">galaxy-workflow-validation-result</a></td><td class="mono"><a href="./galaxy-workflow-validation-result.json">galaxy-workflow-validation-result.json</a></td><td class="mono">json</td><td><span class="badge" data-v="present" data-state="ok">present</span></td><td class="num" data-value="827">827 B</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
-<tr data-row data-presence="present" data-kind="json"><td class="num" data-value="11">phase 11</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/workflow-test-result/">workflow-test-result</a></td><td class="mono"><a href="./workflow-test-result.json">workflow-test-result.json</a></td><td class="mono">json</td><td><span class="badge" data-v="present" data-state="ok">present</span></td><td class="num" data-value="537">537 B</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
-<tr data-row data-presence="present" data-kind="markdown"><td class="num" data-value="12">phase 12</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/workflow-debug-report/">workflow-debug-report</a></td><td class="mono"><a href="./workflow-debug-report.md">workflow-debug-report.md</a></td><td class="mono">markdown</td><td><span class="badge" data-v="present" data-state="ok">present</span></td><td class="num" data-value="2429">2.4 KB</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
-<tr data-row data-presence="optional-absent" data-kind="yaml"><td class="num" data-value="999">phase —</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/foundry-feedback-ledger/">foundry-feedback-ledger</a></td><td class="mono">foundry-feedback.ledger.yml</td><td class="mono">yaml</td><td><span class="badge" data-v="optional-absent" data-state="warn">optional-absent</span></td><td class="num" data-value="0">—</td><td class="num">—</td><td class="num">—</td></tr>
-<tr data-row data-presence="optional-absent" data-kind="yaml"><td class="num" data-value="999">phase —</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/foundry-run-manifest/">foundry-run-manifest</a></td><td class="mono">foundry-run.yml</td><td class="mono">yaml</td><td><span class="badge" data-v="optional-absent" data-state="warn">optional-absent</span></td><td class="num" data-value="0">—</td><td class="num">—</td><td class="num">—</td></tr></tbody></table>
+</tr></thead><tbody id="artifact-rows"><tr data-row data-presence="present" data-kind="markdown"><td class="num" data-value="1">phase 1</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/freeform-summary/">freeform-summary</a></td><td class="mono"><a href="./freeform-summary.md">freeform-summary.md</a></td><td class="mono">markdown</td><td><span class="badge" data-v="present" data-tone="good">present</span></td><td class="num" data-value="4153">4.1 KB</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
+<tr data-row data-presence="present" data-kind="markdown"><td class="num" data-value="2">phase 2</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/freeform-galaxy-interface/">freeform-galaxy-interface</a></td><td class="mono"><a href="./freeform-galaxy-interface.md">freeform-galaxy-interface.md</a></td><td class="mono">markdown</td><td><span class="badge" data-v="present" data-tone="good">present</span></td><td class="num" data-value="3460">3.4 KB</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
+<tr data-row data-presence="present" data-kind="yaml"><td class="num" data-value="2">phase 2</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/open-requirements-ledger/">open-requirements-ledger</a></td><td class="mono"><a href="./open-requirements.ledger.yml">open-requirements.ledger.yml</a></td><td class="mono">yaml</td><td><span class="badge" data-v="present" data-tone="good">present</span></td><td class="num" data-value="969">969 B</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
+<tr data-row data-presence="present" data-kind="markdown"><td class="num" data-value="3">phase 3</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/freeform-galaxy-data-flow/">freeform-galaxy-data-flow</a></td><td class="mono"><a href="./freeform-galaxy-data-flow.md">freeform-galaxy-data-flow.md</a></td><td class="mono">markdown</td><td><span class="badge" data-v="present" data-tone="good">present</span></td><td class="num" data-value="3383">3.3 KB</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
+<tr data-row data-presence="present" data-kind="markdown"><td class="num" data-value="4">phase 4</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/iwc-comparison-notes/">iwc-comparison-notes</a></td><td class="mono"><a href="./iwc-comparison-notes.md">iwc-comparison-notes.md</a></td><td class="mono">markdown</td><td><span class="badge" data-v="present" data-tone="good">present</span></td><td class="num" data-value="2938">2.9 KB</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
+<tr data-row data-presence="present" data-kind="yaml"><td class="num" data-value="4">phase 4</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/iwc-exemplar-gxformat2/">iwc-exemplar-gxformat2</a></td><td class="mono"><a href="./iwc-exemplar.gxwf.yml">iwc-exemplar.gxwf.yml</a></td><td class="mono">yaml</td><td><span class="badge" data-v="present" data-tone="good">present</span></td><td class="num" data-value="1177">1.1 KB</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
+<tr data-row data-presence="present" data-kind="yaml"><td class="num" data-value="5">phase 5</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/galaxy-workflow-draft/">galaxy-workflow-draft</a></td><td class="mono"><a href="./galaxy-workflow-draft.gxwf.yml">galaxy-workflow-draft.gxwf.yml</a></td><td class="mono">yaml</td><td><span class="badge" data-v="present" data-tone="good">present</span></td><td class="num" data-value="3159">3.1 KB</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
+<tr data-row data-presence="present" data-kind="yaml"><td class="num" data-value="6">phase 6</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/galaxy-workflow/">galaxy-workflow</a></td><td class="mono"><a href="./galaxy-workflow.gxwf.yml">galaxy-workflow.gxwf.yml</a></td><td class="mono">yaml</td><td><span class="badge" data-v="present" data-tone="good">present</span></td><td class="num" data-value="3190">3.1 KB</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
+<tr data-row data-presence="present" data-kind="json"><td class="num" data-value="7">phase 7</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/test-data-refs/">test-data-refs</a></td><td class="mono"><a href="./test-data-refs.json">test-data-refs.json</a></td><td class="mono">json</td><td><span class="badge" data-v="present" data-tone="good">present</span></td><td class="num" data-value="1981">1.9 KB</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
+<tr data-row data-presence="present" data-kind="yaml"><td class="num" data-value="8">phase 8</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/galaxy-test-plan/">galaxy-test-plan</a></td><td class="mono"><a href="./galaxy-test-plan.yml">galaxy-test-plan.yml</a></td><td class="mono">yaml</td><td><span class="badge" data-v="present" data-tone="good">present</span></td><td class="num" data-value="4992">4.9 KB</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
+<tr data-row data-presence="present" data-kind="yaml"><td class="num" data-value="9">phase 9</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/galaxy-workflow-test/">galaxy-workflow-test</a></td><td class="mono"><a href="./galaxy-workflow.gxwf-tests.yml">galaxy-workflow.gxwf-tests.yml</a></td><td class="mono">yaml</td><td><span class="badge" data-v="present" data-tone="good">present</span></td><td class="num" data-value="2404">2.3 KB</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
+<tr data-row data-presence="present" data-kind="json"><td class="num" data-value="10">phase 10</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/galaxy-workflow-validation-result/">galaxy-workflow-validation-result</a></td><td class="mono"><a href="./galaxy-workflow-validation-result.json">galaxy-workflow-validation-result.json</a></td><td class="mono">json</td><td><span class="badge" data-v="present" data-tone="good">present</span></td><td class="num" data-value="827">827 B</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
+<tr data-row data-presence="present" data-kind="json"><td class="num" data-value="11">phase 11</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/workflow-test-result/">workflow-test-result</a></td><td class="mono"><a href="./workflow-test-result.json">workflow-test-result.json</a></td><td class="mono">json</td><td><span class="badge" data-v="present" data-tone="good">present</span></td><td class="num" data-value="537">537 B</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
+<tr data-row data-presence="present" data-kind="markdown"><td class="num" data-value="12">phase 12</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/workflow-debug-report/">workflow-debug-report</a></td><td class="mono"><a href="./workflow-debug-report.md">workflow-debug-report.md</a></td><td class="mono">markdown</td><td><span class="badge" data-v="present" data-tone="good">present</span></td><td class="num" data-value="2429">2.4 KB</td><td class="num">2026-09-18 13:57</td><td class="num">—</td></tr>
+<tr data-row data-presence="optional-absent" data-kind="yaml"><td class="num" data-value="999">phase —</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/foundry-feedback-ledger/">foundry-feedback-ledger</a></td><td class="mono">foundry-feedback.ledger.yml</td><td class="mono">yaml</td><td><span class="badge" data-v="optional-absent" data-tone="warn">optional-absent</span></td><td class="num" data-value="0">—</td><td class="num">—</td><td class="num">—</td></tr>
+<tr data-row data-presence="optional-absent" data-kind="yaml"><td class="num" data-value="999">phase —</td><td class="mono"><a href="https://galaxyproject.github.io/foundry/artifacts/foundry-run-manifest/">foundry-run-manifest</a></td><td class="mono">foundry-run.yml</td><td class="mono">yaml</td><td><span class="badge" data-v="optional-absent" data-tone="warn">optional-absent</span></td><td class="num" data-value="0">—</td><td class="num">—</td><td class="num">—</td></tr></tbody></table>
 <div class="controls"><button class="filter" type="button" data-toggle-all="artifact-panels">expand all</button></div>
 <div id="artifact-panels"><details class="panel" id="artifact-foundry-feedback-ledger">
-<summary><span class="panel-title">foundry-feedback-ledger</span><span class="badge" data-v="optional-absent" data-state="warn">optional-absent</span><span class="panel-sub">foundry-feedback.ledger.yml</span></summary>
+<summary><span class="panel-title">foundry-feedback-ledger</span><span class="badge" data-v="optional-absent" data-tone="warn">optional-absent</span><span class="panel-sub">foundry-feedback.ledger.yml</span></summary>
 <div class="panel-body">
-<p class="lede">Runtime artifact initialized by the harness ([[foundry-feedback-ledger]]).</p>
+<p class="panel-sub">Runtime artifact initialized by the harness ([[foundry-feedback-ledger]]).</p>
 <dl class="kv"><dt>declared by</dt><dd>— (phase —)</dd><dt>consumed at</dt><dd>nothing downstream reads it</dd><dt>schema</dt><dd>none declared</dd><dt>sha256</dt><dd class="mono">—</dd></dl>
 
 <p class="empty">not on disk.</p>
 </div></details>
 <details class="panel" id="artifact-foundry-run-manifest">
-<summary><span class="panel-title">foundry-run-manifest</span><span class="badge" data-v="optional-absent" data-state="warn">optional-absent</span><span class="panel-sub">foundry-run.yml</span></summary>
+<summary><span class="panel-title">foundry-run-manifest</span><span class="badge" data-v="optional-absent" data-tone="warn">optional-absent</span><span class="panel-sub">foundry-run.yml</span></summary>
 <div class="panel-body">
-<p class="lede">Runtime artifact initialized by the harness ([[foundry-run-manifest]]).</p>
+<p class="panel-sub">Runtime artifact initialized by the harness ([[foundry-run-manifest]]).</p>
 <dl class="kv"><dt>declared by</dt><dd>— (phase —)</dd><dt>consumed at</dt><dd>nothing downstream reads it</dd><dt>schema</dt><dd>none declared</dd><dt>sha256</dt><dd class="mono">—</dd></dl>
 
 <p class="empty">not on disk.</p>
 </div></details>
 <details class="panel" id="artifact-freeform-galaxy-data-flow">
-<summary><span class="panel-title">freeform-galaxy-data-flow</span><span class="badge" data-v="present" data-state="ok">present</span><span class="panel-sub">freeform-galaxy-data-flow.md</span></summary>
+<summary><span class="panel-title">freeform-galaxy-data-flow</span><span class="badge" data-v="present" data-tone="good">present</span><span class="panel-sub">freeform-galaxy-data-flow.md</span></summary>
 <div class="panel-body">
-<p class="lede">Reviewable Markdown brief: abstract operations, collection map/reduce choices, shape-changing placeholder steps, unresolved Galaxy tool needs, confidence, open questions.</p>
+<p class="panel-sub">Reviewable Markdown brief: abstract operations, collection map/reduce choices, shape-changing placeholder steps, unresolved Galaxy tool needs, confidence, open questions.</p>
 <dl class="kv"><dt>declared by</dt><dd>freeform-summary-to-galaxy-data-flow (phase 3)</dd><dt>consumed at</dt><dd>4, 5, 8</dd><dt>schema</dt><dd>none declared</dd><dt>sha256</dt><dd class="mono">7572e69f92a5f37f8de10c5f29cee18000b62392361282003423ccc2008a300b</dd></dl>
 
 <div data-tabs><div class="tabs"><button class="tab" type="button" data-tab="artifact-freeform-galaxy-data-flow-outline" aria-selected="true">outline</button><button class="tab" type="button" data-tab="artifact-freeform-galaxy-data-flow-raw" aria-selected="false">raw</button></div><div class="tabpanel" id="artifact-freeform-galaxy-data-flow-outline"><ul class="outline"><li data-depth="1">Galaxy Workflow Data-Flow Brief: Ebola Virus Infection RNA-seq Analysis</li><li data-depth="2">Data-Flow Overview</li><li data-depth="2">Step Details and Collection Operations</li><li data-depth="3">Step 1: `salmon_quant` (Map-over)</li><li data-depth="3">Step 2: `deseq2` (Reduce / Collective modeling)</li><li data-depth="2">Galaxy Tool Equivalents &amp; Unresolved Needs</li><li data-depth="2">Confidence and Open Questions</li></ul></div>
@@ -470,9 +612,9 @@ The workflow transforms raw paired-end RNA-seq collections into sample-level tra
 </pre></div></div>
 </div></details>
 <details class="panel" id="artifact-freeform-galaxy-interface">
-<summary><span class="panel-title">freeform-galaxy-interface</span><span class="badge" data-v="present" data-state="ok">present</span><span class="panel-sub">freeform-galaxy-interface.md</span></summary>
+<summary><span class="panel-title">freeform-galaxy-interface</span><span class="badge" data-v="present" data-tone="good">present</span><span class="panel-sub">freeform-galaxy-interface.md</span></summary>
 <div class="panel-body">
-<p class="lede">Reviewable Markdown brief: Galaxy workflow inputs, outputs, labels, collection shapes, checkpoint outputs, source-summary provenance, confidence, open questions.</p>
+<p class="panel-sub">Reviewable Markdown brief: Galaxy workflow inputs, outputs, labels, collection shapes, checkpoint outputs, source-summary provenance, confidence, open questions.</p>
 <dl class="kv"><dt>declared by</dt><dd>freeform-summary-to-galaxy-interface (phase 2)</dd><dt>consumed at</dt><dd>3, 4, 5, 7, 8</dd><dt>schema</dt><dd>none declared</dd><dt>sha256</dt><dd class="mono">223ae8c314dc281a51466f142546391ca06b490f07973501a7cab2ae87d83f0b</dd></dl>
 
 <div data-tabs><div class="tabs"><button class="tab" type="button" data-tab="artifact-freeform-galaxy-interface-outline" aria-selected="true">outline</button><button class="tab" type="button" data-tab="artifact-freeform-galaxy-interface-raw" aria-selected="false">raw</button></div><div class="tabpanel" id="artifact-freeform-galaxy-interface-outline"><ul class="outline"><li data-depth="1">Galaxy Workflow Interface Brief: Ebola Virus Infection RNA-seq Analysis</li><li data-depth="2">Workflow Purpose &amp; Overview</li><li data-depth="2">Workflow Inputs</li><li data-depth="2">Workflow Outputs</li><li data-depth="2">Collection Shapes &amp; Mapping Strategy</li><li data-depth="2">Confidence and Assumptions</li><li data-depth="2">Open Questions &amp; Interface Obligations</li></ul></div>
@@ -515,9 +657,9 @@ Process paired-end RNA-seq reads from human A549 WT and A549 PTPN13-KO cells inf
 </pre></div></div>
 </div></details>
 <details class="panel" id="artifact-freeform-summary">
-<summary><span class="panel-title">freeform-summary</span><span class="badge" data-v="present" data-state="ok">present</span><span class="panel-sub">freeform-summary.md</span></summary>
+<summary><span class="panel-title">freeform-summary</span><span class="badge" data-v="present" data-tone="good">present</span><span class="panel-sub">freeform-summary.md</span></summary>
 <div class="panel-body">
-<p class="lede">Methods, tools, sample data, references, constraints, open questions, and workflow intent gathered from a user interview.</p>
+<p class="panel-sub">Methods, tools, sample data, references, constraints, open questions, and workflow intent gathered from a user interview.</p>
 <dl class="kv"><dt>declared by</dt><dd>interview-to-freeform-summary (phase 1)</dd><dt>consumed at</dt><dd>2, 3, 5, 7, 8</dd><dt>schema</dt><dd>none declared</dd><dt>sha256</dt><dd class="mono">d1d5ab75ff9b1aab0dd803d4d76fb9139f88333e323e73a12c891a23cb283d6b</dd></dl>
 
 <div data-tabs><div class="tabs"><button class="tab" type="button" data-tab="artifact-freeform-summary-outline" aria-selected="true">outline</button><button class="tab" type="button" data-tab="artifact-freeform-summary-raw" aria-selected="false">raw</button></div><div class="tabpanel" id="artifact-freeform-summary-outline"><ul class="outline"><li data-depth="1">Free-form Summary: Ebola Virus Infection RNA-seq Analysis (A549 WT vs PTPN13-KO)</li><li data-depth="2">Workflow Intent</li><li data-depth="2">Methods / Algorithms</li><li data-depth="2">Tools</li><li data-depth="2">Inputs</li><li data-depth="2">Outputs</li><li data-depth="2">Parameters</li><li data-depth="2">Data Availability</li><li data-depth="2">Constraints</li><li data-depth="2">Confidence and Open Questions</li></ul></div>
@@ -573,9 +715,9 @@ Perform transcriptomic profiling and differential gene expression analysis of hu
 </pre></div></div>
 </div></details>
 <details class="panel" id="artifact-galaxy-test-plan">
-<summary><span class="panel-title">galaxy-test-plan</span><span class="badge" data-v="present" data-state="ok">present</span><span class="panel-sub">galaxy-test-plan.yml</span></summary>
+<summary><span class="panel-title">galaxy-test-plan</span><span class="badge" data-v="present" data-tone="good">present</span><span class="panel-sub">galaxy-test-plan.yml</span></summary>
 <div class="panel-body">
-<p class="lede">Reviewable Galaxy workflow test plan (see [[galaxy-workflow-test-plan]]): synthesized test cases with job inputs, expected outputs, assertion intent, fixture provenance, label assumptions, unresolved mappings, and omissions.</p>
+<p class="panel-sub">Reviewable Galaxy workflow test plan (see [[galaxy-workflow-test-plan]]): synthesized test cases with job inputs, expected outputs, assertion intent, fixture provenance, label assumptions, unresolved mappings, and omissions.</p>
 <dl class="kv"><dt>declared by</dt><dd>freeform-summary-to-galaxy-test-plan (phase 8)</dd><dt>consumed at</dt><dd>9</dd><dt>schema</dt><dd><a href="https://galaxyproject.github.io/foundry/schemas/galaxy-workflow-test-plan/">galaxy-workflow-test-plan</a></dd><dt>sha256</dt><dd class="mono">b229f2c970946ad6dfb148e9ee2253f73e0cdb1f50a736888fa9de5a66674f74</dd></dl>
 
 <div data-tabs><div class="tabs"><button class="tab" type="button" data-tab="artifact-galaxy-test-plan-raw" aria-selected="true">raw</button></div><div class="tabpanel" id="artifact-galaxy-test-plan-raw"><pre class="source">plan_version: &quot;1&quot;
@@ -702,13 +844,13 @@ warnings: []
 </pre></div></div>
 </div></details>
 <details class="panel" id="artifact-galaxy-workflow">
-<summary><span class="panel-title">galaxy-workflow</span><span class="badge" data-v="present" data-state="ok">present</span><span class="panel-sub">galaxy-workflow.gxwf.yml</span></summary>
+<summary><span class="panel-title">galaxy-workflow</span><span class="badge" data-v="present" data-tone="good">present</span><span class="panel-sub">galaxy-workflow.gxwf.yml</span></summary>
 <div class="panel-body">
-<p class="lede">Concrete gxformat2 workflow (`class: GalaxyWorkflow`) extracted from the fully-concretized draft at loop endstate via [[draft-extract]]: drafty steps dropped, `_plan_*` planning fields stripped, class promoted. The runnable, testable artifact that downstream Molds ([[implement-galaxy-workflow-test]], [[validate-galaxy-workflow]], [[run-workflow-test]]) consume.</p>
+<p class="panel-sub">Concrete gxformat2 workflow (`class: GalaxyWorkflow`) extracted from the fully-concretized draft at loop endstate via [[draft-extract]]: drafty steps dropped, `_plan_*` planning fields stripped, class promoted. The runnable, testable artifact that downstream Molds ([[implement-galaxy-workflow-test]], [[validate-galaxy-workflow]], [[run-workflow-test]]) consume.</p>
 <dl class="kv"><dt>declared by</dt><dd>advance-galaxy-draft-step (phase 6)</dd><dt>consumed at</dt><dd>9</dd><dt>schema</dt><dd>none declared</dd><dt>sha256</dt><dd class="mono">3e844d3fd5bb5fc2d6dcfa9215ab384dbf26d0bae76ad299b8a27ab5a49afe21</dd></dl>
 
 <div data-tabs><div class="tabs"><button class="tab" type="button" data-tab="artifact-galaxy-workflow-derived" aria-selected="true">derived</button><button class="tab" type="button" data-tab="artifact-galaxy-workflow-raw" aria-selected="false">raw</button></div><div class="tabpanel" id="artifact-galaxy-workflow-derived"><p class="panel-sub">GalaxyWorkflow — 2 step(s), 0 still drafty, 4 input(s), 4 output(s).</p>
-<table class="data-table"><thead><tr><th>step</th><th>label</th><th>tool</th><th>state</th><th>plan keys</th></tr></thead><tbody><tr><td class="mono">salmon_quant</td><td>salmon_quant</td><td class="mono">toolshed.g2.bx.psu.edu/repos/bgruening/salmon/salmon/1.10.1+galaxy5</td><td><span class="badge" data-v="resolved" data-state="ok">resolved</span></td><td class="mono">—</td></tr><tr><td class="mono">deseq2</td><td>deseq2</td><td class="mono">toolshed.g2.bx.psu.edu/repos/iuc/deseq2/deseq2/2.11.40.8+galaxy3</td><td><span class="badge" data-v="resolved" data-state="ok">resolved</span></td><td class="mono">—</td></tr></tbody></table></div>
+<table class="data-table"><thead><tr><th>step</th><th>label</th><th>tool</th><th>state</th><th>plan keys</th></tr></thead><tbody><tr><td class="mono">salmon_quant</td><td>salmon_quant</td><td class="mono">toolshed.g2.bx.psu.edu/repos/bgruening/salmon/salmon/1.10.1+galaxy5</td><td><span class="badge" data-v="resolved" data-tone="good">resolved</span></td><td class="mono">—</td></tr><tr><td class="mono">deseq2</td><td>deseq2</td><td class="mono">toolshed.g2.bx.psu.edu/repos/iuc/deseq2/deseq2/2.11.40.8+galaxy3</td><td><span class="badge" data-v="resolved" data-tone="good">resolved</span></td><td class="mono">—</td></tr></tbody></table></div>
 <div class="tabpanel" id="artifact-galaxy-workflow-raw" hidden><pre class="source">class: GalaxyWorkflow
 label: Ebola Virus Infection RNA-seq Analysis (A549 WT vs PTPN13-KO)
 doc: Transcript quantification with Salmon followed by multi-factor differential expression analysis with DESeq2 for paired-end RNA-seq from human A549 WT and A549 PTPN13-KO cells infected with Ebola virus vs mock infection at 24 and 48 HPI.
@@ -807,13 +949,13 @@ steps:
 </pre></div></div>
 </div></details>
 <details class="panel" id="artifact-galaxy-workflow-draft">
-<summary><span class="panel-title">galaxy-workflow-draft</span><span class="badge" data-v="present" data-state="ok">present</span><span class="panel-sub">galaxy-workflow-draft.gxwf.yml</span></summary>
+<summary><span class="panel-title">galaxy-workflow-draft</span><span class="badge" data-v="present" data-tone="good">present</span><span class="panel-sub">galaxy-workflow-draft.gxwf.yml</span></summary>
 <div class="panel-body">
-<p class="lede">gxformat2 draft (see [[galaxy-workflow-draft-format]]): topology fully resolved (workflow inputs, outputs, step set, edges); tool_id / state / tool_shed_repository and wrapper-determined port names may be TODO with free-text _plan_state / _plan_context / _plan_in / _plan_out per step for later implementation Molds.</p>
+<p class="panel-sub">gxformat2 draft (see [[galaxy-workflow-draft-format]]): topology fully resolved (workflow inputs, outputs, step set, edges); tool_id / state / tool_shed_repository and wrapper-determined port names may be TODO with free-text _plan_state / _plan_context / _plan_in / _plan_out per step for later implementation Molds.</p>
 <dl class="kv"><dt>declared by</dt><dd>advance-galaxy-draft-step, freeform-summary-to-galaxy-template (phase 5, 6)</dd><dt>consumed at</dt><dd>6</dd><dt>schema</dt><dd><a href="https://galaxyproject.github.io/foundry/schemas/galaxy-workflow-draft/">galaxy-workflow-draft</a></dd><dt>sha256</dt><dd class="mono">ac790b4d3f5c0f76186857960b71baff739ed9efa631f6ce388357748a978770</dd></dl>
 
 <div data-tabs><div class="tabs"><button class="tab" type="button" data-tab="artifact-galaxy-workflow-draft-derived" aria-selected="true">derived</button><button class="tab" type="button" data-tab="artifact-galaxy-workflow-draft-raw" aria-selected="false">raw</button></div><div class="tabpanel" id="artifact-galaxy-workflow-draft-derived"><p class="panel-sub">GalaxyWorkflowDraft — 2 step(s), 0 still drafty, 4 input(s), 4 output(s).</p>
-<table class="data-table"><thead><tr><th>step</th><th>label</th><th>tool</th><th>state</th><th>plan keys</th></tr></thead><tbody><tr><td class="mono">salmon_quant</td><td>Quantify transcripts with Salmon</td><td class="mono">toolshed.g2.bx.psu.edu/repos/bgruening/salmon/salmon/1.10.1+galaxy5</td><td><span class="badge" data-v="resolved" data-state="ok">resolved</span></td><td class="mono">—</td></tr><tr><td class="mono">deseq2</td><td>Differential gene expression analysis with DESeq2</td><td class="mono">toolshed.g2.bx.psu.edu/repos/iuc/deseq2/deseq2/2.11.40.8+galaxy3</td><td><span class="badge" data-v="resolved" data-state="ok">resolved</span></td><td class="mono">—</td></tr></tbody></table></div>
+<table class="data-table"><thead><tr><th>step</th><th>label</th><th>tool</th><th>state</th><th>plan keys</th></tr></thead><tbody><tr><td class="mono">salmon_quant</td><td>Quantify transcripts with Salmon</td><td class="mono">toolshed.g2.bx.psu.edu/repos/bgruening/salmon/salmon/1.10.1+galaxy5</td><td><span class="badge" data-v="resolved" data-tone="good">resolved</span></td><td class="mono">—</td></tr><tr><td class="mono">deseq2</td><td>Differential gene expression analysis with DESeq2</td><td class="mono">toolshed.g2.bx.psu.edu/repos/iuc/deseq2/deseq2/2.11.40.8+galaxy3</td><td><span class="badge" data-v="resolved" data-tone="good">resolved</span></td><td class="mono">—</td></tr></tbody></table></div>
 <div class="tabpanel" id="artifact-galaxy-workflow-draft-raw" hidden><pre class="source">class: GalaxyWorkflowDraft
 label: Ebola Virus Infection RNA-seq Analysis (A549 WT vs PTPN13-KO)
 doc: Transcript quantification with Salmon followed by multi-factor differential expression analysis with DESeq2 for paired-end RNA-seq from human A549 WT and A549 PTPN13-KO cells infected with Ebola virus vs mock infection at 24 and 48 HPI.
@@ -910,9 +1052,9 @@ steps:
 </pre></div></div>
 </div></details>
 <details class="panel" id="artifact-galaxy-workflow-test">
-<summary><span class="panel-title">galaxy-workflow-test</span><span class="badge" data-v="present" data-state="ok">present</span><span class="panel-sub">galaxy-workflow.gxwf-tests.yml</span></summary>
+<summary><span class="panel-title">galaxy-workflow-test</span><span class="badge" data-v="present" data-tone="good">present</span><span class="panel-sub">galaxy-workflow.gxwf-tests.yml</span></summary>
 <div class="panel-body">
-<p class="lede">Galaxy workflow test file (tests-format) with job inputs, expected outputs, assertions; passes static schema + label cross-check. Named as the workflow basename + `-tests.yml` so Planemo discovers it as the companion of `galaxy-workflow.gxwf.yml`.</p>
+<p class="panel-sub">Galaxy workflow test file (tests-format) with job inputs, expected outputs, assertions; passes static schema + label cross-check. Named as the workflow basename + `-tests.yml` so Planemo discovers it as the companion of `galaxy-workflow.gxwf.yml`.</p>
 <dl class="kv"><dt>declared by</dt><dd>implement-galaxy-workflow-test (phase 9)</dd><dt>consumed at</dt><dd>nothing downstream reads it</dd><dt>schema</dt><dd>none declared</dd><dt>sha256</dt><dd class="mono">5a7d129c99281eaf2a287db1c455849fed2bb9a230524d2f0f256543d811ce27</dd></dl>
 
 <div data-tabs><div class="tabs"><button class="tab" type="button" data-tab="artifact-galaxy-workflow-test-raw" aria-selected="true">raw</button></div><div class="tabpanel" id="artifact-galaxy-workflow-test-raw"><pre class="source">- doc: Test outline for Ebola Virus Infection RNA-seq Analysis (A549 WT vs PTPN13-KO)
@@ -997,9 +1139,9 @@ steps:
 </pre></div></div>
 </div></details>
 <details class="panel" id="artifact-galaxy-workflow-validation-result">
-<summary><span class="panel-title">galaxy-workflow-validation-result</span><span class="badge" data-v="present" data-state="ok">present</span><span class="panel-sub">galaxy-workflow-validation-result.json</span></summary>
+<summary><span class="panel-title">galaxy-workflow-validation-result</span><span class="badge" data-v="present" data-tone="good">present</span><span class="panel-sub">galaxy-workflow-validation-result.json</span></summary>
 <div class="panel-body">
-<p class="lede">Terminal gxwf validation handoff: the exact command run, a pass/fail/not-run status, the classified workflow-level diagnostics, and the residual runtime risks static validation cannot settle.</p>
+<p class="panel-sub">Terminal gxwf validation handoff: the exact command run, a pass/fail/not-run status, the classified workflow-level diagnostics, and the residual runtime risks static validation cannot settle.</p>
 <dl class="kv"><dt>declared by</dt><dd>validate-galaxy-workflow (phase 10)</dd><dt>consumed at</dt><dd>nothing downstream reads it</dd><dt>schema</dt><dd>none declared</dd><dt>sha256</dt><dd class="mono">e954a825ae10cfaee9bd15e656056213f3fcad1de980512f55685b7c59c606ab</dd></dl>
 
 <div data-tabs><div class="tabs"><button class="tab" type="button" data-tab="artifact-galaxy-workflow-validation-result-derived" aria-selected="true">derived</button><button class="tab" type="button" data-tab="artifact-galaxy-workflow-validation-result-raw" aria-selected="false">raw</button></div><div class="tabpanel" id="artifact-galaxy-workflow-validation-result-derived"><dl class="kv"><dt>status</dt><dd>pass</dd></dl></div>
@@ -1027,9 +1169,9 @@ steps:
 }</pre></div></div>
 </div></details>
 <details class="panel" id="artifact-iwc-comparison-notes">
-<summary><span class="panel-title">iwc-comparison-notes</span><span class="badge" data-v="present" data-state="ok">present</span><span class="panel-sub">iwc-comparison-notes.md</span></summary>
+<summary><span class="panel-title">iwc-comparison-notes</span><span class="badge" data-v="present" data-tone="good">present</span><span class="panel-sub">iwc-comparison-notes.md</span></summary>
 <div class="panel-body">
-<p class="lede">Structural diff against the nearest IWC exemplar(s); guidance for the downstream *-summary-to-galaxy-template Mold before per-step authoring. Carries an inline, bounded gxformat2 excerpt of the nearest exemplar&#39;s relevant subgraph under a labeled section, cross-referencing the iwc-exemplar-gxformat2 sibling file.</p>
+<p class="panel-sub">Structural diff against the nearest IWC exemplar(s); guidance for the downstream *-summary-to-galaxy-template Mold before per-step authoring. Carries an inline, bounded gxformat2 excerpt of the nearest exemplar&#39;s relevant subgraph under a labeled section, cross-referencing the iwc-exemplar-gxformat2 sibling file.</p>
 <dl class="kv"><dt>declared by</dt><dd>compare-against-iwc-exemplar (phase 4)</dd><dt>consumed at</dt><dd>5, 8</dd><dt>schema</dt><dd>none declared</dd><dt>sha256</dt><dd class="mono">163c358c83c822fecb2aad7a55d7ab76137b501d5d0e2dde1041828bd41bcdb5</dd></dl>
 
 <div data-tabs><div class="tabs"><button class="tab" type="button" data-tab="artifact-iwc-comparison-notes-outline" aria-selected="true">outline</button><button class="tab" type="button" data-tab="artifact-iwc-comparison-notes-raw" aria-selected="false">raw</button></div><div class="tabpanel" id="artifact-iwc-comparison-notes-outline"><ul class="outline"><li data-depth="1">IWC Comparison Notes: Ebola Virus Infection RNA-seq Analysis</li><li data-depth="2">Nearest Exemplar Identification</li><li data-depth="2">Relevant Subgraph Excerpt</li><li data-depth="2">Structural Comparison &amp; Diff</li><li data-depth="2">Guidance for Downstream Template Authoring</li></ul></div>
@@ -1081,13 +1223,13 @@ Excerpt from `transcriptomics/rnaseq-de/rnaseq-de-filtering-plotting` (`iwc-exem
 </pre></div></div>
 </div></details>
 <details class="panel" id="artifact-iwc-exemplar-gxformat2">
-<summary><span class="panel-title">iwc-exemplar-gxformat2</span><span class="badge" data-v="present" data-state="ok">present</span><span class="panel-sub">iwc-exemplar.gxwf.yml</span></summary>
+<summary><span class="panel-title">iwc-exemplar-gxformat2</span><span class="badge" data-v="present" data-tone="good">present</span><span class="panel-sub">iwc-exemplar.gxwf.yml</span></summary>
 <div class="panel-body">
-<p class="lede">Cleaned gxformat2 conversion (via [[convert]] --to format2 --compact) of the nearest IWC exemplar&#39;s relevant subgraph — the concrete idiom the downstream template draft pattern-matches against. Bounded to the relevant subgraph, not the whole workflow. Absent when no nearest exemplar is found.</p>
+<p class="panel-sub">Cleaned gxformat2 conversion (via [[convert]] --to format2 --compact) of the nearest IWC exemplar&#39;s relevant subgraph — the concrete idiom the downstream template draft pattern-matches against. Bounded to the relevant subgraph, not the whole workflow. Absent when no nearest exemplar is found.</p>
 <dl class="kv"><dt>declared by</dt><dd>compare-against-iwc-exemplar (phase 4)</dd><dt>consumed at</dt><dd>5, 8</dd><dt>schema</dt><dd>none declared</dd><dt>sha256</dt><dd class="mono">943d156e3ae623054aad6fcf2e7d698bd78d27ae5f446dbf853dc66cdea56a8f</dd></dl>
 
 <div data-tabs><div class="tabs"><button class="tab" type="button" data-tab="artifact-iwc-exemplar-gxformat2-derived" aria-selected="true">derived</button><button class="tab" type="button" data-tab="artifact-iwc-exemplar-gxformat2-raw" aria-selected="false">raw</button></div><div class="tabpanel" id="artifact-iwc-exemplar-gxformat2-derived"><p class="panel-sub">GalaxyWorkflow — 1 step(s), 0 still drafty, 2 input(s), 3 output(s).</p>
-<table class="data-table"><thead><tr><th>step</th><th>label</th><th>tool</th><th>state</th><th>plan keys</th></tr></thead><tbody><tr><td class="mono">deseq2</td><td>Differential Analysis</td><td class="mono">toolshed.g2.bx.psu.edu/repos/iuc/deseq2/deseq2/2.11.40.8+galaxy3</td><td><span class="badge" data-v="resolved" data-state="ok">resolved</span></td><td class="mono">—</td></tr></tbody></table></div>
+<table class="data-table"><thead><tr><th>step</th><th>label</th><th>tool</th><th>state</th><th>plan keys</th></tr></thead><tbody><tr><td class="mono">deseq2</td><td>Differential Analysis</td><td class="mono">toolshed.g2.bx.psu.edu/repos/iuc/deseq2/deseq2/2.11.40.8+galaxy3</td><td><span class="badge" data-v="resolved" data-tone="good">resolved</span></td><td class="mono">—</td></tr></tbody></table></div>
 <div class="tabpanel" id="artifact-iwc-exemplar-gxformat2-raw" hidden><pre class="source">class: GalaxyWorkflow
 label: DESeq2 Differential Expression Subgraph
 inputs:
@@ -1135,9 +1277,9 @@ steps:
 </pre></div></div>
 </div></details>
 <details class="panel" id="artifact-open-requirements-ledger">
-<summary><span class="panel-title">open-requirements-ledger</span><span class="badge" data-v="present" data-state="ok">present</span><span class="panel-sub">open-requirements.ledger.yml</span></summary>
+<summary><span class="panel-title">open-requirements-ledger</span><span class="badge" data-v="present" data-tone="good">present</span><span class="panel-sub">open-requirements.ledger.yml</span></summary>
 <div class="panel-body">
-<p class="lede">Carried obligations ledger re-emitted by this step: entries it appended or closed updated, every other entry passed through with its provenance intact.</p>
+<p class="panel-sub">Carried obligations ledger re-emitted by this step: entries it appended or closed updated, every other entry passed through with its provenance intact.</p>
 <dl class="kv"><dt>declared by</dt><dd>advance-galaxy-draft-step, compare-against-iwc-exemplar, freeform-summary-to-galaxy-data-flow, freeform-summary-to-galaxy-interface, freeform-summary-to-galaxy-template (phase 2, 3, 4, 5, 6)</dd><dt>consumed at</dt><dd>2, 3, 4, 5, 6</dd><dt>schema</dt><dd>none declared</dd><dt>sha256</dt><dd class="mono">46f1e166b52fee1f4722f8beeb972236e7ac8e41dbef6c9bb0d37136fa9c6c36</dd></dl>
 
 <div data-tabs><div class="tabs"><button class="tab" type="button" data-tab="artifact-open-requirements-ledger-raw" aria-selected="true">raw</button></div><div class="tabpanel" id="artifact-open-requirements-ledger-raw"><pre class="source">- id: salmon-index-source-type
@@ -1166,9 +1308,9 @@ steps:
 </pre></div></div>
 </div></details>
 <details class="panel" id="artifact-test-data-refs">
-<summary><span class="panel-title">test-data-refs</span><span class="badge" data-v="present" data-state="ok">present</span><span class="panel-sub">test-data-refs.json</span></summary>
+<summary><span class="panel-title">test-data-refs</span><span class="badge" data-v="present" data-tone="good">present</span><span class="panel-sub">test-data-refs.json</span></summary>
 <div class="panel-body">
-<p class="lede">Test data matched from IWC fixtures or public sources, expressed as URLs/paths plus expected shapes for downstream test authoring.</p>
+<p class="panel-sub">Test data matched from IWC fixtures or public sources, expressed as URLs/paths plus expected shapes for downstream test authoring.</p>
 <dl class="kv"><dt>declared by</dt><dd>find-test-data (phase 7)</dd><dt>consumed at</dt><dd>9</dd><dt>schema</dt><dd>none declared</dd><dt>sha256</dt><dd class="mono">3a8e131b368324e1d13ba97ffd16d598de958ad115ff2b6814c5b974f96cc1eb</dd></dl>
 
 <div data-tabs><div class="tabs"><button class="tab" type="button" data-tab="artifact-test-data-refs-raw" aria-selected="true">raw</button></div><div class="tabpanel" id="artifact-test-data-refs-raw"><pre class="source">{
@@ -1230,9 +1372,9 @@ steps:
 }</pre></div></div>
 </div></details>
 <details class="panel" id="artifact-workflow-debug-report">
-<summary><span class="panel-title">workflow-debug-report</span><span class="badge" data-v="present" data-state="ok">present</span><span class="panel-sub">workflow-debug-report.md</span></summary>
+<summary><span class="panel-title">workflow-debug-report</span><span class="badge" data-v="present" data-tone="good">present</span><span class="panel-sub">workflow-debug-report.md</span></summary>
 <div class="panel-body">
-<p class="lede">Failure-surface classification with captured job/invocation/collection/assertion evidence and a recommended next step or reference-gap follow-up.</p>
+<p class="panel-sub">Failure-surface classification with captured job/invocation/collection/assertion evidence and a recommended next step or reference-gap follow-up.</p>
 <dl class="kv"><dt>declared by</dt><dd>debug-galaxy-workflow-output (phase 12)</dd><dt>consumed at</dt><dd>nothing downstream reads it</dd><dt>schema</dt><dd>none declared</dd><dt>sha256</dt><dd class="mono">b5f16c164c4812d42d916ac072e088993b2ee5f86f34f4ed2aae4118eb41f052</dd></dl>
 
 <div data-tabs><div class="tabs"><button class="tab" type="button" data-tab="artifact-workflow-debug-report-outline" aria-selected="true">outline</button><button class="tab" type="button" data-tab="artifact-workflow-debug-report-raw" aria-selected="false">raw</button></div><div class="tabpanel" id="artifact-workflow-debug-report-outline"><ul class="outline"><li data-depth="1">Workflow Debug Report: Ebola Virus Infection RNA-seq Analysis</li><li data-depth="2">Failure Classification</li><li data-depth="2">Evidence Captured</li><li data-depth="2">Diagnosis</li><li data-depth="2">Recommended Repair</li></ul></div>
@@ -1277,9 +1419,9 @@ steps:
 </pre></div></div>
 </div></details>
 <details class="panel" id="artifact-workflow-test-result">
-<summary><span class="panel-title">workflow-test-result</span><span class="badge" data-v="present" data-state="ok">present</span><span class="panel-sub">workflow-test-result.json</span></summary>
+<summary><span class="panel-title">workflow-test-result</span><span class="badge" data-v="present" data-tone="good">present</span><span class="panel-sub">workflow-test-result.json</span></summary>
 <div class="panel-body">
-<p class="lede">Structured status plus captured evidence — Planemo result, invocation/history/workflow ids, artifact paths, Galaxy mode, and (on failure) the observed modality and next reference surface — for debug-galaxy-workflow-output. Also the faithful handoff when no test exists or none could be run.</p>
+<p class="panel-sub">Structured status plus captured evidence — Planemo result, invocation/history/workflow ids, artifact paths, Galaxy mode, and (on failure) the observed modality and next reference surface — for debug-galaxy-workflow-output. Also the faithful handoff when no test exists or none could be run.</p>
 <dl class="kv"><dt>declared by</dt><dd>run-workflow-test (phase 11)</dd><dt>consumed at</dt><dd>12</dd><dt>schema</dt><dd>none declared</dd><dt>sha256</dt><dd class="mono">af76bcde06d0a4c49cbb52f62c82848980d019824365a9f9462bc8effefb3dc1</dd></dl>
 
 <div data-tabs><div class="tabs"><button class="tab" type="button" data-tab="artifact-workflow-test-result-derived" aria-selected="true">derived</button><button class="tab" type="button" data-tab="artifact-workflow-test-result-raw" aria-selected="false">raw</button></div><div class="tabpanel" id="artifact-workflow-test-result-derived"><dl class="kv"><dt>total_tests</dt><dd>1</dd><dt>passed</dt><dd>1</dd><dt>failed</dt><dd>0</dd></dl>
@@ -1308,11 +1450,11 @@ steps:
 </section>
 <section id="obligations">
 <div class="section-rule"><h2>Obligations</h2><span class="section-tail">what the workflow still owes</span></div>
-<p class="lede">0 open, 2 resolved, 0 surrendered, 0 deliberately dropped. 0 open entries are blocking.</p>
+<p class="page-lede">0 open, 2 resolved, 0 surrendered, 0 deliberately dropped. 0 open entries are blocking.</p>
 
 <div class="controls" data-controls="obligation-rows"><button class="filter" type="button" data-filter="status" data-value="surrendered" aria-pressed="false">surrendered</button><button class="filter" type="button" data-filter="status" data-value="open" aria-pressed="false">open</button><button class="filter" type="button" data-filter="status" data-value="resolved" aria-pressed="false">resolved</button><input class="search" type="search" data-search placeholder="search obligations" aria-label="search obligations"><button class="filter" type="button" data-reset>reset</button><span class="section-tail" data-count></span></div>
 <div id="obligation-rows"><details class="panel" data-row data-status="resolved" data-kind="gap">
-<summary><span class="panel-title">deseq2-design-formula-specification</span><span class="badge" data-v="resolved">resolved</span><span class="badge" data-v="gap">gap</span><span class="panel-sub"><a href="https://galaxyproject.github.io/foundry/molds/freeform-summary-to-galaxy-interface/">freeform-summary-to-galaxy-interface</a> → <a href="https://galaxyproject.github.io/foundry/molds/advance-galaxy-draft-step/">advance-galaxy-draft-step</a></span></summary>
+<summary><span class="panel-title">deseq2-design-formula-specification</span><span class="badge" data-v="resolved" data-tone="good">resolved</span><span class="badge" data-v="gap" data-tone="info">gap</span><span class="panel-sub"><a href="https://galaxyproject.github.io/foundry/molds/freeform-summary-to-galaxy-interface/">freeform-summary-to-galaxy-interface</a> → <a href="https://galaxyproject.github.io/foundry/molds/advance-galaxy-draft-step/">advance-galaxy-draft-step</a></span></summary>
 <div class="panel-body">
 <dl class="kv"><dt>unmet</dt><dd>Multi-factor formula and primary contrast</dd></dl>
 <p class="prose-block">Exact factor order and whether interaction term Genotype:Condition is modeled</p>
@@ -1321,7 +1463,7 @@ steps:
 <p class="prose-block">Resolved using sample_sheet_contrasts with custom design formula ~ Genotype + Timepoint + Condition and tximport integration.</p>
 </div></details>
 <details class="panel" data-row data-status="resolved" data-kind="gap">
-<summary><span class="panel-title">salmon-index-source-type</span><span class="badge" data-v="resolved">resolved</span><span class="badge" data-v="gap">gap</span><span class="panel-sub"><a href="https://galaxyproject.github.io/foundry/molds/freeform-summary-to-galaxy-interface/">freeform-summary-to-galaxy-interface</a> → <a href="https://galaxyproject.github.io/foundry/molds/advance-galaxy-draft-step/">advance-galaxy-draft-step</a></span></summary>
+<summary><span class="panel-title">salmon-index-source-type</span><span class="badge" data-v="resolved" data-tone="good">resolved</span><span class="badge" data-v="gap" data-tone="info">gap</span><span class="panel-sub"><a href="https://galaxyproject.github.io/foundry/molds/freeform-summary-to-galaxy-interface/">freeform-summary-to-galaxy-interface</a> → <a href="https://galaxyproject.github.io/foundry/molds/advance-galaxy-draft-step/">advance-galaxy-draft-step</a></span></summary>
 <div class="panel-body">
 <dl class="kv"><dt>unmet</dt><dd>Salmon reference index source format</dd></dl>
 <p class="prose-block">Whether reference target is supplied as pre-built index archive or FASTA for index creation</p>
@@ -1340,7 +1482,7 @@ steps:
 </section>
 <section id="unmapped">
 <div class="section-rule"><h2>Everything else</h2><span class="section-tail">files no Mold declares</span></div>
-<p class="lede">14 of 19 files map to a declared artifact. The rest are below. 0 path(s) were ignored entirely.</p>
+<p class="page-lede">14 of 21 files map to a declared artifact. The rest are below. 0 path(s) were ignored entirely.</p>
 <details class="panel">
 <summary><span class="panel-title">tool-output</span><span class="panel-sub">2 — output of a tool the run drove, not an artifact any Mold declares</span></summary>
 <div class="panel-body"><table class="data-table"><thead><tr><th>path</th><th>size</th><th>modified</th><th>declared by</th></tr></thead><tbody><tr><td class="mono"><a href="./tool_test_output.html">tool_test_output.html</a></td><td class="num">588.8 KB</td><td class="num">2026-09-18 13:57</td><td class="mono">—</td></tr><tr><td class="mono"><a href="./tool_test_output.json">tool_test_output.json</a></td><td class="num">661.7 KB</td><td class="num">2026-09-18 13:57</td><td class="mono">—</td></tr></tbody></table></div>
@@ -1354,19 +1496,19 @@ steps:
 <div class="panel-body"><table class="data-table"><thead><tr><th>path</th><th>size</th><th>modified</th><th>declared by</th></tr></thead><tbody><tr><td class="mono"><a href="./test-data">test-data</a></td><td class="num">11 file(s)</td><td class="num">2026-09-18 13:57</td><td class="mono">—</td></tr></tbody></table></div>
 </details>
 <details class="panel">
-<summary><span class="panel-title">undeclared</span><span class="panel-sub">1 — no Mold declares this — should it be an output artifact?</span></summary>
-<div class="panel-body"><table class="data-table"><thead><tr><th>path</th><th>size</th><th>modified</th><th>declared by</th></tr></thead><tbody><tr><td class="mono"><a href="./galaxy-workflow.ga">galaxy-workflow.ga</a></td><td class="num">6.5 KB</td><td class="num">2026-09-18 13:57</td><td class="mono">—</td></tr></tbody></table></div>
+<summary><span class="panel-title">undeclared</span><span class="panel-sub">3 — no Mold declares this — should it be an output artifact?</span></summary>
+<div class="panel-body"><table class="data-table"><thead><tr><th>path</th><th>size</th><th>modified</th><th>declared by</th></tr></thead><tbody><tr><td class="mono"><a href="./dashboard.html">dashboard.html</a></td><td class="num">144.5 KB</td><td class="num">2026-09-18 17:42</td><td class="mono">—</td></tr><tr><td class="mono"><a href="./galaxy-workflow.ga">galaxy-workflow.ga</a></td><td class="num">6.5 KB</td><td class="num">2026-09-18 13:57</td><td class="mono">—</td></tr><tr><td class="mono"><a href="./run-manifest.json">run-manifest.json</a></td><td class="num">41.9 KB</td><td class="num">2026-09-18 17:42</td><td class="mono">—</td></tr></tbody></table></div>
 </details>
 </section>
 <footer class="page-foot">
 
 <p class="mono">foundry-build run-dashboard /Users/mvandenb/src/worktrees/foundry/brc-c-auris/ebola-test/interview-driven-workflows/case_studies/ebola-rnaseq --root . --reconstruct --pipeline interview-to-galaxy</p>
-<p>run manifest schema v1 · generated 2026-09-18 16:39 · Foundry 7c0c715dde55 · build-cli 0.0.0</p>
+<p>run manifest schema v1 · generated 2026-09-18 17:42 · Foundry 7c0c715dde55 · build-cli 0.0.0 · palette from site/src/styles/global.css</p>
 </footer>
 </div>
 <script type="application/json" id="run-manifest">{
   "run_manifest_schema_version": 1,
-  "generated_at": "2026-09-18T16:39:49.961Z",
+  "generated_at": "2026-09-18T17:42:38.667Z",
   "generator": {
     "command": "run-dashboard",
     "foundry_head": "7c0c715dde555b737e89b1eeac6b07437b0dc09d",
@@ -1386,8 +1528,8 @@ steps:
     "options_observed": [],
     "status": "unknown",
     "started_at": "2026-09-18T13:57:04.527Z",
-    "finished_at": "2026-09-18T15:10:32.846Z",
-    "total_bytes": 1368929
+    "finished_at": "2026-09-18T17:42:04.805Z",
+    "total_bytes": 1559788
   },
   "phases": [
     {
@@ -2515,11 +2657,35 @@ steps:
       }
     },
     {
+      "relpath": "dashboard.html",
+      "class": "undeclared",
+      "size_bytes": 147972,
+      "mtime": "2026-09-18T17:42:04.805Z",
+      "sha256": "2ecfffe132148adf0e11a4d94ad3d004e4e9cf7aaf12f2d85427728305ad1a96",
+      "attached_to": null,
+      "declared_by_pipelines": [],
+      "declared_by_skills": [],
+      "dir_summary": null,
+      "preview": null
+    },
+    {
       "relpath": "galaxy-workflow.ga",
       "class": "undeclared",
       "size_bytes": 6613,
       "mtime": "2026-09-18T13:57:04.531Z",
       "sha256": "7c8c1ae1f659bfe430367ac40782b0c7379114eeedbd815cf64809a544f0598d",
+      "attached_to": null,
+      "declared_by_pipelines": [],
+      "declared_by_skills": [],
+      "dir_summary": null,
+      "preview": null
+    },
+    {
+      "relpath": "run-manifest.json",
+      "class": "undeclared",
+      "size_bytes": 42887,
+      "mtime": "2026-09-18T17:42:04.802Z",
+      "sha256": "f70d6e0f427874b6fdf390013bc83c4102174c7ee90724cefa9e4004962241ba",
       "attached_to": null,
       "declared_by_pipelines": [],
       "declared_by_skills": [],
@@ -2694,8 +2860,8 @@ steps:
       {
         "label": "unmapped",
         "state": "ok",
-        "value": "6",
-        "detail": "1.3 MB no Mold declares",
+        "value": "8",
+        "detail": "1.5 MB no Mold declares",
         "anchor": "#unmapped"
       }
     ],
@@ -2705,7 +2871,7 @@ steps:
     "artifacts_expected": 16,
     "artifacts_missing": 0,
     "files_attributed": 14,
-    "files_seen": 19
+    "files_seen": 21
   },
   "warnings": []
 }

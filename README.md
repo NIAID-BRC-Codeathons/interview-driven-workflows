@@ -36,12 +36,13 @@ Workflow validation and Planemo test success; correctness of tool/version/parame
 
 A longer write-up is available at <https://gist.github.com/dannon/ceb8685f9c958f5a20ad6e4b0eb630ca>.
 
-## Leads
+## Team
 
-- Dave Rogers
-- Marius van den Beek
-
-Team assignments are still being finalized. Participants can review their project, and request a reassignment, in the participant spreadsheet circulated by the organizing team.
+- Dave Rogers ([@NoopDog](https://github.com/NoopDog))
+- Marius van den Beek ([@mvdbeek](https://github.com/mvdbeek))
+- John Chilton ([@jmchilton](https://github.com/jmchilton))
+- Dejian Zhao ([@dzhaobio](https://github.com/dzhaobio))
+- Scott Cain ([@scottcain](https://github.com/scottcain))
 
 ## Working here
 
