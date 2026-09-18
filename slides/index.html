@@ -44,13 +44,13 @@
       --r-link-color: #25537b;
       --r-link-color-hover: #d19e00;
 
-      --fs-h1: 1.6em;
-      --fs-h2: 1.25em;
-      --fs-h3: 1.0em;
-      --fs-lede: 0.68em;
-      --fs-body: 0.54em;
-      --fs-small: 0.44em;
-      --fs-micro: 0.36em;
+      --fs-h1: 1.55em;
+      --fs-h2: 1.2em;
+      --fs-h3: 0.95em;
+      --fs-lede: 0.65em;
+      --fs-body: 0.52em;
+      --fs-small: 0.42em;
+      --fs-micro: 0.35em;
     }
 
     /* Subtle 24px Galaxy workflow-editor grid background */
@@ -69,7 +69,7 @@
       font-weight: 700;
       text-transform: none;
       letter-spacing: -0.02em;
-      margin: 0 0 0.4em 0;
+      margin: 0 0 0.35em 0;
       line-height: 1.15;
     }
     .reveal h1 { font-size: var(--fs-h1); }
@@ -102,7 +102,7 @@
       letter-spacing: 0.16em;
       text-transform: uppercase;
       color: var(--deck-grey);
-      margin-bottom: 0.4em;
+      margin-bottom: 0.35em;
     }
     .reveal .eyebrow::before {
       content: '';
@@ -125,7 +125,7 @@
     }
     .reveal section.galaxy-cover h1 {
       color: var(--deck-gold-bright) !important;
-      font-size: 1.7em;
+      font-size: 1.6em;
       margin-bottom: 0.25em;
     }
     .reveal section.galaxy-cover h2,
@@ -149,7 +149,7 @@
       line-height: 1.35;
       color: #334155;
       max-width: 32em;
-      margin: 0 auto 0.8em auto;
+      margin: 0 auto 0.7em auto;
     }
     .reveal .body {
       font-size: var(--fs-body);
@@ -170,7 +170,7 @@
       font-size: var(--fs-lede);
       font-weight: 600;
       color: var(--deck-navy);
-      margin: 12px auto;
+      margin: 10px auto;
       max-width: 36em;
     }
     .reveal .callout-navy {
@@ -186,9 +186,9 @@
     /* Cards grid */
     .reveal .cards {
       display: grid;
-      gap: 16px;
+      gap: 14px;
       text-align: left;
-      margin: 12px auto;
+      margin: 10px auto;
     }
     .reveal .cards-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .reveal .cards-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -229,7 +229,7 @@
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 12px;
-      margin: 14px 0;
+      margin: 12px 0;
     }
     .reveal .stat-box {
       background: #f8fafc;
@@ -259,7 +259,7 @@
     /* Code block styling */
     .reveal pre.code-snippet {
       font-family: var(--r-code-font);
-      font-size: 0.44em;
+      font-size: 0.42em;
       line-height: 1.45;
       background: var(--deck-dark);
       color: #e2e8f0;
@@ -285,28 +285,10 @@
       padding: 0;
     }
 
-    /* Interactive elements */
-    .interactive-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-family: var(--r-code-font);
-      font-size: var(--fs-micro);
-      background: #fef08a;
-      color: #854d0e;
-      border: 1px solid #facc15;
-      padding: 3px 8px;
-      border-radius: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      cursor: default;
-    }
-
     .interactive-btn {
       font-family: var(--r-code-font);
       font-size: var(--fs-micro);
-      padding: 6px 12px;
+      padding: 6px 11px;
       border-radius: 6px;
       border: 1px solid var(--deck-navy);
       background: #ffffff;
@@ -339,15 +321,12 @@
     .reveal .split {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
+      gap: 18px;
       text-align: left;
       align-items: start;
     }
     .reveal .split-3-2 {
       grid-template-columns: 3fr 2fr;
-    }
-    .reveal .split-2-3 {
-      grid-template-columns: 2fr 3fr;
     }
 
     /* Mini tags */
@@ -379,7 +358,6 @@
       font-size: var(--fs-small);
     }
 
-    /* Speaker timing pill */
     .reveal aside.notes {
       display: none;
     }
@@ -409,26 +387,24 @@
       <h3 style="font-weight: 500; font-size: 0.85em; color: #93c5fd !important; margin-bottom: 0.6em;">
         Autonomous Galaxy Workflow Synthesis at the Research Edge
       </h3>
-      <div class="lede" style="max-width: 32em;">
-        Turning a researcher’s conversational analysis request into a validated, reproducible, and executable Galaxy workflow — by reusing, adapting, or building from scratch.
+      <div class="lede" style="max-width: 34em;">
+        Converting unstructured research requests into verified, executable Galaxy workflows by reusing, adapting, or building from scratch.
       </div>
 
-      <div style="margin-top: 24px; display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;">
+      <div style="margin-top: 20px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
         <span class="tag tag-blue" style="font-size: 0.42em; padding: 4px 10px;">Marius van den Beek (<a href="https://github.com/mvdbeek" target="_blank" style="color:inherit; text-decoration:none;">@mvdbeek</a>)</span>
         <span class="tag tag-blue" style="font-size: 0.42em; padding: 4px 10px;">John Chilton (<a href="https://github.com/jmchilton" target="_blank" style="color:inherit; text-decoration:none;">@jmchilton</a>)</span>
         <span class="tag tag-gold" style="font-size: 0.42em; padding: 4px 10px;">Dave Rogers (<a href="https://github.com/NoopDog" target="_blank" style="color:inherit; text-decoration:none;">@NoopDog</a>)</span>
         <span class="tag tag-gold" style="font-size: 0.42em; padding: 4px 10px;">Dejian Zhao (<a href="https://github.com/dzhaobio" target="_blank" style="color:inherit; text-decoration:none;">@dzhaobio</a>)</span>
       </div>
 
-      <div style="margin-top: 24px; font-size: 0.42em; color: #94a3b8; font-family: var(--r-code-font);">
+      <div style="margin-top: 22px; font-size: 0.4em; color: #94a3b8; font-family: var(--r-code-font);">
         Press <kbd style="background:#334155; padding:2px 5px; border-radius:3px; color:#fff;">SPACE</kbd> or <kbd style="background:#334155; padding:2px 5px; border-radius:3px; color:#fff;">→</kbd> to advance · <kbd style="background:#334155; padding:2px 5px; border-radius:3px; color:#fff;">O</kbd> for overview · <kbd style="background:#334155; padding:2px 5px; border-radius:3px; color:#fff;">S</kbd> for speaker notes
       </div>
 
       <aside class="notes">
-        <strong>[0:00 - 0:45] Opening & Framing:</strong><br>
-        • Welcome everyone. Over the last three days here at Argonne for the NIAID-BRC Codeathon, our team tackled a central bottleneck in agentic bioinformatics: how do you go from a messy researcher request to an actual, running Galaxy workflow without hallucinations, broken parameters, or silent statistical traps?<br>
-        • We grounded our work in the Galaxy Workflow Foundry, built an end-to-end interview router, ran two complete case studies (Ebola host transcriptomics and Candida auris virulence), and hardened Galaxy core and Foundry itself with over 30 commits.<br>
-        • Let's dive in.
+        [0:00 - 0:45] Opening:
+        Biologists describe analyses in plain English. Frontier language models hallucinate parameters, invent tool IDs, and fail runtime execution. Over three days at Argonne, our team built deterministic rails to eliminate those failures. We routed 150 real community requests, executed two complete biological case studies, and committed 30 fixes upstream to Galaxy and Foundry. Slide credits: Marius van den Beek, John Chilton, Dave Rogers, and Dejian Zhao.
       </aside>
     </section>
 
@@ -437,51 +413,49 @@
     <!-- ================================================================= -->
     <section>
       <div class="eyebrow">The Challenge <span class="timing-pill">0:45 - 1:40</span></div>
-      <h2 class="accent-heading">From Free-Form Intent to Runnable Science</h2>
+      <h2 class="accent-heading">Unstructured Intent vs. Deterministic Execution</h2>
       
       <div class="split">
         <div>
           <div class="card card-warn" style="margin-bottom: 12px;">
-            <div class="card-eyebrow">What the Researcher Provides</div>
-            <div class="card-title" style="font-size: 0.52em;">Unstructured Natural Language</div>
+            <div class="card-eyebrow">Input from the Researcher</div>
+            <div class="card-title" style="font-size: 0.52em;">Natural Language Request</div>
             <div class="card-body" style="font-style: italic; font-size: 0.42em; line-height: 1.35;">
-              "I have Illumina paired-end RNA-seq of A549 lung cells infected with Ebola virus vs mock infection across 24 and 48 hours. I need transcript quantification with Salmon and differential expression with DESeq2..."
+              "I have Illumina paired-end RNA-seq of A549 lung cells infected with Ebola virus vs mock infection across 24 and 48 hours. I need transcript quantification with Salmon and differential expression with DESeq2."
             </div>
             <div style="font-size: 0.36em; color: var(--deck-muted); margin-top: 6px;">
-              Conversational shorthand, omitted reference genomes, missing contrast designs, zero syntax.
+              Conversational shorthand, omitted reference genomes, missing contrast designs, zero workflow syntax.
             </div>
           </div>
 
           <div class="callout callout-warn" style="font-size: 0.52em; margin: 0;">
-            <strong>The Hallucination Trap:</strong> A raw frontier LLM produces workflow YAML that <em>looks plausible</em>, but invariably hallucinates tool IDs, drops required parameters, and fails execution.
+            <strong>The Hallucination Failure:</strong> Unconstrained frontier language models generate plausible YAML that fails at runtime due to fabricated tool IDs, omitted required inputs, and broken collection wiring.
           </div>
         </div>
 
         <div>
           <div class="card" style="border-top-color: var(--deck-error); margin-bottom: 10px;">
-            <div class="card-eyebrow" style="color: var(--deck-error);">Why Prompt Engineering Fails in Production</div>
+            <div class="card-eyebrow" style="color: var(--deck-error);">Concrete Failure Modes in Production</div>
             <ul style="font-size: 0.42em; line-height: 1.45; margin: 6px 0 0 16px; padding: 0; color: #334155;">
-              <li><strong>Tool Shed Drifts:</strong> Wrapper versions, changesets, and tool IDs cannot be guessed from LLM weights.</li>
-              <li><strong>Broken Collection Algebra:</strong> Confusing single datasets with paired collections (<code>list:paired</code>) breaks runtime job scheduling.</li>
-              <li><strong>Silent Statistical Bugs:</strong> Setting incorrect degrees of freedom or naive header trimming discards real discoveries.</li>
-              <li><strong>No Execution Feedback:</strong> Without a compiler and a deterministic test harness, errors are never diagnosed.</li>
+              <li><strong>Tool Shed Identifier Drift:</strong> Models cannot derive exact wrapper versions or changeset hashes from pretraining weights.</li>
+              <li><strong>Broken Collection Algebra:</strong> Conflating individual datasets with paired collections (<code>list:paired</code>) aborts runtime scheduling.</li>
+              <li><strong>Silent Statistical Errors:</strong> Setting invalid degrees of freedom or naive header stripping discards true biological signal.</li>
+              <li><strong>Zero Execution Feedback:</strong> Without external compilers and test runners, errors remain undetected.</li>
             </ul>
           </div>
 
           <div class="card card-gold">
-            <div class="card-eyebrow" style="color: var(--deck-gold-ink);">Our Codeathon Goal</div>
+            <div class="card-eyebrow" style="color: var(--deck-gold-ink);">The Codeathon Commitment</div>
             <div class="card-body" style="font-size: 0.44em; font-weight: 600; color: var(--deck-navy);">
-              Build an interview-driven system with deterministic validation rails, live registry search, and a closed-loop execution oracle that repairs its own failures.
+              Replace unconstrained prompt generation with deterministic compilation, live registry discovery, and automated execution oracles.
             </div>
           </div>
         </div>
       </div>
 
       <aside class="notes">
-        <strong>[0:45 - 1:40] Talking Points:</strong><br>
-        • Why is this hard? Biologists speak in biology: "paired-end reads, Ebola infected cells, DESeq2".<br>
-        • If you feed this into a chatbot, it writes YAML with made-up tool IDs, broken parameter trees, or invalid collection wiring. Worse, it might run and silently delete the top significant gene.<br>
-        • Our mission: create an agentic architecture where every tool is pinned to real Tool Shed changesets, every step is schema-validated, and workflows are executed in Docker biocontainers against real test data before anyone calls them done.
+        [0:45 - 1:40] Talking Points:
+        Biologists communicate in intent, not workflow schemas. When frontier models generate workflow files without constraints, they fail. They hallucinate Tool Shed changesets. They break collection algebra by feeding lists into single-file ports. They set contradictory statistical parameters. A workflow that looks plausible but silently drops the top candidate gene is catastrophic. We replaced unconstrained generation with deterministic compilation.
       </aside>
     </section>
 
@@ -490,57 +464,54 @@
     <!-- ================================================================= -->
     <section>
       <div class="eyebrow">Foundations · The Foundry Pattern <span class="timing-pill">1:40 - 2:35</span></div>
-      <h2 class="accent-heading">Principled Skills for Agents &amp; Humans</h2>
+      <h2 class="accent-heading">The Foundry Pattern: Compiling Knowledge into Skills</h2>
 
-      <div class="callout callout-navy" style="text-align: center; font-size: 0.6em; margin-bottom: 16px;">
+      <div class="callout callout-navy" style="text-align: center; font-size: 0.58em; margin-bottom: 14px;">
         <em>"No serious engineering culture treats the compiled binary as the place you make changes."</em>
       </div>
 
-      <div class="cards cards-4" style="margin-bottom: 14px;">
+      <div class="cards cards-4" style="margin-bottom: 12px;">
         <div class="card">
           <div class="card-eyebrow">01 · Source of Truth</div>
-          <div class="card-title" style="font-size: 0.5em;">Knowledge Base</div>
+          <div class="card-title" style="font-size: 0.48em;">Knowledge Base</div>
           <div class="card-body" style="font-size: 0.38em;">
-            Human-authored markdown notes, controlled tags, typed frontmatter, and upstream contracts.
+            Markdown notes, controlled registries, typed frontmatter, and upstream tool specifications.
           </div>
         </div>
         <div class="card card-gold">
           <div class="card-eyebrow">02 · Action Spec</div>
-          <div class="card-title" style="font-size: 0.5em;">The Mold</div>
+          <div class="card-title" style="font-size: 0.48em;">The Mold</div>
           <div class="card-body" style="font-size: 0.38em;">
-            A typed manifest of references + procedural skeleton. Carries load policy, placement, and oracles.
+            Typed manifest of references plus procedural skeleton. Defines load policies, placement, and oracles.
           </div>
         </div>
         <div class="card card-gold">
           <div class="card-eyebrow">03 · Compiler</div>
-          <div class="card-title" style="font-size: 0.5em;">The Cast</div>
+          <div class="card-title" style="font-size: 0.48em;">The Cast</div>
           <div class="card-body" style="font-size: 0.38em;">
-            Deterministic compiler. Resolves wiki-links, imports JSON schemas, and emits frozen skills.
+            Deterministic compiler. Resolves links, imports schemas, and generates frozen skills.
           </div>
         </div>
         <div class="card">
-          <div class="card-eyebrow">04 · Verified Artifact</div>
-          <div class="card-title" style="font-size: 0.5em;">Skill + Provenance</div>
+          <div class="card-eyebrow">04 · Verified Output</div>
+          <div class="card-title" style="font-size: 0.48em;">Skill + Provenance</div>
           <div class="card-body" style="font-size: 0.38em;">
-            Frozen agent skill bundle plus exact build log: which Mold, which target, which checks ran.
+            Frozen agent skill bundle accompanied by complete build log and verification hashes.
           </div>
         </div>
       </div>
 
       <div class="card" style="background: #f1f5f9; border: 1px solid #cbd5e1; border-top: none; padding: 10px 14px;">
         <div style="display: flex; justify-content: space-around; font-size: 0.42em; font-family: var(--r-code-font);">
-          <span><strong>1. Upstream Authority:</strong> Copy contracts verbatim, don't paraphrase.</span>
-          <span><strong>2. Deterministic Tools:</strong> Tools do deterministic work; LLMs translate.</span>
-          <span><strong>3. Executable Rails:</strong> Validation gates before execution.</span>
+          <span><strong>1. Upstream Authority:</strong> Import contracts verbatim from Galaxy and Tool Shed.</span>
+          <span><strong>2. Deterministic Tools:</strong> Tools execute deterministic work; models translate.</span>
+          <span><strong>3. Executable Rails:</strong> Static validation gates precede execution.</span>
         </div>
       </div>
 
       <aside class="notes">
-        <strong>[1:40 - 2:35] Talking Points:</strong><br>
-        • To solve this, we used the Galaxy Workflow Foundry, pioneered by John Chilton.<br>
-        • In the Foundry pattern, you never write an agent prompt by hand. You author a Knowledge Base and a Mold. The Mold declares exact references, CLI contracts, and evaluation properties.<br>
-        • A compiler called 'cast' bundles this into a frozen skill. The agent gets small, deterministic slices with strict schemas, not a gigantic fuzzy context window.<br>
-        • The mantra: "Deterministic tools do deterministic work." Static validation via gxwf and execution via Planemo are hard oracles that an LLM cannot argue with.
+        [1:40 - 2:35] Talking Points:
+        We ground this work in the Foundry Pattern designed by John Chilton. Traditional agent setups paste huge prompts and hope for the best. The Foundry treats prompts as compiled binaries. Humans maintain the Knowledge Base and Molds. A compiler called Cast builds frozen, versioned skills with complete provenance. The model translates; deterministic tools judge.
       </aside>
     </section>
 
@@ -551,23 +522,23 @@
       <div class="eyebrow">Pipeline Architecture <span class="timing-pill">2:35 - 3:35</span></div>
       <h2 class="accent-heading">The 12-Phase Pipeline Spine</h2>
       <div class="lede" style="margin-bottom: 8px;">
-        Click any phase below to inspect its Mold, inputs, emitted artifacts, and deterministic checks.
+        Select any phase below to inspect declared Molds, input requirements, output artifacts, and validation oracles.
       </div>
 
       <!-- Phase Selector Pills -->
       <div id="phase-pills" style="display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin-bottom: 10px;">
-        <button class="interactive-btn active" onclick="selectPhase(1, event)">P1: Interview Norm</button>
-        <button class="interactive-btn" onclick="selectPhase(2, event)">P2: Interface Brief</button>
-        <button class="interactive-btn" onclick="selectPhase(3, event)">P3: Data Flow</button>
-        <button class="interactive-btn gold-btn" onclick="selectPhase(4, event)">P4: IWC Exemplar</button>
-        <button class="interactive-btn" onclick="selectPhase(5, event)">P5: Template Draft</button>
-        <button class="interactive-btn gold-btn" onclick="selectPhase(6, event)">P6: Step Loop ⟳</button>
-        <button class="interactive-btn" onclick="selectPhase(7, event)">P7: Test Data</button>
-        <button class="interactive-btn" onclick="selectPhase(8, event)">P8: Test Plan</button>
-        <button class="interactive-btn" onclick="selectPhase(9, event)">P9: Implement Test</button>
-        <button class="interactive-btn" onclick="selectPhase(10, event)">P10: Static Validate</button>
-        <button class="interactive-btn gold-btn" onclick="selectPhase(11, event)">P11: Planemo Exec ⚙</button>
-        <button class="interactive-btn" onclick="selectPhase(12, event)">P12: Debug &amp; Triage</button>
+        <button class="interactive-btn active" onclick="selectPhase(1, event)">P1: Interview Norm.</button>
+        <button class="interactive-btn" onclick="selectPhase(2, event)">P2: Interface Brief.</button>
+        <button class="interactive-btn" onclick="selectPhase(3, event)">P3: Data Flow.</button>
+        <button class="interactive-btn gold-btn" onclick="selectPhase(4, event)">P4: IWC Exemplar.</button>
+        <button class="interactive-btn" onclick="selectPhase(5, event)">P5: Template Draft.</button>
+        <button class="interactive-btn gold-btn" onclick="selectPhase(6, event)">P6: Step Loop ⟳.</button>
+        <button class="interactive-btn" onclick="selectPhase(7, event)">P7: Test Data.</button>
+        <button class="interactive-btn" onclick="selectPhase(8, event)">P8: Test Plan.</button>
+        <button class="interactive-btn" onclick="selectPhase(9, event)">P9: Implement Test.</button>
+        <button class="interactive-btn" onclick="selectPhase(10, event)">P10: Static Validate.</button>
+        <button class="interactive-btn gold-btn" onclick="selectPhase(11, event)">P11: Planemo Exec ⚙.</button>
+        <button class="interactive-btn" onclick="selectPhase(12, event)">P12: Debug &amp; Triage.</button>
       </div>
 
       <!-- Phase Details Display Box -->
@@ -576,12 +547,8 @@
       </div>
 
       <aside class="notes">
-        <strong>[2:35 - 3:35] Talking Points & Interactions:</strong><br>
-        • Here is the 12-phase pipeline spine used by pipeline-interview-to-galaxy.<br>
-        • (Click Phase 4: IWC Exemplar) - Phase 4 matches the request against the IWC corpus to extract structural exemplars and avoid reinventing the wheel.<br>
-        • (Click Phase 6: Step Loop) - Phase 6 is the heart of synthesis: an autonomous loop running 'advance-galaxy-draft-step'. It queries the Tool Shed, pins exact changesets, and validates tool states until zero draft steps remain.<br>
-        • (Click Phase 10: Static Validate) - Phase 10 runs 'gxwf validate' and 'gxwf validate-tests'. No broken syntax escapes.<br>
-        • (Click Phase 11: Planemo Exec) - Phase 11 runs 'planemo test --biocontainers' inside Docker. Real execution against real tools!
+        [2:35 - 3:35] Talking Points:
+        The synthesis engine runs across a 12-phase pipeline. Each phase consumes a defined input artifact and emits a verified output. Phase 4 matches certified IWC workflows. Phase 6 iterates through draft steps until all sentinels clear. Phase 10 validates tool states against real Tool Shed XML. Phase 11 runs the workflow in Docker BioContainers via Planemo. Every phase enforces an external verdict.
       </aside>
     </section>
 
@@ -590,7 +557,7 @@
     <!-- ================================================================= -->
     <section>
       <div class="eyebrow">Intake &amp; Discovery <span class="timing-pill">3:35 - 4:35</span></div>
-      <h2 class="accent-heading">Talk to Galaxy: Router &amp; Live Registry Search</h2>
+      <h2 class="accent-heading">Talk to Galaxy: Calibrated Routing &amp; Live MCP Search</h2>
 
       <div class="split split-3-2">
         <div>
@@ -608,35 +575,32 @@
 
         <div>
           <div class="card card-gold" style="margin-bottom: 10px;">
-            <div class="card-eyebrow">Grounding on 5,250 Real Biostars Questions</div>
+            <div class="card-eyebrow">Empirical Grounding: 5,250 Biostars Corpus</div>
             <div class="card-body" style="font-size: 0.4em;">
-              50 curated + 100 bulk real community questions. Evaluated routing distribution:
+              Evaluated across 50 curated and 100 bulk community requests. The routing distribution demonstrates clear calibration:
               <div style="margin-top: 6px; font-family: var(--r-code-font); font-weight: 700;">
                 <span class="tag tag-gold">34 ADAPT</span>
                 <span class="tag tag-blue">13 BUILD</span>
                 <span class="tag tag-green">3 USE</span>
               </div>
               <div style="margin-top: 5px; color: var(--deck-muted);">
-                Real biological language is nuanced; confidence thresholds prevent false "USE" claims.
+                Biological requests carry nuance. Strict confidence thresholds prevent invalid direct execution claims.
               </div>
             </div>
           </div>
 
           <div class="card">
-            <div class="card-eyebrow" style="color: var(--deck-navy);">Live MCP Integration (<code>galaxy-mcp</code>)</div>
+            <div class="card-eyebrow" style="color: var(--deck-navy);">Live Registry Integration (<code>galaxy-mcp</code>)</div>
             <div class="card-body" style="font-size: 0.39em; line-height: 1.35;">
-              When local catalog says <code>build</code>, router triggers <code>galaxy_mcp_client.py</code> connecting via stdio transport to <strong>galaxy-mcp</strong> for live BM25 search over the full published IWC registry.
+              When the local catalog returns <code>build</code>, the router invokes <code>galaxy_mcp_client.py</code> over stdio transport to run live BM25 searches against the full published IWC workflow collection.
             </div>
           </div>
         </div>
       </div>
 
       <aside class="notes">
-        <strong>[3:35 - 4:35] Talking Points & Interactions:</strong><br>
-        • Dejian Zhao and the team built 'Talk to Galaxy' to route user queries into USE, ADAPT, or BUILD.<br>
-        • (Click Prompt 1: SARS-CoV-2) -> Clear match, high confidence (0.50), selects existing IWC pipeline.<br>
-        • (Click Prompt 3: Mouse RNA-Seq) -> Local catalog has no mouse workflows, but the live MCP integration searches IWC and finds 3 published pipelines!<br>
-        • (Click Prompt 4: Hybrid Viral) -> Crucial discovery: raw keyword overlap suggested bacterial QC (confidence 0.38), but our follow-up question generator noticed 'viral' vs 'bacterial' and stopped a false positive!
+        [3:35 - 4:35] Talking Points:
+        Dejian Zhao and the team built the intake router. We benchmarked it on 150 real community requests from Biostars. Simple keyword counts fail because common terms dominate. We implemented inverse document frequency weighting. When confidence drops below 0.15, the router calls galaxy-mcp over stdio to query the live IWC registry. When keywords falsely route a viral request to a bacterial pipeline, the system stops and asks the user for clarification.
       </aside>
     </section>
 
@@ -645,7 +609,7 @@
     <!-- ================================================================= -->
     <section>
       <div class="eyebrow">Case Study 1 · End-to-End Success <span class="timing-pill">4:35 - 5:50</span></div>
-      <h2 class="accent-heading">Ebola Virus Host RNA-seq: 100% Planemo Pass</h2>
+      <h2 class="accent-heading">Ebola Virus Host RNA-seq: Verified Execution</h2>
 
       <div class="stat-grid">
         <div class="stat-box">
@@ -669,16 +633,16 @@
       <div class="split">
         <div>
           <div class="card">
-            <div class="card-eyebrow">Scenario &amp; Design</div>
+            <div class="card-eyebrow">Experimental Setup</div>
             <div class="card-body" style="font-size: 0.42em; line-height: 1.4;">
-              <strong>Biology:</strong> Human lung cells (A549 WT vs. PTPN13-KO) infected with Ebola virus vs. Mock (24h &amp; 48h). 2×2×2 factorial design.<br>
-              <strong>Data:</strong> Paired-end Illumina reads in <code>list:paired</code> collection.<br>
-              <strong>Toolchain:</strong> Salmon pseudoalignment (map-over) → tximport → DESeq2 multi-factor contrast (collective reduce).
+              <strong>Biology:</strong> Human lung cells (A549 WT vs. PTPN13-KO) infected with Ebola virus vs. Mock (24h and 48h). Factorial design.<br>
+              <strong>Inputs:</strong> Paired-end Illumina sequencing in a <code>list:paired</code> collection.<br>
+              <strong>Architecture:</strong> Salmon quantification (per-sample map-over) feeding DESeq2 multi-factor contrast (collective reduction).
             </div>
           </div>
 
           <div class="callout callout-navy" style="font-size: 0.45em; margin-top: 10px;">
-            <strong>Autonomous Self-Healing:</strong> Initial 2-sample test failed DESeq2 dispersion fitting (insufficient degrees of freedom). The triage Mold diagnosed the issue, synthesized a 4-sample fixture (2 Mock, 2 Ebola), and re-ran to a 100% green verdict!
+            <strong>Closed-Loop Autonomous Repair:</strong> An initial two-sample test failed DESeq2 dispersion fitting due to insufficient degrees of freedom. The triage Mold diagnosed the failure from stderr, generated a four-sample fixture, and re-executed to a clean pass.
           </div>
         </div>
 
@@ -695,18 +659,15 @@
 <span style="color:#e8c547;">Verdict: galaxy-workflow.gxwf.yml_0: passed</span></code></pre>
           <div style="text-align: right; margin-top: 6px;">
             <a href="../case_studies/ebola-rnaseq/dashboard.html" target="_blank" class="ref-link" style="font-size: 0.42em; font-family: var(--r-code-font);">
-              Open Full Ebola Run Dashboard ↗
+              Open Ebola Run Dashboard ↗
             </a>
           </div>
         </div>
       </div>
 
       <aside class="notes">
-        <strong>[4:35 - 5:50] Talking Points:</strong><br>
-        • This is our headline success: the Ebola host transcriptomics case study.<br>
-        • We took a conversational interview, ran all 12 phases of pipeline-interview-to-galaxy, and achieved a 100% Planemo test pass.<br>
-        • Notice what happened in Phase 11: on the first execution attempt, DESeq2 crashed. An unguided LLM would hallucinate a fix. But our debug Mold inspected the job stderr, diagnosed that a 2-sample toy dataset didn't have enough degrees of freedom for a multi-factor formula, expanded the fixture to 4 replicates, adjusted the contrast, and re-executed.<br>
-        • 5 out of 5 jobs ran green inside Docker BioContainers: 4 Salmon map-overs and 1 DESeq2 reduction.
+        [4:35 - 5:50] Talking Points:
+        In the Ebola case study, the pipeline completed all 12 phases to a 100% passing execution. The workflow runs paired-end Salmon quantification mapped across samples, followed by a DESeq2 reduction. On the first run, DESeq2 crashed: two toy samples could not estimate dispersion for a multi-factor model. The triage Mold parsed stderr, identified the degrees-of-freedom deficit, expanded the test data to four samples, and re-executed. All five jobs passed green in Docker.
       </aside>
     </section>
 
@@ -715,7 +676,7 @@
     <!-- ================================================================= -->
     <section>
       <div class="eyebrow">Case Study 2 · Paper-to-Galaxy at Scale <span class="timing-pill">5:50 - 7:00</span></div>
-      <h2 class="accent-heading"><em>Candida auris</em>: 26-Step Autonomous Loop</h2>
+      <h2 class="accent-heading"><em>Candida auris</em>: 26-Step Autonomous Loop &amp; Biological Validation</h2>
 
       <div class="stat-grid">
         <div class="stat-box">
@@ -741,9 +702,9 @@
           <div class="card">
             <div class="card-eyebrow">Target: Santana et al. 2023 (<em>Science</em>, PMID 37769084)</div>
             <div class="card-body" style="font-size: 0.41em; line-height: 1.35;">
-              <strong>Research Goal:</strong> Identify dysregulated genes in low-adhesion <em>C. auris</em> mutants (surfaced <em>SCF1</em> adhesin).<br>
-              <strong>Challenge:</strong> Main text had <em>zero</em> computational methods; pipeline extracted a 60-page JATS XML supplement from PMC!<br>
-              <strong>Data:</strong> 6 ENA paired-end FASTQ runs (PRJNA904261), subset to 200k read pairs with verified md5s.
+              <strong>Scientific Objective:</strong> Identify dysregulated transcripts in low-adhesion <em>C. auris</em> mutants to recover the <em>SCF1</em> adhesin.<br>
+              <strong>Data Extraction:</strong> Main text contained no computational methods. The summarizer extracted a 60-page JATS XML supplement from PubMed Central.<br>
+              <strong>Sequencing Data:</strong> 6 ENA paired-end FASTQ runs (PRJNA904261), subset to 200,000 read pairs with verified uncompressed MD5 checksums.
             </div>
           </div>
 
@@ -758,15 +719,15 @@
 
         <div>
           <div class="card card-gold">
-            <div class="card-eyebrow">Statistical Validation (SCF1)</div>
+            <div class="card-eyebrow">Empirical Ground Truth Cross-Check</div>
             <div class="card-body" style="font-size: 0.39em; line-height: 1.3;">
-              Independent statistical cross-check confirmed the fixture preserves the Science paper's core biological signal:
+              Independent statistical testing verified that the subsetted fixture preserves the primary biological finding:
               <table style="width: 100%; margin-top: 6px; font-size: 0.9em;">
                 <tr style="border-bottom: 1px solid #cbd5e1;"><th>Contrast</th><th>log2FC</th><th>padj</th></tr>
                 <tr><td>tnSWI1 vs AR0382</td><td>−6.93</td><td>2.1e-31</td></tr>
                 <tr><td>AR0387 vs AR0382</td><td>−7.95</td><td>4.1e-18</td></tr>
               </table>
-              <em>SCF1 is strongly down-regulated in both contrasts with overwhelming statistical power.</em>
+              <em>SCF1 down-regulation is preserved across both contrasts with unambiguous statistical significance.</em>
             </div>
           </div>
           <div style="text-align: right; margin-top: 6px;">
@@ -778,11 +739,8 @@
       </div>
 
       <aside class="notes">
-        <strong>[5:50 - 7:00] Talking Points:</strong><br>
-        • Now look at our second case study: Candida auris, an urgent fungal pathogen. This tested the PAPER-TO-GALAXY pipeline.<br>
-        • The paper was Santana et al., Science 2023. The main text had literally zero computational methods. The summarizer fetched the 60-page supplement from PubMed Central JATS XML.<br>
-        • Phase 6 executed a 26-iteration autonomous loop. Each iteration picked the next draft step, queried the Tool Shed, pinned parameters, and updated the workflow draft. Sentinels went from 44 down to 0!<br>
-        • All 27 steps pass static validation. We also performed a statistical cross-check proving that our subsetted test fixture faithfully recovers the SCF1 down-regulation reported in Science (padj = 2.1e-31).
+        [5:50 - 7:00] Talking Points:
+        Our second case study targeted Candida auris from a 2023 Science paper. The paper omitted computational methods from the main text; the pipeline parsed the 60-page XML supplement. Phase 6 executed 26 autonomous loop iterations, resolving 27 concrete steps and retiring all 44 TODO sentinels. Static validation confirmed 172 test assertions. An independent statistical check verified that our test fixture recovers the exact biological signal: SCF1 down-regulation at p = 2.1e-31.
       </aside>
     </section>
 
@@ -791,9 +749,9 @@
     <!-- ================================================================= -->
     <section>
       <div class="eyebrow">Findings · Grounded in Execution <span class="timing-pill">7:00 - 8:00</span></div>
-      <h2 class="accent-heading">Real Traps Found at the Research Edge</h2>
+      <h2 class="accent-heading">Four Empirical Edge Traps Discovered During Execution</h2>
       <div class="lede" style="margin-bottom: 8px;">
-        Click each discovery below to see how naive generation would have failed:
+        Click each discovery below to inspect how unverified generation fails in practice:
       </div>
 
       <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 12px;">
@@ -808,11 +766,8 @@
       </div>
 
       <aside class="notes">
-        <strong>[7:00 - 8:00] Talking Points & Interactions:</strong><br>
-        • Here is the real value of running these pipelines: finding the traps that no synthetic benchmark can ever reveal.<br>
-        • (Click Trap 1: DESeq2 Header Trap) - THIS IS HUGE. DESeq2's main output has NO header, but normalized counts DOES. The published IWC exemplar uses 'header_lines: 1' because it artificially injects a header beforehand. If an agent naively copied that, it would discard row 1. Row 1 is sorted by p-value. In this paper, Row 1 IS SCF1! Naive copy-paste destroys the scientific finding.<br>
-        • (Click Trap 2: Shed Repo Pinning) - Planemo's workflow runner requires explicit 'tool_shed_repository' blocks in format2 YAML, or it silently skips tool installation.<br>
-        • (Click Trap 3: Conda Prefix) - Conda shebang limits fail on deep paths. BioContainers in Docker solved it.
+        [7:00 - 8:00] Talking Points:
+        Real execution exposes traps that static models cannot detect. First: DESeq2 outputs have asymmetric headers. The IWC workflow prepends a synthetic header and then skips it with header_lines: 1. If you copy that rule naively, you delete row 1. In this paper, row 1 is SCF1—the primary discovery of the study. Second: Planemo ignores tool IDs unless explicit tool_shed_repository blocks are defined in the YAML. Third: deep sandbox paths break conda's 128-character shebang limit, necessitating Docker BioContainers.
       </aside>
     </section>
 
@@ -821,9 +776,9 @@
     <!-- ================================================================= -->
     <section>
       <div class="eyebrow">Upstream Contributions <span class="timing-pill">8:00 - 8:55</span></div>
-      <h2 class="accent-heading">"Hardening Leaves Receipts"</h2>
+      <h2 class="accent-heading">Upstream Hardening Across Repositories</h2>
       <div class="lede" style="margin-bottom: 8px;">
-        Over 30 commits across 4 repositories from Wednesday to Friday:
+        Over 30 commits across 4 repositories committed by Marius van den Beek and John Chilton from Wednesday to Friday:
       </div>
 
       <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 8px;">
@@ -838,12 +793,8 @@
       </div>
 
       <aside class="notes">
-        <strong>[8:00 - 8:55] Talking Points:</strong><br>
-        • John and Marius have a strong motto: "Hardening leaves receipts."<br>
-        • When something broke during the codeathon, we didn't just hack around it in a script. We fixed it upstream.<br>
-        • In Galaxy Core: Marius added MCP discovery endpoints and UI (PR #23507), fixed Tool Shed pagination which was repeating the last page of search results, added a Singularity depot resolver, and tightened subworkflow completion semantics.<br>
-        • In Foundry Core: John established the Workflow Brief RFC contract (PR #565), and Marius added wrapper reuse in the draft loop and authored the new Conversion Run Dashboard.<br>
-        • In galaxy-tool-util-ts: fixed ToolFetchError decoding on malformed tool XML.
+        [8:00 - 8:55] Talking Points:
+        We do not work around upstream defects; we fix them at the source. Across Galaxy, Foundry, and galaxy-tool-util, Marius and John committed over 30 targeted improvements. In Galaxy core, Marius exposed the MCP discovery endpoints, repaired Tool Shed search pagination, and enforced subworkflow completion rules. In Foundry, John established the Workflow Brief contract while Marius hardened the draft step loop.
       </aside>
     </section>
 
@@ -852,24 +803,24 @@
     <!-- ================================================================= -->
     <section>
       <div class="eyebrow">Deliverables &amp; Tooling <span class="timing-pill">8:55 - 9:35</span></div>
-      <h2 class="accent-heading">Conversion Dashboards &amp; Live Site</h2>
+      <h2 class="accent-heading">Deterministic Run Dashboards &amp; Live Deployment</h2>
 
       <div class="split split-3-2">
         <div>
           <div class="card card-gold">
             <div class="card-eyebrow">New CLI Tool: <code>foundry-build run-dashboard</code></div>
             <div class="card-body" style="font-size: 0.4em; line-height: 1.35;">
-              Authored during the hackathon (commit <code>7c0c715d</code>, 6,900+ lines of TypeScript):
+              Implemented by Marius van den Beek during the hackathon (commit <code>7c0c715d</code>, 6,900+ lines of TypeScript):
               <ul style="margin: 4px 0 0 14px; padding: 0;">
-                <li>Reads <code>foundry-run.yml</code> and commits; resolves against cast metadata.</li>
-                <li>Generates self-contained, offline <code>dashboard.html</code> beside artifacts.</li>
-                <li>Audits phase roster, carried ledgers, loop iterations, and test verdicts.</li>
+                <li>Parses <code>foundry-run.yml</code> records and verifies artifact checksums against cast metadata.</li>
+                <li>Renders self-contained, offline <code>dashboard.html</code> files without network dependencies.</li>
+                <li>Audits phase progression, carried requirement ledgers, and execution test outcomes.</li>
               </ul>
             </div>
           </div>
 
           <div class="callout callout-navy" style="font-size: 0.45em; margin-top: 10px;">
-            <strong>Published to GitHub Pages:</strong> Both case study dashboards, the Talk to Galaxy decks, and full artifact bundles are live at:<br>
+            <strong>Live Deployment:</strong> Both case study dashboards, Talk to Galaxy documentation, and complete artifact bundles are published at:<br>
             <a href="https://niaid-brc-codeathons.github.io/interview-driven-workflows/" target="_blank" style="color: var(--deck-navy); font-weight: 700; word-break: break-all;">
               https://niaid-brc-codeathons.github.io/interview-driven-workflows/
             </a>
@@ -878,13 +829,13 @@
 
         <div>
           <div class="card" style="border-top-color: var(--deck-navy);">
-            <div class="card-eyebrow">Interactive Dashboard Features</div>
+            <div class="card-eyebrow">Dashboard Architecture</div>
             <div class="card-body" style="font-size: 0.39em; line-height: 1.35;">
               <ul style="margin: 4px 0 0 14px; padding: 0;">
-                <li><strong>Phase Roster &amp; Status:</strong> Green checkmarks for terminal static &amp; execution gates.</li>
-                <li><strong>Artifact Manifest:</strong> Direct links to gxformat2 workflows, test plans, and ledgers.</li>
-                <li><strong>Planemo Test Evidence:</strong> Embedded terminal logs and job execution times.</li>
-                <li><strong>Dark/Light Theme:</strong> Matches system preference seamlessly.</li>
+                <li><strong>Phase Progression:</strong> Status indicators for static validation and execution stages.</li>
+                <li><strong>Artifact Lineage:</strong> Direct links to verified gxformat2 workflows and test specifications.</li>
+                <li><strong>Planemo Execution Records:</strong> Stored stdout and stderr diagnostics.</li>
+                <li><strong>Responsive Presentation:</strong> Operates offline and respects system dark mode.</li>
               </ul>
             </div>
           </div>
@@ -900,10 +851,8 @@
       </div>
 
       <aside class="notes">
-        <strong>[8:55 - 9:35] Talking Points:</strong><br>
-        • A conversion run leaves a folder full of files. Answering "where did it stop, what succeeded, what was tested" used to require digging through prose.<br>
-        • Marius built 'foundry-build run-dashboard': a 6,900-line TypeScript tool that reads the run manifest and generates an interactive, self-contained dashboard.html.<br>
-        • We automated deployment via GitHub Actions: the site is live right now on GitHub Pages, featuring both complete case studies and all data artifacts.
+        [8:55 - 9:35] Talking Points:
+        To eliminate prose-based progress reports, Marius engineered foundry-build run-dashboard: a 6,900-line TypeScript tool that parses run manifests and outputs self-contained HTML dashboards. The dashboard visualizes phase status, artifact lineage, and Planemo execution logs with zero external network dependencies. Both case studies and all generated artifacts are deployed live on GitHub Pages.
       </aside>
     </section>
 
@@ -912,32 +861,33 @@
     <!-- ================================================================= -->
     <section class="galaxy-cover">
       <div class="eyebrow">Summary · NIAID-BRCs AI Codeathon 2.0 <span class="timing-pill" style="background: rgba(255,255,255,0.2); color:#fff;">9:35 - 10:00</span></div>
-      <h1 style="font-size: 1.55em;">Autonomous Science Needs Deterministic Rails</h1>
+      <h1 style="font-size: 1.5em;">Principles for Autonomous Scientific Workflows</h1>
 
-      <div class="cards cards-3" style="margin: 20px auto 14px auto;">
+      <div class="cards cards-3" style="margin: 18px auto 14px auto;">
         <div class="card" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); border-top-color: var(--deck-gold-bright);">
           <div class="card-eyebrow" style="color: var(--deck-gold-bright);">1. The Foundry Pattern</div>
           <div class="card-body" style="color: #f1f5f9; font-size: 0.42em;">
-            Keep source knowledge in typed Knowledge Bases. Cast frozen skills with explicit provenance. Never hand-maintain agent prompts.
+            Maintain source knowledge in typed Knowledge Bases. Cast frozen skills with explicit provenance records. Eliminate unconstrained prompts.
           </div>
         </div>
         <div class="card" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); border-top-color: var(--deck-gold-bright);">
-          <div class="card-eyebrow" style="color: var(--deck-gold-bright);">2. Live Grounding</div>
+          <div class="card-eyebrow" style="color: var(--deck-gold-bright);">2. Empirical Grounding</div>
           <div class="card-body" style="color: #f1f5f9; font-size: 0.42em;">
-            Query real registries via MCP. Use IDF token weighting. Automatically ask follow-up questions when inputs or organisms are ambiguous.
+            Query live registries via MCP. Apply IDF token weighting. Automatically request user clarification when input specifications conflict.
           </div>
         </div>
         <div class="card" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); border-top-color: var(--deck-gold-bright);">
-          <div class="card-eyebrow" style="color: var(--deck-gold-bright);">3. Closed-Loop Oracles</div>
+          <div class="card-eyebrow" style="color: var(--deck-gold-bright);">3. Deterministic Oracles</div>
           <div class="card-body" style="color: #f1f5f9; font-size: 0.42em;">
-            <code>gxwf validate</code> checks structure; <code>planemo test</code> in Docker checks execution. Errors trigger automated triage and repair loops.
+            <code>gxwf validate</code> checks static structure; <code>planemo test</code> executes containers. Automated feedback repairs statistical failures.
           </div>
         </div>
       </div>
 
-      <div style="font-size: 0.48em; color: #cbd5e1; margin-top: 16px;">
-        <strong>Next Steps:</strong> Extending to more BRC pathogens, CI BioContainers execution, and contributing verified workflows to IWC.<br>
-        <div style="margin-top: 6px; font-family: var(--r-code-font); font-size: 0.88em; color: #94a3b8;">
+      <div style="font-size: 0.46em; color: #cbd5e1; margin-top: 14px;">
+        <strong>Next Steps:</strong> Broadening BRC pathogen coverage, automated BioContainers testing in CI, and contributing verified workflows to IWC.<br>
+        <div style="margin-top: 8px; font-family: var(--r-code-font); font-size: 0.9em; color: #cbd5e1;">
+          Slide Credits: 
           Dave Rogers (<a href="https://github.com/NoopDog" target="_blank" style="color:#ffd700;">@NoopDog</a>) · 
           Marius van den Beek (<a href="https://github.com/mvdbeek" target="_blank" style="color:#ffd700;">@mvdbeek</a>) · 
           John Chilton (<a href="https://github.com/jmchilton" target="_blank" style="color:#ffd700;">@jmchilton</a>) · 
@@ -949,10 +899,8 @@
       </div>
 
       <aside class="notes">
-        <strong>[9:35 - 10:00] Wrap-up:</strong><br>
-        • To wrap up: we demonstrated that autonomous workflow generation is feasible today, provided you give the agent deterministic rails.<br>
-        • The Foundry pattern compiles typed knowledge into frozen skills; live MCP searches ground decisions in existing work; and execution oracles ensure that whatever emerges is real, reproducible science.<br>
-        • Thank you to the NIAID and BRC organizers, Argonne National Lab, and our team. We'd love to take your questions!
+        [9:35 - 10:00] Wrap-up:
+        Autonomous workflow generation succeeds when governed by deterministic rails. The Foundry Pattern compiles typed knowledge into frozen skills. Live MCP queries ground decisions in community registries. And execution oracles guarantee that outputs are reproducible science rather than plausible hallucinations. Slide credits: Dave Rogers, Marius van den Beek, John Chilton, and Dejian Zhao. Thank you. We welcome your questions.
       </aside>
     </section>
 
@@ -965,7 +913,6 @@
 <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/plugin/notes/notes.js"></script>
 
 <script>
-  // Initialize Reveal.js
   Reveal.initialize({
     hash: true,
     controls: true,
@@ -985,8 +932,8 @@
       mold: "interview-to-freeform-summary",
       inputs: "Conversational text file (researcher prompt or Biostars question)",
       outputs: "freeform-summary.md",
-      oracle: "Schema validation + entity extraction (identifies host, pathogen, assay, design)",
-      desc: "Filters out conversational noise, resolves abbreviations (e.g. 'PPR', 'DC'), and normalizes intent into structured prose with organism and sequencing metadata."
+      oracle: "Schema validation and entity extraction (identifies host, pathogen, assay, and experimental design)",
+      desc: "Filters out conversational noise, resolves abbreviations, and normalizes intent into structured prose with organism and sequencing metadata."
     },
     2: {
       title: "Phase 2: Interface Design Brief",
@@ -994,7 +941,7 @@
       inputs: "freeform-summary.md",
       outputs: "freeform-galaxy-interface.md + open-requirements.ledger.yml",
       oracle: "Interface schema validation (verifies collection types, formats, label consistency)",
-      desc: "Formally specifies input types (e.g. sample_sheet:paired vs list:paired) and workflow output labels. Initializes the carried requirements ledger."
+      desc: "Formally specifies input types (sample_sheet:paired vs list:paired) and workflow output labels. Initializes the carried requirements ledger."
     },
     3: {
       title: "Phase 3: Data-Flow Topology Brief",
@@ -1002,7 +949,7 @@
       inputs: "freeform-summary.md + freeform-galaxy-interface.md",
       outputs: "freeform-galaxy-data-flow.md",
       oracle: "DAG connectivity check (verifies map-over tiers vs. collective reduction tiers)",
-      desc: "Designs the abstract workflow graph: separates per-sample mapping (Salmon/Cutadapt) from collective reduction (DESeq2 count matrix assembly)."
+      desc: "Designs the workflow graph: separates per-sample mapping (Salmon/Cutadapt) from collective reduction (DESeq2 count matrix assembly)."
     },
     4: {
       title: "Phase 4: IWC Exemplar Grounding",
@@ -1026,14 +973,14 @@
       inputs: "galaxy-workflow-draft.gxwf.yml",
       outputs: "galaxy-workflow.gxwf.yml (concrete gxformat2 without TODOs)",
       oracle: "gxwf draft-next-step oracle (loops until 0 drafty steps remain)",
-      desc: "Drives an iterative loop (26 iterations in C. auris!). Resolves each step against Tool Shed changesets, caches tools, and validates tool_state parameters."
+      desc: "Drives an iterative loop (26 iterations in C. auris). Resolves each step against Tool Shed changesets, caches tools, and validates tool_state parameters."
     },
     7: {
       title: "Phase 7: Test Data Resolution",
       mold: "find-test-data / paper-to-test-data (Branch)",
       inputs: "freeform-summary.md + workflow interface",
       outputs: "test-data-refs.json + test-data/ directory",
-      oracle: "Uncompressed MD5 verification + FASTQ validation (minimizes read depth to 25k-200k)",
+      oracle: "Uncompressed MD5 verification and FASTQ validation (minimizes read depth to 25k-200k)",
       desc: "Resolves real biological test fixtures: paired FASTQs from ENA/SRA, reference transcriptomes/genomes, tx2gene tables, and sample sheets."
     },
     8: {
@@ -1066,7 +1013,7 @@
       inputs: "Workflow + tests + test-data/",
       outputs: "workflow-test-result.json + tool_test_output.json",
       oracle: "planemo test --biocontainers (Docker execution of all jobs)",
-      desc: "Executes the workflow against real containerized tools. Captures job scheduling, runtime stdout/stderr, and passes/fails every assertion."
+      desc: "Executes the workflow against real containerized tools. Captures job scheduling, runtime stdout/stderr, and evaluates all assertions."
     },
     12: {
       title: "Phase 12: Autonomous Debug & Triage",
@@ -1074,7 +1021,7 @@
       inputs: "Failing test logs + tool outputs",
       outputs: "workflow-debug-report.md",
       oracle: "Error classification taxonomy (distinguishes environment, statistical, and tool bugs)",
-      desc: "If execution fails, triages the root cause (e.g. DESeq2 degrees of freedom), recommends specific parameter or fixture fixes, and loops back."
+      desc: "When execution fails, triages the root cause (e.g. DESeq2 degrees of freedom), recommends specific parameter fixes, and loops back."
     }
   };
 
@@ -1109,7 +1056,7 @@
       decision: "USE",
       confidence: "0.50 (High Confidence)",
       matched: "sars-cov-2-pe-illumina-wgs-variant-calling (IWC Certified)",
-      mcpAction: "Live MCP query skipped: local catalog match exceeds 0.35 confidence threshold.",
+      mcpAction: "Live MCP query bypassed: local catalog match exceeds 0.35 confidence threshold.",
       followup: "None required. Exact match on organism, assay, and target variant caller."
     },
     2: {
@@ -1127,17 +1074,17 @@
       decision: "BUILD → MCP Match",
       confidence: "0.11 (Local Catalog Miss)",
       matched: "None in 20-entry pathogen catalog",
-      mcpAction: "galaxy-mcp queried live IWC registry via BM25 stdio transport. Found 3 matches! Top hit: 'RNA-Seq Differential Expression Analysis with Visualization' (Score: 18.37)",
+      mcpAction: "galaxy-mcp queried live IWC registry via BM25 stdio transport. Found 3 matches. Top hit: 'RNA-Seq Differential Expression Analysis with Visualization' (Score: 18.37)",
       followup: 'MCP surfaced published IWC workflow to user for review before generating any draft.'
     },
     4: {
       prompt: '"I am looking to make Hybrid assembly of a viral genome... paired-end reads from Illumina and long reads from MinION..."',
       tokens: "hybrid (3.2), minion (3.8), viral (3.6), assembly (2.1), illumina (1.2)",
-      decision: "MISROUTE CAUGHT",
+      decision: "MISROUTE INTERCEPTED",
       confidence: "0.38 (Naive Overlap False Positive)",
       matched: "bacterial-qc-contamination-post-assembly (WRONG ORGANISM)",
       mcpAction: "Automated safety gate fired: keyword overlap matched bacterial assembly QC.",
-      followup: '⚠️ Automatic Safety Net Fired: "[organism] Your request mentions viral genome, but top candidate assumes bacteria. Halting automated execution to ask researcher for clarification."'
+      followup: '⚠️ Automatic Safety Net Fired: "[organism] Your request specifies viral genome, but top candidate assumes bacteria. Halting execution to query researcher for clarification."'
     }
   };
 
@@ -1148,7 +1095,7 @@
     });
     const p = promptData[num];
     const el = document.getElementById('router-display');
-    const badgeColor = p.decision === 'USE' ? 'tag-green' : (p.decision === 'ADAPT' ? 'tag-gold' : (p.decision === 'MISROUTE CAUGHT' ? 'tag-red' : 'tag-blue'));
+    const badgeColor = p.decision === 'USE' ? 'tag-green' : (p.decision === 'ADAPT' ? 'tag-gold' : (p.decision === 'MISROUTE INTERCEPTED' ? 'tag-red' : 'tag-blue'));
     el.innerHTML = `
       <div style="font-style:italic; font-size:0.9em; margin-bottom:8px; color:#1e293b;">${p.prompt}</div>
       <div style="display:flex; justify-content:space-between; margin-bottom:6px; align-items:center;">
@@ -1170,35 +1117,34 @@
       title: "1. The DESeq2 Header Trap (Biological Destruction)",
       symptom: "DESeq2 produces two tabular files: deseq_out (no header) and normalized_counts (has header).",
       rootCause: "The certified IWC exemplar rnaseq-de applies header_lines: '1' to its downstream Filter1 steps. However, that workflow explicitly prepends a synthetic header beforehand via tp_text_file_with_recurring_lines → tp_cat. Copying header_lines: '1' without the prepender silently drops row 1.",
-      impact: "Row 1 of deseq_out is the most significantly dysregulated gene. In Santana et al. (Science 2023), row 1 is SCF1 itself! Naively copying the IWC pattern would have deleted the paper's headline discovery from the output!",
+      impact: "Row 1 of deseq_out is the most significantly dysregulated gene. In Santana et al. (Science 2023), row 1 is SCF1 itself. Naively copying the IWC pattern deletes the primary discovery of the paper from the final output table.",
       fix: "Documented the invariant, set header_lines: '0' across all Filter1 steps, and preserved the rationale in galaxy-workflow-draft.gxwf.yml."
     },
     2: {
       title: "2. Tool Shed Repo Requirement in gxformat2",
       symptom: "Planemo started Galaxy, attempted workflow invocation, and immediately returned HTTP 400: 'No tool shed repositories installed.'",
-      rootCause: "planemo/galaxy/workflows.py:349 load_shed_repos checks step.get('tool_shed_repository') and never parses the tool_id string. Our format2 steps had tool_id but omitted the repository dict. Planemo saw an empty repo list and silently did nothing.",
-      impact: "Zero tools were installed on the test Galaxy instance; invocation failed before running a single job.",
-      fix: "Annotated all 12 Shed tool steps with first-class tool_shed_repository blocks (name, owner, changeset_revision, tool_shed) resolved against the live Tool Shed metadata API."
+      rootCause: "planemo/galaxy/workflows.py:349 load_shed_repos checks step.get('tool_shed_repository') and never parses the tool_id string. Our format2 steps had tool_id but omitted the repository dict. Planemo saw an empty repo list and skipped tool installation.",
+      impact: "Zero tools were installed on the test Galaxy instance. Invocation failed before executing any jobs.",
+      fix: "Annotated all 12 Shed tool steps with explicit tool_shed_repository blocks (name, owner, changeset_revision, tool_shed) resolved against the live Tool Shed metadata API."
     },
     3: {
       title: "3. Conda Prefix Path Limits in Sandbox Environments",
       symptom: "Attempting to build conda environments for heavy tools (rgrnastar, deseq2) failed with DependencyException: Conda dependency failed to build job environment.",
-      rootCause: "Linux and macOS have a kernel-level 128-character limit on shebang lines (#!). In deep sandbox paths (e.g. macOS /private/var/folders/.../galaxy-dev/...), the conda environment path exceeded 128 chars, causing conda environment creation to fail.",
-      impact: "Workflow execution stalled despite 100% valid workflow syntax and complete test fixtures.",
-      fix: "Switched invocation to planemo test --biocontainers. Running jobs in Docker BioContainers completely bypasses local conda environment builds and delivers 100% reproducible execution."
+      rootCause: "Linux and macOS enforce a kernel-level 128-character limit on shebang lines (#!). In deep sandbox paths, the conda environment path exceeded 128 characters, causing environment initialization to abort.",
+      impact: "Workflow execution stalled despite valid syntax and complete test fixtures.",
+      fix: "Switched execution to planemo test --biocontainers. Running tools inside Docker BioContainers bypasses local filesystem conda prefix constraints entirely."
     },
     4: {
       title: "4. Galaxy XML <when> Conditional Ordering",
       symptom: "Selecting a dropdown option in the workflow YAML unexpectedly resolved to the wrong conditional parameter branch.",
-      rootCause: "In Galaxy tool XML, conditional case indices correspond to the physical declaration order of <when> tags in the XML file, NOT the alphabetical or UI dropdown display order in the tool form.",
+      rootCause: "In Galaxy tool XML, conditional case indices correspond to the physical declaration order of <when> tags in the XML file, not the alphabetical or UI dropdown display order.",
       impact: "Silent assignment of incorrect branch values in RNA STAR (GTFconditional) and DESeq2 (tximport_selector).",
-      fix: "Fixed tool state decoding in advance-galaxy-draft-step to resolve conditional branches against parsed XML AST declaration order."
+      fix: "Repaired tool state decoding in advance-galaxy-draft-step to resolve conditional branches against parsed XML AST declaration order."
     }
   };
 
   function selectTrap(num, event) {
     if (event) event.stopPropagation();
-    document.querySelectorAll('#trap-display').forEach(el => {});
     document.querySelectorAll('section:nth-of-type(8) button.interactive-btn').forEach((btn, idx) => {
       btn.classList.toggle('active', idx === num - 1);
     });
@@ -1263,7 +1209,6 @@
     `).join('');
   }
 
-  // Initialize interactive widgets on load
   window.addEventListener('DOMContentLoaded', () => {
     selectPhase(1);
     selectPrompt(1);
