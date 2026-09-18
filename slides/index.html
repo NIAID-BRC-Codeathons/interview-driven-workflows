@@ -329,22 +329,29 @@
       grid-template-columns: 3fr 2fr;
     }
 
-    /* Mini tags */
-    .tag {
-      display: inline-block;
+    /* Unified author pill */
+    .author-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       font-family: var(--r-code-font);
-      font-size: var(--fs-micro);
-      padding: 2px 6px;
-      border-radius: 4px;
-      background: #e2e8f0;
-      color: #334155;
-      margin-right: 4px;
-      margin-bottom: 4px;
+      font-size: 0.42em;
+      padding: 5px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.09);
+      color: #f8fafc;
+      transition: all 0.15s ease;
     }
-    .tag-blue { background: #dbeafe; color: #1e40af; }
-    .tag-gold { background: #fef9c3; color: #854d0e; }
-    .tag-green { background: #dcfce7; color: #166534; }
-    .tag-red { background: #fee2e2; color: #991b1b; }
+    .author-pill:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: var(--deck-gold-bright);
+    }
+    .author-pill a {
+      color: var(--deck-gold-bright) !important;
+      text-decoration: none;
+      font-weight: 600;
+    }
 
     /* Custom scrollable interactive containers */
     .interactive-display {
@@ -384,18 +391,18 @@
     <section class="galaxy-cover">
       <div class="eyebrow">NIAID-BRCs AI Codeathon 2.0 · September 16–18, 2026 · Argonne National Laboratory</div>
       <h1>Interview-Driven Workflow Construction &amp; Repair</h1>
-      <h3 style="font-weight: 500; font-size: 0.85em; color: #93c5fd !important; margin-bottom: 0.6em;">
-        Autonomous Galaxy Workflow Synthesis at the Research Edge
+      <h3 style="font-weight: 500; font-size: 0.82em; color: #93c5fd !important; margin-bottom: 0.5em;">
+        Autonomous Galaxy Workflow Synthesis for Emerging Pathogen Research
       </h3>
       <div class="lede" style="max-width: 34em;">
-        Converting unstructured research requests into verified, executable Galaxy workflows by reusing, adapting, or building from scratch.
+        Transforming conversational research requests into peer-reviewed, reproducible Galaxy workflows for viral outbreaks and antimicrobial-resistant pathogens.
       </div>
 
-      <div style="margin-top: 20px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
-        <span class="tag tag-blue" style="font-size: 0.42em; padding: 4px 10px;">Marius van den Beek (<a href="https://github.com/mvdbeek" target="_blank" style="color:inherit; text-decoration:none;">@mvdbeek</a>)</span>
-        <span class="tag tag-blue" style="font-size: 0.42em; padding: 4px 10px;">John Chilton (<a href="https://github.com/jmchilton" target="_blank" style="color:inherit; text-decoration:none;">@jmchilton</a>)</span>
-        <span class="tag tag-gold" style="font-size: 0.42em; padding: 4px 10px;">Dave Rogers (<a href="https://github.com/NoopDog" target="_blank" style="color:inherit; text-decoration:none;">@NoopDog</a>)</span>
-        <span class="tag tag-gold" style="font-size: 0.42em; padding: 4px 10px;">Dejian Zhao (<a href="https://github.com/dzhaobio" target="_blank" style="color:inherit; text-decoration:none;">@dzhaobio</a>)</span>
+      <div style="margin-top: 22px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+        <span class="author-pill">Marius van den Beek (<a href="https://github.com/mvdbeek" target="_blank">@mvdbeek</a>)</span>
+        <span class="author-pill">John Chilton (<a href="https://github.com/jmchilton" target="_blank">@jmchilton</a>)</span>
+        <span class="author-pill">Dave Rogers (<a href="https://github.com/NoopDog" target="_blank">@NoopDog</a>)</span>
+        <span class="author-pill">Dejian Zhao (<a href="https://github.com/dzhaobio" target="_blank">@dzhaobio</a>)</span>
       </div>
 
       <div style="margin-top: 22px; font-size: 0.4em; color: #94a3b8; font-family: var(--r-code-font);">
@@ -404,7 +411,7 @@
 
       <aside class="notes">
         [0:00 - 0:45] Opening:
-        Biologists describe analyses in plain English. Frontier language models hallucinate parameters, invent tool IDs, and fail runtime execution. Over three days at Argonne, our team built deterministic rails to eliminate those failures. We routed 150 real community requests, executed two complete biological case studies, and committed 30 fixes upstream to Galaxy and Foundry. Slide credits: Marius van den Beek, John Chilton, Dave Rogers, and Dejian Zhao.
+        In pathogen surveillance and infectious disease research, data arrives rapidly. When outbreaks occur, biologists describe analyses in plain language. Unconstrained language models hallucinate software versions and fail at runtime. Over three days at Argonne, our team built deterministic rails that convert intent into validated Galaxy workflows. We evaluated 150 real community requests, executed two pathogen case studies to verified completion, and committed 30 fixes upstream. Slide credits: Marius van den Beek, John Chilton, Dave Rogers, and Dejian Zhao.
       </aside>
     </section>
 
@@ -429,18 +436,18 @@
           </div>
 
           <div class="callout callout-warn" style="font-size: 0.52em; margin: 0;">
-            <strong>The Hallucination Failure:</strong> Unconstrained frontier language models generate plausible YAML that fails at runtime due to fabricated tool IDs, omitted required inputs, and broken collection wiring.
+            <strong>The Scientific Risk:</strong> In infectious disease research, an unverified workflow that runs but silently corrupts statistical outputs is dangerous. Pipelines require mechanical verification.
           </div>
         </div>
 
         <div>
           <div class="card" style="border-top-color: var(--deck-error); margin-bottom: 10px;">
-            <div class="card-eyebrow" style="color: var(--deck-error);">Concrete Failure Modes in Production</div>
+            <div class="card-eyebrow" style="color: var(--deck-error);">Why Unconstrained Generation Fails</div>
             <ul style="font-size: 0.42em; line-height: 1.45; margin: 6px 0 0 16px; padding: 0; color: #334155;">
-              <li><strong>Tool Shed Identifier Drift:</strong> Models cannot derive exact wrapper versions or changeset hashes from pretraining weights.</li>
-              <li><strong>Broken Collection Algebra:</strong> Conflating individual datasets with paired collections (<code>list:paired</code>) aborts runtime scheduling.</li>
-              <li><strong>Silent Statistical Errors:</strong> Setting invalid degrees of freedom or naive header stripping discards true biological signal.</li>
-              <li><strong>Zero Execution Feedback:</strong> Without external compilers and test runners, errors remain undetected.</li>
+              <li><strong>Tool Version Drift:</strong> Models cannot derive exact software versions (Salmon 1.10.1, DESeq2 2.11.40) or dependency hashes from pretraining memory.</li>
+              <li><strong>Broken Collection Wiring:</strong> Conflating individual files with paired-end sample cohorts (<code>list:paired</code>) aborts automated batch execution.</li>
+              <li><strong>Silent Statistical Hazards:</strong> Setting invalid design formulas or blindly stripping headers discards significant differential expression results.</li>
+              <li><strong>Zero Execution Feedback:</strong> Unvalidated scripts fail silently or crash without actionable diagnostics.</li>
             </ul>
           </div>
 
@@ -455,7 +462,7 @@
 
       <aside class="notes">
         [0:45 - 1:40] Talking Points:
-        Biologists communicate in intent, not workflow schemas. When frontier models generate workflow files without constraints, they fail. They hallucinate Tool Shed changesets. They break collection algebra by feeding lists into single-file ports. They set contradictory statistical parameters. A workflow that looks plausible but silently drops the top candidate gene is catastrophic. We replaced unconstrained generation with deterministic compilation.
+        Biologists communicate in experimental intent, not workflow schemas. When frontier models generate pipeline code without constraints, they fail. They hallucinate software versions. They break collection algebra by feeding lists into single-file ports. They set contradictory statistical parameters. A workflow that looks plausible but silently drops the top candidate gene is catastrophic. We replaced unconstrained generation with deterministic compilation.
       </aside>
     </section>
 
@@ -885,15 +892,14 @@
       </div>
 
       <div style="font-size: 0.46em; color: #cbd5e1; margin-top: 14px;">
-        <strong>Next Steps:</strong> Broadening BRC pathogen coverage, automated BioContainers testing in CI, and contributing verified workflows to IWC.<br>
-        <div style="margin-top: 8px; font-family: var(--r-code-font); font-size: 0.9em; color: #cbd5e1;">
-          Slide Credits: 
-          Dave Rogers (<a href="https://github.com/NoopDog" target="_blank" style="color:#ffd700;">@NoopDog</a>) · 
-          Marius van den Beek (<a href="https://github.com/mvdbeek" target="_blank" style="color:#ffd700;">@mvdbeek</a>) · 
-          John Chilton (<a href="https://github.com/jmchilton" target="_blank" style="color:#ffd700;">@jmchilton</a>) · 
-          Dejian Zhao (<a href="https://github.com/dzhaobio" target="_blank" style="color:#ffd700;">@dzhaobio</a>)
+        <strong>Next Steps:</strong> Broadening BRC pathogen coverage, automated BioContainers testing in CI, and contributing verified workflows to the Intergalactic Workflow Commission (IWC).<br>
+        <div style="margin-top: 10px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+          <span class="author-pill">Marius van den Beek (<a href="https://github.com/mvdbeek" target="_blank">@mvdbeek</a>)</span>
+          <span class="author-pill">John Chilton (<a href="https://github.com/jmchilton" target="_blank">@jmchilton</a>)</span>
+          <span class="author-pill">Dave Rogers (<a href="https://github.com/NoopDog" target="_blank">@NoopDog</a>)</span>
+          <span class="author-pill">Dejian Zhao (<a href="https://github.com/dzhaobio" target="_blank">@dzhaobio</a>)</span>
         </div>
-        <span style="color: var(--deck-gold-bright); font-weight: 700; margin-top: 8px; display: inline-block;">
+        <span style="color: var(--deck-gold-bright); font-weight: 700; margin-top: 10px; display: inline-block;">
           Thank you! Questions?
         </span>
       </div>
