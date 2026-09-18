@@ -610,9 +610,18 @@
         <button class="interactive-btn" onclick="selectPhase(12, event)">P12: Debug &amp; Triage.</button>
       </div>
 
-      <!-- Phase Details Display Box -->
+      <!-- Phase Details Display Box (Pre-rendered default) -->
       <div id="phase-card" class="interactive-display">
-        <!-- Injected via JS -->
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #cbd5e1; padding-bottom:6px; margin-bottom:8px;">
+          <span style="font-weight:800; color:var(--deck-navy); font-size:1.1em;">Phase 1: Interview Normalization</span>
+          <span class="tag tag-blue">interview-to-freeform-summary</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:8px;">
+          <div><strong>Inputs:</strong> <code style="font-size:0.85em;">Conversational text file (researcher prompt or Biostars question)</code></div>
+          <div><strong>Outputs:</strong> <code style="font-size:0.85em;">freeform-summary.md</code></div>
+        </div>
+        <div style="margin-bottom:6px;"><strong>Oracle / Gate:</strong> <span style="color:#b45309; font-weight:600;">Schema validation and entity extraction (identifies host, pathogen, assay, and experimental design)</span></div>
+        <div style="color:#475569; font-size:0.95em;">Filters out conversational noise, resolves abbreviations, and normalizes intent into structured prose with organism and sequencing metadata.</div>
       </div>
 
       <aside class="notes">
@@ -628,43 +637,50 @@
       <div class="eyebrow">Case Study 1 · INTERVIEW → GALAXY Pipeline Pass <span class="timing-pill">4:40 - 5:50</span></div>
       <h2 class="accent-heading">Ebola Virus Host RNA-seq: Verified Execution</h2>
 
-      <div class="stat-grid" style="margin: 8px 0;">
-        <div class="stat-box" style="padding: 6px 4px;">
+      <div class="stat-grid" style="margin: 6px 0;">
+        <div class="stat-box" style="padding: 5px 4px;">
           <div class="stat-num green">12 / 12</div>
           <div class="stat-label">Phases Completed</div>
         </div>
-        <div class="stat-box" style="padding: 6px 4px;">
+        <div class="stat-box" style="padding: 5px 4px;">
           <div class="stat-num">100%</div>
           <div class="stat-label">Planemo Pass Rate</div>
         </div>
-        <div class="stat-box" style="padding: 6px 4px;">
+        <div class="stat-box" style="padding: 5px 4px;">
           <div class="stat-num gold">5 / 5</div>
           <div class="stat-label">Jobs Green in Docker</div>
         </div>
-        <div class="stat-box" style="padding: 6px 4px;">
+        <div class="stat-box" style="padding: 5px 4px;">
           <div class="stat-num">0 Manual</div>
-          <div class="stat-label">Human Interventions</div>
+          <div class="stat-label">Interventions</div>
         </div>
       </div>
 
       <div class="split" style="gap: 14px;">
         <div>
-          <div class="card" style="padding: 10px 12px; margin-bottom: 8px;">
-            <div class="card-eyebrow">Experimental Setup</div>
-            <div class="card-body" style="font-size: 0.40em; line-height: 1.35;">
-              <strong>Biology:</strong> Human lung cells (A549 WT vs. PTPN13-KO) infected with Ebola virus vs. Mock (24h/48h).<br>
-              <strong>Inputs:</strong> Paired-end Illumina sequencing in a <code>list:paired</code> collection.<br>
-              <strong>Pipeline:</strong> Salmon quantification (map-over) feeding DESeq2 contrast (reduction).
+          <div class="card card-gold" style="padding: 8px 12px; margin-bottom: 6px;">
+            <div class="card-eyebrow" style="color:var(--deck-gold-ink);">Original Intake Prompt</div>
+            <div class="card-body" style="font-size: 0.38em; font-style: italic; color: #1e293b; line-height: 1.35;">
+              "I have Illumina paired-end RNA-seq of A549 lung cells infected with Ebola virus vs mock infection across 24 and 48 hours. I need transcript quantification with Salmon and differential expression with DESeq2."
             </div>
           </div>
 
-          <div class="callout callout-navy" style="font-size: 0.39em; line-height: 1.35; padding: 8px 12px; margin: 0;">
-            <strong>Autonomous Repair:</strong> A 2-sample test failed DESeq2 dispersion fitting. The triage Mold diagnosed the degrees-of-freedom deficit from stderr, generated a 4-sample fixture, and re-executed to a green pass.
+          <div class="card" style="padding: 8px 12px; margin-bottom: 6px;">
+            <div class="card-eyebrow">Resolved Selections &amp; Toolchain</div>
+            <div class="card-body" style="font-size: 0.37em; line-height: 1.35;">
+              • <strong>Inputs:</strong> <code>reads_paired_collection</code> (<code>list:paired</code>) + human GENCODE transcriptome + <code>tx2gene.tabular</code>.<br>
+              • <strong>Design Matrix:</strong> 2×2×2 factorial matrix (WT/KO, Mock/Ebola, 24h/48h) in <code>sample_metadata.tabular</code>.<br>
+              • <strong>Tool Pins:</strong> Salmon <code>1.10.1+galaxy5</code> (<code>29e12b90949d</code>) → DESeq2 <code>2.11.40.8+galaxy3</code> (<code>b060944b3989</code>).
+            </div>
+          </div>
+
+          <div class="callout callout-navy" style="font-size: 0.37em; line-height: 1.35; padding: 6px 12px; margin: 0;">
+            <strong>Autonomous Triage:</strong> An initial 2-sample test failed DESeq2 dispersion fitting. The triage Mold diagnosed the degrees-of-freedom deficit from stderr, generated a 4-sample fixture, set primary contrast to <code>~ Condition</code>, and re-executed to a green pass.
           </div>
         </div>
 
         <div>
-          <div style="background: var(--deck-dark); color: #e2e8f0; border-radius: 6px; padding: 10px 14px; font-family: var(--r-code-font); font-size: 0.38em; line-height: 1.4; text-align: left; box-shadow: 0 4px 12px rgba(0,0,0,0.12);">
+          <div style="background: var(--deck-dark); color: #e2e8f0; border-radius: 6px; padding: 10px 14px; font-family: var(--r-code-font); font-size: 0.37em; line-height: 1.4; text-align: left; box-shadow: 0 4px 12px rgba(0,0,0,0.12);">
             <div style="color:#94a3b8;"># Planemo Execution Summary: ebola-rnaseq</div>
             <div><span style="color:#38bdf8;">$</span> planemo test --biocontainers galaxy-workflow.gxwf.yml</div>
             <div>[galaxy.workflow.scheduling] Scheduling 6 workflow steps...</div>
@@ -686,7 +702,7 @@
 
       <aside class="notes">
         [4:35 - 5:50] Talking Points:
-        In the Ebola case study, the pipeline completed all 12 phases to a 100% passing execution. The workflow runs paired-end Salmon quantification mapped across samples, followed by a DESeq2 reduction. On the first run, DESeq2 crashed: two toy samples could not estimate dispersion for a multi-factor model. The triage Mold parsed stderr, identified the degrees-of-freedom deficit, expanded the test data to four samples, and re-executed. All five jobs passed green in Docker.
+        In the Ebola case study, the user provided a short conversational prompt. The pipeline normalized the intent and settled the experimental matrix. The workflow runs paired-end Salmon quantification mapped across samples, followed by a DESeq2 reduction. On the first run, DESeq2 crashed due to insufficient degrees of freedom. The triage Mold diagnosed the deficit, expanded the test cohort to four samples, and re-executed. All five jobs passed green in Docker.
       </aside>
     </section>
 
@@ -697,39 +713,47 @@
       <div class="eyebrow">Case Study 2 · PAPER → GALAXY Pipeline Pass <span class="timing-pill">5:50 - 7:00</span></div>
       <h2 class="accent-heading"><em>Candida auris</em>: 26-Step Autonomous Loop &amp; Biological Validation</h2>
 
-      <div class="stat-grid">
-        <div class="stat-box">
+      <div class="stat-grid" style="margin: 6px 0;">
+        <div class="stat-box" style="padding: 5px 4px;">
           <div class="stat-num gold">26</div>
           <div class="stat-label">Loop Iterations</div>
         </div>
-        <div class="stat-box">
+        <div class="stat-box" style="padding: 5px 4px;">
           <div class="stat-num">27</div>
           <div class="stat-label">Concrete Steps</div>
         </div>
-        <div class="stat-box">
+        <div class="stat-box" style="padding: 5px 4px;">
           <div class="stat-num green">172</div>
           <div class="stat-label">Test Assertions</div>
         </div>
-        <div class="stat-box">
+        <div class="stat-box" style="padding: 5px 4px;">
           <div class="stat-num">44 → 0</div>
-          <div class="stat-label">TODO Sentinels Retired</div>
+          <div class="stat-label">TODO Sentinels Cleared</div>
         </div>
       </div>
 
-      <div class="split split-3-2">
+      <div class="split split-3-2" style="gap: 14px;">
         <div>
-          <div class="card">
-            <div class="card-eyebrow">Target: Santana et al. 2023 (<em>Science</em>, PMID 37769084)</div>
-            <div class="card-body" style="font-size: 0.41em; line-height: 1.35;">
-              <strong>Scientific Objective:</strong> Identify dysregulated transcripts in low-adhesion <em>C. auris</em> mutants to recover the <em>SCF1</em> adhesin.<br>
-              <strong>Data Extraction:</strong> Main text contained no computational methods. The summarizer extracted a 60-page JATS XML supplement from PubMed Central.<br>
-              <strong>Sequencing Data:</strong> 6 ENA paired-end FASTQ runs (PRJNA904261), subset to 200,000 read pairs with verified uncompressed MD5 checksums.
+          <div class="card card-gold" style="padding: 8px 12px; margin-bottom: 6px;">
+            <div class="card-eyebrow" style="color:var(--deck-gold-ink);">Source Literature &amp; Protocol Discovery</div>
+            <div class="card-body" style="font-size: 0.38em; line-height: 1.35;">
+              <strong>Source:</strong> Santana et al. 2023 (<em>Science</em>, PMID 37769084). Main text omitted computational methods.<br>
+              <strong>Extracted Input:</strong> PMC JATS XML full text + 60-page PDF supplement (NIHMS2004453).
             </div>
           </div>
 
-          <div class="card card-success" style="margin-top: 8px;">
+          <div class="card" style="padding: 8px 12px; margin-bottom: 6px;">
+            <div class="card-eyebrow">Pipeline Selection &amp; Toolchain Pins</div>
+            <div class="card-body" style="font-size: 0.37em; line-height: 1.35;">
+              • <strong>Scope Choice:</strong> Selected Pipeline A (clinical RNA-seq) over Pipeline B (T-DNA insertion mapping).<br>
+              • <strong>Sequencing:</strong> BioProject PRJNA904261 (NextSeq 2000 2×50bp, stranded total RNA Ribo-Zero Plus).<br>
+              • <strong>Tool Pins:</strong> FastQC → Cutadapt (Phred 20) → RNA STAR → featureCounts (<code>-s 2</code>) → DESeq2 (2 contrasts against AR0382, no shrinkage).
+            </div>
+          </div>
+
+          <div class="card card-success" style="padding: 8px 12px;">
             <div class="card-eyebrow">Static Validation Oracle: 100% Green</div>
-            <div class="card-body" style="font-size: 0.4em;">
+            <div class="card-body" style="font-size: 0.38em; line-height: 1.35;">
               <code>gxwf validate</code>: <strong>20 validated / 7 skipped / 0 failed</strong>.<br>
               <code>gxwf validate-tests</code>: 172 assertions passed with zero structural errors.
             </div>
@@ -737,9 +761,9 @@
         </div>
 
         <div>
-          <div class="card card-gold">
-            <div class="card-eyebrow">Empirical Ground Truth Cross-Check</div>
-            <div class="card-body" style="font-size: 0.39em; line-height: 1.3;">
+          <div class="card card-gold" style="padding: 8px 12px;">
+            <div class="card-eyebrow">Biological Ground Truth Cross-Check</div>
+            <div class="card-body" style="font-size: 0.37em; line-height: 1.3;">
               Independent statistical testing verified that the subsetted fixture preserves the primary biological finding:
               <table style="width: 100%; margin-top: 6px; font-size: 0.9em;">
                 <tr style="border-bottom: 1px solid #cbd5e1;"><th>Contrast</th><th>log2FC</th><th>padj</th></tr>
@@ -750,7 +774,7 @@
             </div>
           </div>
           <div style="text-align: right; margin-top: 6px;">
-            <a href="../case_studies/auris-scf1-rnaseq/dashboard.html" target="_blank" class="ref-link" style="font-size: 0.42em; font-family: var(--r-code-font);">
+            <a href="../case_studies/auris-scf1-rnaseq/dashboard.html" target="_blank" class="ref-link" style="font-size: 0.40em; font-family: var(--r-code-font);">
               Open Candida auris Run Dashboard ↗
             </a>
           </div>
@@ -759,7 +783,7 @@
 
       <aside class="notes">
         [5:50 - 7:00] Talking Points:
-        Our second case study targeted Candida auris from a 2023 Science paper. The paper omitted computational methods from the main text; the pipeline parsed the 60-page XML supplement. Phase 6 executed 26 autonomous loop iterations, resolving 27 concrete steps and retiring all 44 TODO sentinels. Static validation confirmed 172 test assertions. An independent statistical check verified that our test fixture recovers the exact biological signal: SCF1 down-regulation at p = 2.1e-31.
+        Our second case study targeted Candida auris from a 2023 Science paper. The paper omitted computational methods from the main text; the pipeline parsed the 60-page XML supplement. We selected Pipeline A for clinical RNA-seq. Phase 6 executed 26 autonomous loop iterations, resolving 27 concrete steps and retiring all 44 TODO sentinels. Static validation confirmed 172 test assertions. An independent statistical check verified that our test fixture recovers the exact biological signal: SCF1 down-regulation at p = 2.1e-31.
       </aside>
     </section>
 
@@ -773,7 +797,7 @@
         Click each discovery below to inspect how unverified generation fails in practice:
       </div>
 
-      <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 12px;">
+      <div id="trap-buttons" style="display: flex; gap: 8px; justify-content: center; margin-bottom: 12px;">
         <button class="interactive-btn active gold-btn" onclick="selectTrap(1, event)">1. DESeq2 Header Trap</button>
         <button class="interactive-btn" onclick="selectTrap(2, event)">2. Shed Repo Pinning</button>
         <button class="interactive-btn" onclick="selectTrap(3, event)">3. Conda Prefix Limit</button>
@@ -781,12 +805,18 @@
       </div>
 
       <div id="trap-display" class="interactive-display" style="min-height: 220px;">
-        <!-- Injected via JS -->
+        <div style="font-weight:800; font-size:1.05em; color:var(--deck-navy); margin-bottom:6px;">1. The DESeq2 Header Trap (Biological Destruction)</div>
+        <div style="margin-bottom:6px;"><strong style="color:var(--deck-error);">Symptom:</strong> <span style="font-size:0.9em; color:#334155;">DESeq2 produces two tabular files: deseq_out (no header) and normalized_counts (has header).</span></div>
+        <div style="margin-bottom:6px;"><strong style="color:#b45309;">Root Cause:</strong> <span style="font-size:0.9em; color:#334155;">The certified IWC exemplar rnaseq-de applies header_lines: '1' to its downstream Filter1 steps. However, that workflow explicitly prepends a synthetic header beforehand via tp_text_file_with_recurring_lines → tp_cat. Copying header_lines: '1' without the prepender silently drops row 1.</span></div>
+        <div style="margin-bottom:6px;"><strong style="color:#be123c;">Scientific Impact:</strong> <span style="font-size:0.9em; color:#334155; font-weight:600;">Row 1 of deseq_out is the most significantly dysregulated gene. In Santana et al. (Science 2023), row 1 is SCF1 itself. Naively copying the IWC pattern deletes the primary discovery of the paper from the final output table.</span></div>
+        <div style="background:#dcfce7; padding:6px 10px; border-radius:4px; color:#166534; font-size:0.9em;">
+          <strong>The Fix:</strong> Documented the invariant, set header_lines: '0' across all Filter1 steps, and preserved the rationale in galaxy-workflow-draft.gxwf.yml.
+        </div>
       </div>
 
       <aside class="notes">
         [7:00 - 8:00] Talking Points:
-        Real execution exposes traps that static models cannot detect. First: DESeq2 outputs have asymmetric headers. The IWC workflow prepends a synthetic header and then skips it with header_lines: 1. If you copy that rule naively, you delete row 1. In this paper, row 1 is SCF1—the primary discovery of the study. Second: Planemo ignores tool IDs unless explicit tool_shed_repository blocks are defined in the YAML. Third: deep sandbox paths break conda's 128-character shebang limit, necessitating Docker BioContainers.
+        Real execution uncovers errors that static models miss. First: DESeq2 outputs have asymmetric headers. The IWC workflow prepends a synthetic header and then skips it with header_lines: 1. If you copy that rule naively, you delete row 1. In this paper, row 1 is SCF1—the primary discovery of the study. Second: Planemo ignores tool IDs unless explicit tool_shed_repository blocks are defined in the YAML. Third: deep sandbox paths break conda's 128-character shebang limit, necessitating Docker BioContainers.
       </aside>
     </section>
 
@@ -800,7 +830,7 @@
         Over 30 upstream commits across 4 repositories from Wednesday to Friday:
       </div>
 
-      <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 8px;">
+      <div id="commit-buttons" style="display: flex; gap: 8px; justify-content: center; margin-bottom: 8px;">
         <button class="interactive-btn active" onclick="filterCommits('all', event)">All Repositories (30+)</button>
         <button class="interactive-btn" onclick="filterCommits('galaxy', event)">Galaxy Core</button>
         <button class="interactive-btn" onclick="filterCommits('foundry', event)">Galaxy Foundry</button>
@@ -808,7 +838,61 @@
       </div>
 
       <div id="commits-container" class="interactive-display" style="height: 230px; overflow-y: auto; font-family: var(--r-code-font); font-size: 0.38em;">
-        <!-- Injected via JS -->
+        <div style="padding:4px 0; border-bottom:1px solid #e2e8f0; display:flex; gap:8px; align-items:center;">
+          <span class="tag tag-gold">foundry</span>
+          <code style="color:var(--deck-navy); font-weight:700;">7c0c715d</code>
+          <span style="color:#1e293b; flex:1;">Add conversion-run dashboard and the run record it reads (6,900+ LOC TS)</span>
+        </div>
+        <div style="padding:4px 0; border-bottom:1px solid #e2e8f0; display:flex; gap:8px; align-items:center;">
+          <span class="tag tag-gold">foundry</span>
+          <code style="color:var(--deck-navy); font-weight:700;">5aac370f</code>
+          <span style="color:#1e293b; flex:1;">Merge pull request #565: Introduce experimental Workflow Brief contract</span>
+        </div>
+        <div style="padding:4px 0; border-bottom:1px solid #e2e8f0; display:flex; gap:8px; align-items:center;">
+          <span class="tag tag-gold">foundry</span>
+          <code style="color:var(--deck-navy); font-weight:700;">157510fe</code>
+          <span style="color:#1e293b; flex:1;">Merge pull request #555: Reuse an already-pinned wrapper within same draft</span>
+        </div>
+        <div style="padding:4px 0; border-bottom:1px solid #e2e8f0; display:flex; gap:8px; align-items:center;">
+          <span class="tag tag-gold">foundry</span>
+          <code style="color:var(--deck-navy); font-weight:700;">7d704248</code>
+          <span style="color:#1e293b; flex:1;">Merge pull request #557: Declare galaxy-tool-cache in advance-draft-step</span>
+        </div>
+        <div style="padding:4px 0; border-bottom:1px solid #e2e8f0; display:flex; gap:8px; align-items:center;">
+          <span class="tag tag-gold">foundry</span>
+          <code style="color:var(--deck-navy); font-weight:700;">12f246ac</code>
+          <span style="color:#1e293b; flex:1;">Enforce strict tool-state validation in draft loop</span>
+        </div>
+        <div style="padding:4px 0; border-bottom:1px solid #e2e8f0; display:flex; gap:8px; align-items:center;">
+          <span class="tag tag-blue">galaxy</span>
+          <code style="color:var(--deck-navy); font-weight:700;">50c5420f</code>
+          <span style="color:#1e293b; flex:1;">Add MCP discovery: setup page, welcome card, and permanent links (#23507)</span>
+        </div>
+        <div style="padding:4px 0; border-bottom:1px solid #e2e8f0; display:flex; gap:8px; align-items:center;">
+          <span class="tag tag-blue">galaxy</span>
+          <code style="color:var(--deck-navy); font-weight:700;">f2d6d400</code>
+          <span style="color:#1e293b; flex:1;">Fix Tool Shed searches repeating the last page (#23482)</span>
+        </div>
+        <div style="padding:4px 0; border-bottom:1px solid #e2e8f0; display:flex; gap:8px; align-items:center;">
+          <span class="tag tag-blue">galaxy</span>
+          <code style="color:var(--deck-navy); font-weight:700;">731d4e2e</code>
+          <span style="color:#1e293b; flex:1;">Require subworkflow completion before completing its parent</span>
+        </div>
+        <div style="padding:4px 0; border-bottom:1px solid #e2e8f0; display:flex; gap:8px; align-items:center;">
+          <span class="tag tag-blue">galaxy</span>
+          <code style="color:var(--deck-navy); font-weight:700;">5929be86</code>
+          <span style="color:#1e293b; flex:1;">Add depot resolver for prebuilt Singularity images</span>
+        </div>
+        <div style="padding:4px 0; border-bottom:1px solid #e2e8f0; display:flex; gap:8px; align-items:center;">
+          <span class="tag tag-blue">galaxy</span>
+          <code style="color:var(--deck-navy); font-weight:700;">700e0146</code>
+          <span style="color:#1e293b; flex:1;">Require top-level container field for user-defined tools (UDT)</span>
+        </div>
+        <div style="padding:4px 0; border-bottom:1px solid #e2e8f0; display:flex; gap:8px; align-items:center;">
+          <span class="tag tag-green">tools</span>
+          <code style="color:var(--deck-navy); font-weight:700;">7f2ece95</code>
+          <span style="color:#1e293b; flex:1;">galaxy-tool-util-ts: compact ToolFetchError on ParsedTool decode failure</span>
+        </div>
       </div>
 
       <aside class="notes">
@@ -822,7 +906,7 @@
     <!-- ================================================================= -->
     <section>
       <div class="eyebrow">Deliverables &amp; Tooling <span class="timing-pill">8:55 - 9:35</span></div>
-      <h2 class="accent-heading">Deterministic Run Dashboards &amp; Live Deployment</h2>
+      <h2 class="accent-heading">Deterministic Run Dashboards &amp; Live Publication</h2>
 
       <div class="split split-3-2">
         <div>
@@ -839,7 +923,7 @@
           </div>
 
           <div class="callout callout-navy" style="font-size: 0.45em; margin-top: 10px;">
-            <strong>Live Deployment:</strong> Both case study dashboards, Talk to Galaxy documentation, and complete artifact bundles are published at:<br>
+            <strong>Live Publication:</strong> Both case study dashboards, documentation, and complete artifact bundles are published at:<br>
             <a href="https://niaid-brc-codeathons.github.io/interview-driven-workflows/" target="_blank" style="color: var(--deck-navy); font-weight: 700; word-break: break-all;">
               https://niaid-brc-codeathons.github.io/interview-driven-workflows/
             </a>
@@ -871,7 +955,7 @@
 
       <aside class="notes">
         [8:55 - 9:35] Talking Points:
-        To eliminate prose-based progress reports, foundry-build run-dashboard was engineered: a 6,900-line TypeScript tool that parses run manifests and outputs self-contained HTML dashboards. The dashboard visualizes phase status, artifact lineage, and Planemo execution logs with zero external network dependencies. Both case studies and all generated artifacts are deployed live on GitHub Pages.
+        To eliminate prose-based progress reports, foundry-build run-dashboard was engineered: a 6,900-line TypeScript tool that parses run manifests and outputs self-contained HTML dashboards. The dashboard visualizes phase status, artifact lineage, and Planemo execution logs with zero external network dependencies. Both case studies and all generated artifacts are published live on GitHub Pages.
       </aside>
     </section>
 
@@ -1104,12 +1188,12 @@
 
   function selectTrap(num, event) {
     if (event) event.stopPropagation();
-    document.querySelectorAll('section:nth-of-type(8) button.interactive-btn').forEach((btn, idx) => {
+    document.querySelectorAll('#trap-buttons .interactive-btn').forEach((btn, idx) => {
       btn.classList.toggle('active', idx === num - 1);
     });
     const t = trapData[num];
     const el = document.getElementById('trap-display');
-    if (!el) return;
+    if (!el || !t) return;
     el.innerHTML = `
       <div style="font-weight:800; font-size:1.05em; color:var(--deck-navy); margin-bottom:6px;">${t.title}</div>
       <div style="margin-bottom:6px;"><strong style="color:var(--deck-error);">Symptom:</strong> <span style="font-size:0.9em; color:#334155;">${t.symptom}</span></div>
@@ -1125,36 +1209,36 @@
   // Interactive Component 3: Filterable Upstream Commits (Slide 9)
   // --------------------------------------------------------------------------
   const commitList = [
-    { repo: "foundry", hash: "7c0c715d", author: "mvdbeek", desc: "Add conversion-run dashboard and the run record it reads (6,900+ LOC TS)" },
-    { repo: "foundry", hash: "5aac370f", author: "jmchilton", desc: "Merge pull request #565: Introduce experimental Workflow Brief contract" },
-    { repo: "foundry", hash: "20551339", author: "jmchilton", desc: "Define Workflow Brief as Markdown with section validation" },
-    { repo: "foundry", hash: "157510fe", author: "jmchilton", desc: "Merge pull request #555: Reuse an already-pinned wrapper within same draft" },
-    { repo: "foundry", hash: "38aa28c1", author: "mvdbeek", desc: "Reuse an already-pinned wrapper within same draft (advance-step Mold)" },
-    { repo: "foundry", hash: "7d704248", author: "jmchilton", desc: "Merge pull request #557: Declare galaxy-tool-cache in advance-draft-step" },
-    { repo: "foundry", hash: "12f246ac", author: "mvdbeek", desc: "Enforce strict tool-state validation in draft loop" },
-    { repo: "foundry", hash: "89106ffe", author: "mvdbeek", desc: "Make tool cache population explicit in advance-galaxy-draft-step" },
-    { repo: "foundry", hash: "3bb0020e", author: "jmchilton", desc: "Merge pull request #560: Add credential-free nf-core lab staging" },
-    { repo: "foundry", hash: "4689f4e8", author: "jmchilton", desc: "Add deterministic nf-core tool lab preparation package" },
-    { repo: "foundry", hash: "b74e8786", author: "jmchilton", desc: "Hand off and verify conversion cast bundle hashes" },
-    { repo: "foundry", hash: "07febc7b", author: "mvdbeek", desc: "Refine advance-galaxy-draft-step: parallel frontier and resolve prefetch" },
-    { repo: "galaxy", hash: "50c5420f", author: "mvdbeek", desc: "Add MCP discovery: setup page, welcome card, and permanent links (#23507)" },
-    { repo: "galaxy", hash: "c25201ec", author: "mvdbeek", desc: "Expose MCP server availability and endpoint in configuration API" },
-    { repo: "galaxy", hash: "f2d6d400", author: "mvdbeek", desc: "Fix Tool Shed searches repeating the last page (#23482)" },
-    { repo: "galaxy", hash: "731d4e2e", author: "mvdbeek", desc: "Require subworkflow completion before completing its parent" },
-    { repo: "galaxy", hash: "5929be86", author: "mvdbeek", desc: "Add depot resolver for prebuilt Singularity images" },
-    { repo: "galaxy", hash: "700e0146", author: "mvdbeek", desc: "Require top-level container field for user-defined tools (UDT)" },
-    { repo: "galaxy", hash: "2a9fbe25", author: "mvdbeek", desc: "Correct resource and unknown-key guidance in UDT authoring reference" },
-    { repo: "galaxy", hash: "7a585cc1", author: "mvdbeek", desc: "Use bundle index for chained data-manager metadata" },
-    { repo: "galaxy", hash: "f6f2fc43", author: "mvdbeek", desc: "Fix SVG dataset previews with sandboxed image responses" },
-    { repo: "galaxy", hash: "9ba67b81", author: "jmchilton", desc: "Merge pull request #23580: embedded subworkflow update options" },
-    { repo: "galaxy", hash: "874e8a62", author: "jmchilton", desc: "Playwright column definition: send enter handling (#23567)" },
-    { repo: "galaxy", hash: "834ccbd7", author: "jmchilton", desc: "Merge pull request #23559: manager app job services refactoring" },
-    { repo: "tools", hash: "7f2ece95", author: "mvdbeek", desc: "galaxy-tool-util-ts: compact ToolFetchError on ParsedTool decode failure" }
+    { repo: "foundry", hash: "7c0c715d", desc: "Add conversion-run dashboard and the run record it reads (6,900+ LOC TS)" },
+    { repo: "foundry", hash: "5aac370f", desc: "Merge pull request #565: Introduce experimental Workflow Brief contract" },
+    { repo: "foundry", hash: "20551339", desc: "Define Workflow Brief as Markdown with section validation" },
+    { repo: "foundry", hash: "157510fe", desc: "Merge pull request #555: Reuse an already-pinned wrapper within same draft" },
+    { repo: "foundry", hash: "38aa28c1", desc: "Reuse an already-pinned wrapper within same draft (advance-step Mold)" },
+    { repo: "foundry", hash: "7d704248", desc: "Merge pull request #557: Declare galaxy-tool-cache in advance-draft-step" },
+    { repo: "foundry", hash: "12f246ac", desc: "Enforce strict tool-state validation in draft loop" },
+    { repo: "foundry", hash: "89106ffe", desc: "Make tool cache population explicit in advance-galaxy-draft-step" },
+    { repo: "foundry", hash: "3bb0020e", desc: "Merge pull request #560: Add credential-free nf-core lab staging" },
+    { repo: "foundry", hash: "4689f4e8", desc: "Add deterministic nf-core tool lab preparation package" },
+    { repo: "foundry", hash: "b74e8786", desc: "Hand off and verify conversion cast bundle hashes" },
+    { repo: "foundry", hash: "07febc7b", desc: "Refine advance-galaxy-draft-step: parallel frontier and resolve prefetch" },
+    { repo: "galaxy", hash: "50c5420f", desc: "Add MCP discovery: setup page, welcome card, and permanent links (#23507)" },
+    { repo: "galaxy", hash: "c25201ec", desc: "Expose MCP server availability and endpoint in configuration API" },
+    { repo: "galaxy", hash: "f2d6d400", desc: "Fix Tool Shed searches repeating the last page (#23482)" },
+    { repo: "galaxy", hash: "731d4e2e", desc: "Require subworkflow completion before completing its parent" },
+    { repo: "galaxy", hash: "5929be86", desc: "Add depot resolver for prebuilt Singularity images" },
+    { repo: "galaxy", hash: "700e0146", desc: "Require top-level container field for user-defined tools (UDT)" },
+    { repo: "galaxy", hash: "2a9fbe25", desc: "Correct resource and unknown-key guidance in UDT authoring reference" },
+    { repo: "galaxy", hash: "7a585cc1", desc: "Use bundle index for chained data-manager metadata" },
+    { repo: "galaxy", hash: "f6f2fc43", desc: "Fix SVG dataset previews with sandboxed image responses" },
+    { repo: "galaxy", hash: "9ba67b81", desc: "Merge pull request #23580: embedded subworkflow update options" },
+    { repo: "galaxy", hash: "874e8a62", desc: "Playwright column definition: send enter handling (#23567)" },
+    { repo: "galaxy", hash: "834ccbd7", desc: "Merge pull request #23559: manager app job services refactoring" },
+    { repo: "tools", hash: "7f2ece95", desc: "galaxy-tool-util-ts: compact ToolFetchError on ParsedTool decode failure" }
   ];
 
   function filterCommits(type, event) {
     if (event) event.stopPropagation();
-    document.querySelectorAll('section:nth-of-type(9) button.interactive-btn').forEach((btn, idx) => {
+    document.querySelectorAll('#commit-buttons .interactive-btn').forEach((btn, idx) => {
       btn.classList.toggle('active', (type === 'all' && idx === 0) || (type === 'galaxy' && idx === 1) || (type === 'foundry' && idx === 2) || (type === 'tools' && idx === 3));
     });
     const container = document.getElementById('commits-container');
@@ -1164,7 +1248,6 @@
       <div style="padding:4px 0; border-bottom:1px solid #e2e8f0; display:flex; gap:8px; align-items:center;">
         <span class="tag ${c.repo === 'galaxy' ? 'tag-blue' : (c.repo === 'foundry' ? 'tag-gold' : 'tag-green')}">${c.repo}</span>
         <code style="color:var(--deck-navy); font-weight:700;">${c.hash}</code>
-        <span style="color:#64748b; font-weight:600; width:70px;">${c.author}</span>
         <span style="color:#1e293b; flex:1;">${c.desc}</span>
       </div>
     `).join('');
