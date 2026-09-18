@@ -1,6 +1,6 @@
 {
   "run_manifest_schema_version": 1,
-  "generated_at": "2026-09-18T17:42:44.306Z",
+  "generated_at": "2026-09-18T18:35:14.583Z",
   "generator": {
     "command": "run-dashboard",
     "foundry_head": "7c0c715dde555b737e89b1eeac6b07437b0dc09d",
@@ -22,8 +22,8 @@
     ],
     "status": "running",
     "started_at": "2026-09-16T16:09:01.738Z",
-    "finished_at": "2026-09-18T16:44:07.358Z",
-    "total_bytes": 66445586
+    "finished_at": "2026-09-18T16:41:41.155Z",
+    "total_bytes": 64819189
   },
   "phases": [
     {
@@ -1569,18 +1569,6 @@
       }
     },
     {
-      "relpath": "dashboard.html",
-      "class": "undeclared",
-      "size_bytes": 1318451,
-      "mtime": "2026-09-18T16:44:07.358Z",
-      "sha256": "7f0deca77c6f8d02ce2cd98bc80ec309024d17172e0e07ae5bce1cdc724c9015",
-      "attached_to": null,
-      "declared_by_pipelines": [],
-      "declared_by_skills": [],
-      "dir_summary": null,
-      "preview": null
-    },
-    {
       "relpath": "galaxy-tool-pin.json",
       "class": "sub-mold",
       "size_bytes": 2563,
@@ -1700,18 +1688,6 @@
       }
     },
     {
-      "relpath": "run-manifest.json",
-      "class": "undeclared",
-      "size_bytes": 307946,
-      "mtime": "2026-09-18T16:44:07.353Z",
-      "sha256": "eab1b1ad215d6279584d854794ad85b5c0d6eb6f8cfce619307cb6e0db51baf1",
-      "attached_to": null,
-      "declared_by_pipelines": [],
-      "declared_by_skills": [],
-      "dir_summary": null,
-      "preview": null
-    },
-    {
       "relpath": "test-data",
       "class": "directory",
       "size_bytes": 62410172,
@@ -1791,7 +1767,7 @@
       }
     }
   ],
-  "ignored_count": 1,
+  "ignored_count": 3,
   "open_requirements": {
     "path": "open-requirements.ledger.yml",
     "entry_count": 28,
@@ -3506,8 +3482,8 @@
       {
         "label": "unmapped",
         "state": "ok",
-        "value": "13",
-        "detail": "62.7 MB no Mold declares",
+        "value": "11",
+        "detail": "61.2 MB no Mold declares",
         "anchor": "#unmapped"
       }
     ],
@@ -3517,7 +3493,7 @@
     "artifacts_expected": 15,
     "artifacts_missing": 1,
     "files_attributed": 13,
-    "files_seen": 25
+    "files_seen": 23
   },
   "warnings": []
 }

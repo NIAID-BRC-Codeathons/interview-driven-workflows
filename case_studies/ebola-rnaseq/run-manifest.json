@@ -1,6 +1,6 @@
 {
   "run_manifest_schema_version": 1,
-  "generated_at": "2026-09-18T17:42:38.667Z",
+  "generated_at": "2026-09-18T18:35:23.190Z",
   "generator": {
     "command": "run-dashboard",
     "foundry_head": "7c0c715dde555b737e89b1eeac6b07437b0dc09d",
@@ -20,8 +20,8 @@
     "options_observed": [],
     "status": "unknown",
     "started_at": "2026-09-18T13:57:04.527Z",
-    "finished_at": "2026-09-18T17:42:04.805Z",
-    "total_bytes": 1559788
+    "finished_at": "2026-09-18T18:26:07.978Z",
+    "total_bytes": 1369705
   },
   "phases": [
     {
@@ -1109,9 +1109,9 @@
     {
       "relpath": "CASE_STUDY.md",
       "class": "narrative",
-      "size_bytes": 9392,
-      "mtime": "2026-09-18T15:10:32.846Z",
-      "sha256": "45493c533df02526aa805759177881592a62943fd2c99688c0b14aec7d97d83c",
+      "size_bytes": 10168,
+      "mtime": "2026-09-18T18:26:07.978Z",
+      "sha256": "f14d5cc1a875f835bcb03857d64b0b874ec46cc0b8c9002974f14599909770de",
       "attached_to": null,
       "declared_by_pipelines": [],
       "declared_by_skills": [],
@@ -1120,7 +1120,7 @@
         "mode": "markdown",
         "embedded": true,
         "truncated": false,
-        "bytes_embedded": 9392,
+        "bytes_embedded": 10168,
         "body": null,
         "outline": null,
         "derived": null,
@@ -1149,35 +1149,11 @@
       }
     },
     {
-      "relpath": "dashboard.html",
-      "class": "undeclared",
-      "size_bytes": 147972,
-      "mtime": "2026-09-18T17:42:04.805Z",
-      "sha256": "2ecfffe132148adf0e11a4d94ad3d004e4e9cf7aaf12f2d85427728305ad1a96",
-      "attached_to": null,
-      "declared_by_pipelines": [],
-      "declared_by_skills": [],
-      "dir_summary": null,
-      "preview": null
-    },
-    {
       "relpath": "galaxy-workflow.ga",
       "class": "undeclared",
       "size_bytes": 6613,
       "mtime": "2026-09-18T13:57:04.531Z",
       "sha256": "7c8c1ae1f659bfe430367ac40782b0c7379114eeedbd815cf64809a544f0598d",
-      "attached_to": null,
-      "declared_by_pipelines": [],
-      "declared_by_skills": [],
-      "dir_summary": null,
-      "preview": null
-    },
-    {
-      "relpath": "run-manifest.json",
-      "class": "undeclared",
-      "size_bytes": 42887,
-      "mtime": "2026-09-18T17:42:04.802Z",
-      "sha256": "f70d6e0f427874b6fdf390013bc83c4102174c7ee90724cefa9e4004962241ba",
       "attached_to": null,
       "declared_by_pipelines": [],
       "declared_by_skills": [],
@@ -1255,7 +1231,7 @@
       }
     }
   ],
-  "ignored_count": 0,
+  "ignored_count": 2,
   "open_requirements": {
     "path": "open-requirements.ledger.yml",
     "entry_count": 2,
@@ -1352,8 +1328,8 @@
       {
         "label": "unmapped",
         "state": "ok",
-        "value": "8",
-        "detail": "1.5 MB no Mold declares",
+        "value": "6",
+        "detail": "1.3 MB no Mold declares",
         "anchor": "#unmapped"
       }
     ],
@@ -1363,7 +1339,7 @@
     "artifacts_expected": 16,
     "artifacts_missing": 0,
     "files_attributed": 14,
-    "files_seen": 21
+    "files_seen": 19
   },
   "warnings": []
 }

@@ -125,20 +125,32 @@ This case study documents the complete, autonomous execution of the **INTERVIEW 
 ### 5. Live Galaxy Execution via `galaxy-skills`
 Following local test validation, the workflow was deployed and executed live on `https://usegalaxy.org` using the tooling and patterns from `galaxyproject/galaxy-skills` (`galaxy-integration` and `galaxy-mcp-reference`).
 
+#### 5.1 Initial Subsample Run (Validation)
 - **Target Instance**: `https://usegalaxy.org`
 - **History ID**: `bbd44e69cb8906b507c3c432ea712434` (`Ebola Virus Host RNA-seq Case Study (GSE324141)`)
 - **Workflow ID**: `6270368268346af9`
 - **Invocation ID**: `74072ac63ddc417c`
 - **History URL**: [View on UseGalaxy.org](https://usegalaxy.org/histories/view?id=bbd44e69cb8906b507c3c432ea712434)
 - **Invocation Report URL**: [View Report on UseGalaxy.org](https://usegalaxy.org/workflows/invocations/report?id=74072ac63ddc417c)
+- **Status**: Completed (5/5 jobs green: 4 Salmon + 1 DESeq2).
 
-#### Biological Data from the Paper (GEO GSE324141 / BioProject PRJNA1433504):
-- **Mock 24h Rep 1**: `SRR37512919` (25,000 paired-end reads)
-- **Mock 24h Rep 2**: `SRR37512918` (25,000 paired-end reads)
-- **Ebola 24h Rep 1**: `SRR37512923` (25,000 paired-end reads)
-- **Ebola 24h Rep 2**: `SRR37512922` (25,000 paired-end reads)
-- **Input Collection**: `reads_paired_collection` (`list:paired`, ID `ec3f6d196da8e8a5`)
-- **Reference Transcriptome**: Human GENCODE transcripts (`human_transcripts.fasta`, ID `f9cad7b01a472135c7d975f21a3a628b`)
-- **Transcript Mapping**: Ensembl/GENCODE transcript-to-gene table (`tx2gene.tabular`, ID `f9cad7b01a472135e560c702fbdec3b0`)
-- **Experimental Design**: Two-level condition matrix (`sample_metadata.tabular`, ID `f9cad7b01a4721357e7ceec811b806b2`)
+#### 5.2 Full Raw SRA Production Run
+- **Target Instance**: `https://usegalaxy.org`
+- **History ID**: `bbd44e69cb8906b59f50b20725e8a193` (`Ebola Virus Full SRA RNA-seq Run (GSE324141)`)
+- **Workflow ID**: `6270368268346af9`
+- **Invocation ID**: `d00e4a52b0ac6c12`
+- **History URL**: [View Full Run on UseGalaxy.org](https://usegalaxy.org/histories/view?id=bbd44e69cb8906b59f50b20725e8a193)
+- **Invocation Report URL**: [View Full Invocation Report](https://usegalaxy.org/workflows/invocations/report?id=d00e4a52b0ac6c12)
+- **Full Dataset Scope**:
+  - **`fasterq_dump` Job**: `bbd44e69cb8906b55941f636c1c83363` extracting full NCBI SRA runs:
+    - `SRR37512919`: A549 WT Mock 24h rep 1 (23,151,288 read pairs)
+    - `SRR37512918`: A549 WT Mock 24h rep 2 (14,222,801 read pairs)
+    - `SRR37512923`: A549 WT Ebola 24h rep 1 (26,105,502 read pairs)
+    - `SRR37512922`: A549 WT Ebola 24h rep 2 (16,062,734 read pairs)
+    - Total: **79,542,325 read pairs (~159 million raw sequencing reads)**
+  - **Output Collection**: `list:paired` collection `42ce681e3e2d1754` (`Pair-end data (fasterq-dump)`)
+  - **Reference Transcriptome**: Full human GENCODE v44 transcripts (252,835 transcripts, dataset `f9cad7b01a47213534720768bca6000f`)
+  - **Transcript-to-Gene Table**: Full genome-wide mapping (`tx2gene_full.tabular`, dataset `f9cad7b01a472135d47c9e19a2c56189`)
+  - **Sample Factor Design**: `sample_metadata.tabular` (dataset `f9cad7b01a47213541f58e118c82aed9`)
+
 
