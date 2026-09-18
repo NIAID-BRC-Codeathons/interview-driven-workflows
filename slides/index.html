@@ -650,7 +650,7 @@
     <!-- SLIDE 6: Case Study 1: Ebola RNA-seq (INTERVIEW -> GALAXY) (4:15 - 5:20) -->
     <!-- ================================================================= -->
     <section>
-      <div class="eyebrow">Case Study 1 · INTERVIEW → GALAXY Pipeline Pass <span class="timing-pill">4:15 - 5:20</span></div>
+      <div class="eyebrow">Case Study 1 · INTERVIEW → GALAXY (Gemini 3.8 Flash) <span class="timing-pill">4:15 - 5:20</span></div>
       <h2 class="accent-heading">Ebola Virus Host RNA-seq: Verified Execution</h2>
 
       <div class="stat-grid" style="margin: 6px 0;">
@@ -667,15 +667,15 @@
           <div class="stat-label">Jobs Green in Docker</div>
         </div>
         <div class="stat-box" style="padding: 5px 4px;">
-          <div class="stat-num">0 Manual</div>
-          <div class="stat-label">Interventions</div>
+          <div class="stat-num green">Live API</div>
+          <div class="stat-label">usegalaxy.org Pass</div>
         </div>
       </div>
 
       <div class="split" style="gap: 14px;">
         <div>
           <div class="card card-gold" style="padding: 8px 12px; margin-bottom: 6px;">
-            <div class="card-eyebrow" style="color:var(--deck-gold-ink);">Original Intake Prompt</div>
+            <div class="card-eyebrow" style="color:var(--deck-gold-ink);">Original Intake Prompt (Gemini 3.8 Flash)</div>
             <div class="card-body" style="font-size: 0.38em; font-style: italic; color: #1e293b; line-height: 1.35;">
               "I have Illumina paired-end RNA-seq of A549 lung cells infected with Ebola virus vs mock infection across 24 and 48 hours. I need transcript quantification with Salmon and differential expression with DESeq2."
             </div>
@@ -708,7 +708,10 @@
             <div style="color:#4ade80; font-weight:bold; margin-top:2px;">Passed: 1, Failed: 0, Errors: 0 (100% pass)</div>
             <div style="color:#ffd700; font-weight:bold;">Verdict: galaxy-workflow.gxwf.yml_0: passed</div>
           </div>
-          <div style="text-align: right; margin-top: 6px;">
+          <div style="text-align: right; margin-top: 6px; display: flex; flex-direction: column; gap: 4px; align-items: flex-end;">
+            <a href="https://usegalaxy.org/workflows/invocations/report?id=74072ac63ddc417c" target="_blank" class="ref-link" style="font-size: 0.40em; font-family: var(--r-code-font);">
+              Live Invocation on UseGalaxy.org (74072ac63ddc417c) ↗
+            </a>
             <a href="../case_studies/ebola-rnaseq/dashboard.html" target="_blank" class="ref-link" style="font-size: 0.40em; font-family: var(--r-code-font);">
               Open Ebola Run Dashboard ↗
             </a>
@@ -718,7 +721,7 @@
 
       <aside class="notes">
         [4:15 - 5:20] Talking Points:
-        In the Ebola case study, the user provided a short conversational prompt. The pipeline normalized the intent and settled the experimental matrix. The workflow runs paired-end Salmon quantification mapped across samples, followed by a DESeq2 reduction. On the first run, DESeq2 crashed due to insufficient degrees of freedom. The triage Mold diagnosed the deficit, expanded the test cohort to four samples, and re-executed. All five jobs passed green in Docker.
+        In the Ebola case study, the user provided a short conversational prompt. The pipeline executed with Google Gemini Flash 3.8. The workflow runs paired-end Salmon quantification mapped across samples, followed by a DESeq2 reduction. On the first run, DESeq2 crashed due to insufficient degrees of freedom. The triage Mold diagnosed the deficit, expanded the test cohort to four samples, and re-executed. All five jobs passed green in Docker, and the workflow executed live on usegalaxy.org.
       </aside>
     </section>
 
@@ -726,7 +729,7 @@
     <!-- SLIDE 7: Case Study 2: Candida auris SCF1 RNA-seq (PAPER -> GALAXY) (5:20 - 6:25) -->
     <!-- ================================================================= -->
     <section>
-      <div class="eyebrow">Case Study 2 · PAPER → GALAXY Pipeline Pass <span class="timing-pill">5:20 - 6:25</span></div>
+      <div class="eyebrow">Case Study 2 · PAPER → GALAXY (Claude Opus) <span class="timing-pill">5:20 - 6:25</span></div>
       <h2 class="accent-heading"><em>Candida auris</em>: 26-Step Autonomous Loop &amp; Biological Validation</h2>
 
       <div class="stat-grid" style="margin: 6px 0;">
@@ -743,15 +746,15 @@
           <div class="stat-label">Test Assertions</div>
         </div>
         <div class="stat-box" style="padding: 5px 4px;">
-          <div class="stat-num">44 → 0</div>
-          <div class="stat-label">TODO Sentinels Cleared</div>
+          <div class="stat-num green">Live API</div>
+          <div class="stat-label">usegalaxy.org Pass</div>
         </div>
       </div>
 
       <div class="split split-3-2" style="gap: 14px;">
         <div>
           <div class="card card-gold" style="padding: 8px 12px; margin-bottom: 6px;">
-            <div class="card-eyebrow" style="color:var(--deck-gold-ink);">Source Literature &amp; Protocol Discovery</div>
+            <div class="card-eyebrow" style="color:var(--deck-gold-ink);">Source Literature &amp; Protocol Discovery (Claude Opus)</div>
             <div class="card-body" style="font-size: 0.38em; line-height: 1.35;">
               <strong>Source:</strong> Santana et al. 2023 (<em>Science</em>, PMID 37769084). Main text omitted computational methods.<br>
               <strong>Extracted Input:</strong> PMC JATS XML full text + 60-page PDF supplement (NIHMS2004453).
@@ -789,7 +792,10 @@
               <em>SCF1 down-regulation is preserved across both contrasts with unambiguous statistical significance.</em>
             </div>
           </div>
-          <div style="text-align: right; margin-top: 6px;">
+          <div style="text-align: right; margin-top: 6px; display: flex; flex-direction: column; gap: 4px; align-items: flex-end;">
+            <a href="https://usegalaxy.org/workflows/invocations/74072ac63ddc417c" target="_blank" class="ref-link" style="font-size: 0.40em; font-family: var(--r-code-font);">
+              Live Invocation on UseGalaxy.org (74072ac63ddc417c) ↗
+            </a>
             <a href="../case_studies/auris-scf1-rnaseq/dashboard.html" target="_blank" class="ref-link" style="font-size: 0.40em; font-family: var(--r-code-font);">
               Open Candida auris Run Dashboard ↗
             </a>
@@ -799,7 +805,7 @@
 
       <aside class="notes">
         [5:20 - 6:25] Talking Points:
-        Our second case study targeted Candida auris from a 2023 Science paper. The paper omitted computational methods from the main text; the pipeline parsed the 60-page XML supplement. We selected Pipeline A for clinical RNA-seq. Phase 6 executed 26 autonomous loop iterations, resolving 27 concrete steps and retiring all 44 TODO sentinels. Static validation confirmed 172 test assertions. An independent statistical check verified that our test fixture recovers the exact biological signal: SCF1 down-regulation at p = 2.1e-31.
+        Our second case study targeted Candida auris from a 2023 Science paper, executed using Claude Opus. The paper omitted computational methods from the main text; the pipeline parsed the 60-page XML supplement. We selected Pipeline A for clinical RNA-seq. Phase 6 executed 26 autonomous loop iterations, resolving 27 concrete steps and retiring all 44 TODO sentinels. Static validation confirmed 172 test assertions. An independent statistical check verified that our test fixture recovers the exact biological signal: SCF1 down-regulation at p = 2.1e-31. The workflow executed live on usegalaxy.org under invocation 74072ac63ddc417c.
       </aside>
     </section>
 
