@@ -42,6 +42,7 @@ A longer write-up is available at <https://gist.github.com/dannon/ceb8685f9c958f
 - Marius van den Beek ([@mvdbeek](https://github.com/mvdbeek))
 - John Chilton ([@jmchilton](https://github.com/jmchilton))
 - Dejian Zhao ([@dzhaobio](https://github.com/dzhaobio))
+- Scott Cain ([@scottcain](https://github.com/scottcain))
 
 ## Working here
 

@@ -398,11 +398,12 @@
         Transforming conversational research requests into peer-reviewed, reproducible Galaxy workflows.
       </div>
 
-      <div style="margin-top: 22px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+      <div style="margin-top: 22px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
         <span class="author-pill">Marius van den Beek (<a href="https://github.com/mvdbeek" target="_blank">@mvdbeek</a>)</span>
         <span class="author-pill">John Chilton (<a href="https://github.com/jmchilton" target="_blank">@jmchilton</a>)</span>
         <span class="author-pill">Dave Rogers (<a href="https://github.com/NoopDog" target="_blank">@NoopDog</a>)</span>
         <span class="author-pill">Dejian Zhao (<a href="https://github.com/dzhaobio" target="_blank">@dzhaobio</a>)</span>
+        <span class="author-pill">Scott Cain (<a href="https://github.com/scottcain" target="_blank">@scottcain</a>)</span>
       </div>
 
       <div style="margin-top: 22px; font-size: 0.4em; color: #94a3b8; font-family: var(--r-code-font);">
@@ -411,7 +412,7 @@
 
       <aside class="notes">
         [0:00 - 0:45] Opening:
-        In pathogen surveillance and infectious disease research, data arrives rapidly. When outbreaks occur, biologists describe analyses in plain language. Unconstrained language models hallucinate software versions and fail at runtime. Over three days at Argonne, our team built deterministic rails that convert intent into validated Galaxy workflows. We evaluated 150 real community requests, executed two pathogen case studies to verified completion, and committed 30 fixes upstream. Slide credits: Marius van den Beek, John Chilton, Dave Rogers, and Dejian Zhao.
+        In pathogen surveillance and infectious disease research, data arrives rapidly. When outbreaks occur, biologists describe analyses in plain language. Unconstrained language models hallucinate software versions and fail at runtime. Over three days at Argonne, our team built deterministic rails that convert intent into validated Galaxy workflows. We evaluated 150 real community requests, executed two pathogen case studies to verified completion, and committed 30 fixes upstream. Slide credits: Marius van den Beek, John Chilton, Dave Rogers, Dejian Zhao, and Scott Cain.
       </aside>
     </section>
 
@@ -796,7 +797,7 @@
       <div class="eyebrow">Upstream Contributions <span class="timing-pill">8:00 - 8:55</span></div>
       <h2 class="accent-heading">Upstream Hardening Across Repositories</h2>
       <div class="lede" style="margin-bottom: 8px;">
-        Over 30 commits across 4 repositories committed by Marius van den Beek and John Chilton from Wednesday to Friday:
+        Over 30 upstream commits across 4 repositories from Wednesday to Friday:
       </div>
 
       <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 8px;">
@@ -812,7 +813,7 @@
 
       <aside class="notes">
         [8:00 - 8:55] Talking Points:
-        We do not work around upstream defects; we fix them at the source. Across Galaxy, Foundry, and galaxy-tool-util, Marius and John committed over 30 targeted improvements. In Galaxy core, Marius exposed the MCP discovery endpoints, repaired Tool Shed search pagination, and enforced subworkflow completion rules. In Foundry, John established the Workflow Brief contract while Marius hardened the draft step loop.
+        We do not work around upstream defects; we fix them at the source. Across Galaxy, Foundry, and galaxy-tool-util, over 30 targeted improvements were committed. Galaxy core received MCP discovery endpoints, Tool Shed search pagination repairs, and enforced subworkflow completion rules. Foundry gained the Workflow Brief contract and draft step loop hardening.
       </aside>
     </section>
 
@@ -828,7 +829,7 @@
           <div class="card card-gold">
             <div class="card-eyebrow">New CLI Tool: <code>foundry-build run-dashboard</code></div>
             <div class="card-body" style="font-size: 0.4em; line-height: 1.35;">
-              Implemented by Marius van den Beek during the hackathon (commit <code>7c0c715d</code>, 6,900+ lines of TypeScript):
+              Engineered during the hackathon (commit <code>7c0c715d</code>, 6,900+ lines of TypeScript):
               <ul style="margin: 4px 0 0 14px; padding: 0;">
                 <li>Parses <code>foundry-run.yml</code> records and verifies artifact checksums against cast metadata.</li>
                 <li>Renders self-contained, offline <code>dashboard.html</code> files without network dependencies.</li>
@@ -870,7 +871,7 @@
 
       <aside class="notes">
         [8:55 - 9:35] Talking Points:
-        To eliminate prose-based progress reports, Marius engineered foundry-build run-dashboard: a 6,900-line TypeScript tool that parses run manifests and outputs self-contained HTML dashboards. The dashboard visualizes phase status, artifact lineage, and Planemo execution logs with zero external network dependencies. Both case studies and all generated artifacts are deployed live on GitHub Pages.
+        To eliminate prose-based progress reports, foundry-build run-dashboard was engineered: a 6,900-line TypeScript tool that parses run manifests and outputs self-contained HTML dashboards. The dashboard visualizes phase status, artifact lineage, and Planemo execution logs with zero external network dependencies. Both case studies and all generated artifacts are deployed live on GitHub Pages.
       </aside>
     </section>
 
@@ -909,6 +910,7 @@
           <span class="author-pill">John Chilton (<a href="https://github.com/jmchilton" target="_blank">@jmchilton</a>)</span>
           <span class="author-pill">Dave Rogers (<a href="https://github.com/NoopDog" target="_blank">@NoopDog</a>)</span>
           <span class="author-pill">Dejian Zhao (<a href="https://github.com/dzhaobio" target="_blank">@dzhaobio</a>)</span>
+          <span class="author-pill">Scott Cain (<a href="https://github.com/scottcain" target="_blank">@scottcain</a>)</span>
         </div>
         <span style="color: var(--deck-gold-bright); font-weight: 700; margin-top: 10px; display: inline-block;">
           Thank you! Questions?
@@ -917,7 +919,7 @@
 
       <aside class="notes">
         [9:35 - 10:00] Wrap-up:
-        Autonomous workflow generation succeeds when governed by deterministic rails. The Foundry Pattern compiles typed knowledge into frozen skills. Live MCP queries ground decisions in community registries. And execution oracles guarantee that outputs are reproducible science rather than plausible hallucinations. Slide credits: Dave Rogers, Marius van den Beek, John Chilton, and Dejian Zhao. Thank you. We welcome your questions.
+        Autonomous workflow generation succeeds when governed by deterministic rails. The Foundry Pattern compiles typed knowledge into frozen skills. Live MCP queries ground decisions in community registries. And execution oracles guarantee that outputs are reproducible science rather than plausible hallucinations. Slide credits: Marius van den Beek, John Chilton, Dave Rogers, Dejian Zhao, and Scott Cain. Thank you. We welcome your questions.
       </aside>
     </section>
 
@@ -1066,10 +1068,122 @@
     `;
   }
 
-  window.addEventListener('DOMContentLoaded', () => {
+  // --------------------------------------------------------------------------
+  // Interactive Component 2: Real Research Edge Traps (Slide 8)
+  // --------------------------------------------------------------------------
+  const trapData = {
+    1: {
+      title: "1. The DESeq2 Header Trap (Biological Destruction)",
+      symptom: "DESeq2 produces two tabular files: deseq_out (no header) and normalized_counts (has header).",
+      rootCause: "The certified IWC exemplar rnaseq-de applies header_lines: '1' to its downstream Filter1 steps. However, that workflow explicitly prepends a synthetic header beforehand via tp_text_file_with_recurring_lines → tp_cat. Copying header_lines: '1' without the prepender silently drops row 1.",
+      impact: "Row 1 of deseq_out is the most significantly dysregulated gene. In Santana et al. (Science 2023), row 1 is SCF1 itself. Naively copying the IWC pattern deletes the primary discovery of the paper from the final output table.",
+      fix: "Documented the invariant, set header_lines: '0' across all Filter1 steps, and preserved the rationale in galaxy-workflow-draft.gxwf.yml."
+    },
+    2: {
+      title: "2. Tool Shed Repo Requirement in gxformat2",
+      symptom: "Planemo started Galaxy, attempted workflow invocation, and immediately returned HTTP 400: 'No tool shed repositories installed.'",
+      rootCause: "planemo/galaxy/workflows.py:349 load_shed_repos checks step.get('tool_shed_repository') and never parses the tool_id string. Our format2 steps had tool_id but omitted the repository dict. Planemo saw an empty repo list and skipped tool installation.",
+      impact: "Zero tools were installed on the test Galaxy instance. Invocation failed before executing any jobs.",
+      fix: "Annotated all 12 Shed tool steps with explicit tool_shed_repository blocks (name, owner, changeset_revision, tool_shed) resolved against the live Tool Shed metadata API."
+    },
+    3: {
+      title: "3. Conda Prefix Path Limits in Sandbox Environments",
+      symptom: "Attempting to build conda environments for heavy tools (rgrnastar, deseq2) failed with DependencyException: Conda dependency failed to build job environment.",
+      rootCause: "Linux and macOS enforce a kernel-level 128-character limit on shebang lines (#!). In deep sandbox paths, the conda environment path exceeded 128 characters, causing environment initialization to abort.",
+      impact: "Workflow execution stalled despite valid syntax and complete test fixtures.",
+      fix: "Switched execution to planemo test --biocontainers. Running tools inside Docker BioContainers bypasses local filesystem conda prefix constraints entirely."
+    },
+    4: {
+      title: "4. Galaxy XML <when> Conditional Ordering",
+      symptom: "Selecting a dropdown option in the workflow YAML unexpectedly resolved to the wrong conditional parameter branch.",
+      rootCause: "In Galaxy tool XML, conditional case indices correspond to the physical declaration order of <when> tags in the XML file, not the alphabetical or UI dropdown display order.",
+      impact: "Silent assignment of incorrect branch values in RNA STAR (GTFconditional) and DESeq2 (tximport_selector).",
+      fix: "Repaired tool state decoding in advance-galaxy-draft-step to resolve conditional branches against parsed XML AST declaration order."
+    }
+  };
+
+  function selectTrap(num, event) {
+    if (event) event.stopPropagation();
+    document.querySelectorAll('section:nth-of-type(8) button.interactive-btn').forEach((btn, idx) => {
+      btn.classList.toggle('active', idx === num - 1);
+    });
+    const t = trapData[num];
+    const el = document.getElementById('trap-display');
+    if (!el) return;
+    el.innerHTML = `
+      <div style="font-weight:800; font-size:1.05em; color:var(--deck-navy); margin-bottom:6px;">${t.title}</div>
+      <div style="margin-bottom:6px;"><strong style="color:var(--deck-error);">Symptom:</strong> <span style="font-size:0.9em; color:#334155;">${t.symptom}</span></div>
+      <div style="margin-bottom:6px;"><strong style="color:#b45309;">Root Cause:</strong> <span style="font-size:0.9em; color:#334155;">${t.rootCause}</span></div>
+      <div style="margin-bottom:6px;"><strong style="color:#be123c;">Scientific Impact:</strong> <span style="font-size:0.9em; color:#334155; font-weight:600;">${t.impact}</span></div>
+      <div style="background:#dcfce7; padding:6px 10px; border-radius:4px; color:#166534; font-size:0.9em;">
+        <strong>The Fix:</strong> ${t.fix}
+      </div>
+    `;
+  }
+
+  // --------------------------------------------------------------------------
+  // Interactive Component 3: Filterable Upstream Commits (Slide 9)
+  // --------------------------------------------------------------------------
+  const commitList = [
+    { repo: "foundry", hash: "7c0c715d", author: "mvdbeek", desc: "Add conversion-run dashboard and the run record it reads (6,900+ LOC TS)" },
+    { repo: "foundry", hash: "5aac370f", author: "jmchilton", desc: "Merge pull request #565: Introduce experimental Workflow Brief contract" },
+    { repo: "foundry", hash: "20551339", author: "jmchilton", desc: "Define Workflow Brief as Markdown with section validation" },
+    { repo: "foundry", hash: "157510fe", author: "jmchilton", desc: "Merge pull request #555: Reuse an already-pinned wrapper within same draft" },
+    { repo: "foundry", hash: "38aa28c1", author: "mvdbeek", desc: "Reuse an already-pinned wrapper within same draft (advance-step Mold)" },
+    { repo: "foundry", hash: "7d704248", author: "jmchilton", desc: "Merge pull request #557: Declare galaxy-tool-cache in advance-draft-step" },
+    { repo: "foundry", hash: "12f246ac", author: "mvdbeek", desc: "Enforce strict tool-state validation in draft loop" },
+    { repo: "foundry", hash: "89106ffe", author: "mvdbeek", desc: "Make tool cache population explicit in advance-galaxy-draft-step" },
+    { repo: "foundry", hash: "3bb0020e", author: "jmchilton", desc: "Merge pull request #560: Add credential-free nf-core lab staging" },
+    { repo: "foundry", hash: "4689f4e8", author: "jmchilton", desc: "Add deterministic nf-core tool lab preparation package" },
+    { repo: "foundry", hash: "b74e8786", author: "jmchilton", desc: "Hand off and verify conversion cast bundle hashes" },
+    { repo: "foundry", hash: "07febc7b", author: "mvdbeek", desc: "Refine advance-galaxy-draft-step: parallel frontier and resolve prefetch" },
+    { repo: "galaxy", hash: "50c5420f", author: "mvdbeek", desc: "Add MCP discovery: setup page, welcome card, and permanent links (#23507)" },
+    { repo: "galaxy", hash: "c25201ec", author: "mvdbeek", desc: "Expose MCP server availability and endpoint in configuration API" },
+    { repo: "galaxy", hash: "f2d6d400", author: "mvdbeek", desc: "Fix Tool Shed searches repeating the last page (#23482)" },
+    { repo: "galaxy", hash: "731d4e2e", author: "mvdbeek", desc: "Require subworkflow completion before completing its parent" },
+    { repo: "galaxy", hash: "5929be86", author: "mvdbeek", desc: "Add depot resolver for prebuilt Singularity images" },
+    { repo: "galaxy", hash: "700e0146", author: "mvdbeek", desc: "Require top-level container field for user-defined tools (UDT)" },
+    { repo: "galaxy", hash: "2a9fbe25", author: "mvdbeek", desc: "Correct resource and unknown-key guidance in UDT authoring reference" },
+    { repo: "galaxy", hash: "7a585cc1", author: "mvdbeek", desc: "Use bundle index for chained data-manager metadata" },
+    { repo: "galaxy", hash: "f6f2fc43", author: "mvdbeek", desc: "Fix SVG dataset previews with sandboxed image responses" },
+    { repo: "galaxy", hash: "9ba67b81", author: "jmchilton", desc: "Merge pull request #23580: embedded subworkflow update options" },
+    { repo: "galaxy", hash: "874e8a62", author: "jmchilton", desc: "Playwright column definition: send enter handling (#23567)" },
+    { repo: "galaxy", hash: "834ccbd7", author: "jmchilton", desc: "Merge pull request #23559: manager app job services refactoring" },
+    { repo: "tools", hash: "7f2ece95", author: "mvdbeek", desc: "galaxy-tool-util-ts: compact ToolFetchError on ParsedTool decode failure" }
+  ];
+
+  function filterCommits(type, event) {
+    if (event) event.stopPropagation();
+    document.querySelectorAll('section:nth-of-type(9) button.interactive-btn').forEach((btn, idx) => {
+      btn.classList.toggle('active', (type === 'all' && idx === 0) || (type === 'galaxy' && idx === 1) || (type === 'foundry' && idx === 2) || (type === 'tools' && idx === 3));
+    });
+    const container = document.getElementById('commits-container');
+    if (!container) return;
+    const filtered = type === 'all' ? commitList : commitList.filter(c => c.repo === type);
+    container.innerHTML = filtered.map(c => `
+      <div style="padding:4px 0; border-bottom:1px solid #e2e8f0; display:flex; gap:8px; align-items:center;">
+        <span class="tag ${c.repo === 'galaxy' ? 'tag-blue' : (c.repo === 'foundry' ? 'tag-gold' : 'tag-green')}">${c.repo}</span>
+        <code style="color:var(--deck-navy); font-weight:700;">${c.hash}</code>
+        <span style="color:#64748b; font-weight:600; width:70px;">${c.author}</span>
+        <span style="color:#1e293b; flex:1;">${c.desc}</span>
+      </div>
+    `).join('');
+  }
+
+  function initWidgets() {
     selectPhase(1);
     selectTrap(1);
     filterCommits('all');
+  }
+
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', initWidgets);
+  } else {
+    initWidgets();
+  }
+
+  Reveal.on('slidechanged', () => {
+    initWidgets();
   });
 </script>
 </body>
