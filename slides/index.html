@@ -417,10 +417,10 @@
     </section>
 
     <!-- ================================================================= -->
-    <!-- SLIDE 2: The Problem (0:45 - 1:40) -->
+    <!-- SLIDE 2: The Problem (0:45 - 1:35) -->
     <!-- ================================================================= -->
     <section>
-      <div class="eyebrow">The Challenge <span class="timing-pill">0:45 - 1:40</span></div>
+      <div class="eyebrow">The Challenge <span class="timing-pill">0:45 - 1:35</span></div>
       <h2 class="accent-heading">Unstructured Intent vs. Deterministic Execution</h2>
       
       <div class="split">
@@ -462,16 +462,16 @@
       </div>
 
       <aside class="notes">
-        [0:45 - 1:40] Talking Points:
+        [0:45 - 1:35] Talking Points:
         Biologists communicate in experimental intent, not workflow schemas. When frontier models generate pipeline code without constraints, they fail. They hallucinate software versions. They break collection algebra by feeding lists into single-file ports. They set contradictory statistical parameters. A workflow that looks plausible but silently drops the top candidate gene is catastrophic. We replaced unconstrained generation with deterministic compilation.
       </aside>
     </section>
 
     <!-- ================================================================= -->
-    <!-- SLIDE 3: Intro to Foundry (1:40 - 2:35) -->
+    <!-- SLIDE 3: Intro to Foundry (1:35 - 2:25) -->
     <!-- ================================================================= -->
     <section>
-      <div class="eyebrow">Foundations · The Foundry Pattern <span class="timing-pill">1:40 - 2:35</span></div>
+      <div class="eyebrow">Foundations · The Foundry Pattern <span class="timing-pill">1:35 - 2:25</span></div>
       <h2 class="accent-heading">The Foundry Pattern: Compiling Knowledge into Skills</h2>
 
       <div class="callout callout-navy" style="font-size: 0.5em; margin-bottom: 14px;">
@@ -518,16 +518,16 @@
       </div>
 
       <aside class="notes">
-        [1:40 - 2:35] Talking Points:
+        [1:35 - 2:25] Talking Points:
         We ground this work in the Foundry Pattern designed by John Chilton. Traditional agent setups paste huge prompts and hope for the best. The Foundry compiles knowledge bases into frozen skills with complete provenance. It grounds decisions in the Intergalactic Workflow Commission, which curates over 130 peer-reviewed Galaxy workflows. The model translates; deterministic tools judge.
       </aside>
     </section>
 
     <!-- ================================================================= -->
-    <!-- SLIDE 4: Available Foundry Pipelines (2:35 - 3:30) -->
+    <!-- SLIDE 4: Available Foundry Pipelines (2:25 - 3:15) -->
     <!-- ================================================================= -->
     <section>
-      <div class="eyebrow">Pipeline Catalog <span class="timing-pill">2:35 - 3:30</span></div>
+      <div class="eyebrow">Pipeline Catalog <span class="timing-pill">2:25 - 3:15</span></div>
       <h2 class="accent-heading">The Foundry Pipeline Ecosystem</h2>
       <div class="lede" style="margin-bottom: 8px;">
         The Foundry provides purpose-built pipelines across distinct scientific entry points:
@@ -545,7 +545,7 @@
           <div class="card-eyebrow">Literature Extraction</div>
           <div class="card-title" style="font-size: 0.48em;">PAPER → GALAXY</div>
           <div class="card-body" style="font-size: 0.37em;">
-            Extracts computational protocols from papers and XML supplements into executable workflows. Executed in Case Study 2.
+            Extracts computational protocols from papers and XML supplements into executable workflows. Executed in Case Studies 2 and 3.
           </div>
         </div>
         <div class="card">
@@ -579,16 +579,16 @@
       </div>
 
       <aside class="notes">
-        [2:35 - 3:30] Talking Points:
+        [2:25 - 3:15] Talking Points:
         The Foundry is not a single prompt; it is an ecosystem of specialized pipelines. Interview-to-Galaxy transforms conversational intent. Paper-to-Galaxy parses literature supplements. Nextflow-to-Galaxy and CWL-to-Galaxy port pipelines from other workflow systems. Update-Interview applies conversational edits in place. And IWC Maturation audits workflows against the 130-workflow standard.
       </aside>
     </section>
 
     <!-- ================================================================= -->
-    <!-- SLIDE 5: The INTERVIEW → GALAXY Pipeline Journey (3:30 - 4:40) -->
+    <!-- SLIDE 5: The INTERVIEW → GALAXY Pipeline Journey (3:15 - 4:15) -->
     <!-- ================================================================= -->
     <section>
-      <div class="eyebrow">Pipeline Journey · INTERVIEW → GALAXY <span class="timing-pill">3:30 - 4:40</span></div>
+      <div class="eyebrow">Pipeline Journey · INTERVIEW → GALAXY <span class="timing-pill">3:15 - 4:15</span></div>
       <h2 class="accent-heading">The 12-Phase Synthesis Journey</h2>
       <div class="lede" style="margin-bottom: 8px;">
         Select any phase below to inspect declared Molds, input requirements, output artifacts, and validation oracles:
@@ -625,16 +625,16 @@
       </div>
 
       <aside class="notes">
-        [3:30 - 4:40] Talking Points:
+        [3:15 - 4:15] Talking Points:
         Here is the 12-phase journey used in our hackathon interview pipeline. Phases 1 to 3 extract experimental intent and establish interface types. Phase 4 matches the request against certified IWC workflows. Phase 6 executes an autonomous loop that queries the Tool Shed and resolves parameters until all TODO sentinels clear. Phase 10 validates tool states against real schemas. Phase 11 executes the workflow in Docker BioContainers via Planemo.
       </aside>
     </section>
 
     <!-- ================================================================= -->
-    <!-- SLIDE 6: Case Study 1: Ebola RNA-seq (INTERVIEW -> GALAXY) (4:40 - 5:50) -->
+    <!-- SLIDE 6: Case Study 1: Ebola RNA-seq (INTERVIEW -> GALAXY) (4:15 - 5:20) -->
     <!-- ================================================================= -->
     <section>
-      <div class="eyebrow">Case Study 1 · INTERVIEW → GALAXY Pipeline Pass <span class="timing-pill">4:40 - 5:50</span></div>
+      <div class="eyebrow">Case Study 1 · INTERVIEW → GALAXY Pipeline Pass <span class="timing-pill">4:15 - 5:20</span></div>
       <h2 class="accent-heading">Ebola Virus Host RNA-seq: Verified Execution</h2>
 
       <div class="stat-grid" style="margin: 6px 0;">
@@ -701,16 +701,16 @@
       </div>
 
       <aside class="notes">
-        [4:35 - 5:50] Talking Points:
+        [4:15 - 5:20] Talking Points:
         In the Ebola case study, the user provided a short conversational prompt. The pipeline normalized the intent and settled the experimental matrix. The workflow runs paired-end Salmon quantification mapped across samples, followed by a DESeq2 reduction. On the first run, DESeq2 crashed due to insufficient degrees of freedom. The triage Mold diagnosed the deficit, expanded the test cohort to four samples, and re-executed. All five jobs passed green in Docker.
       </aside>
     </section>
 
     <!-- ================================================================= -->
-    <!-- SLIDE 7: Case Study 2: Candida auris SCF1 RNA-seq (PAPER -> GALAXY) (5:50 - 7:00) -->
+    <!-- SLIDE 7: Case Study 2: Candida auris SCF1 RNA-seq (PAPER -> GALAXY) (5:20 - 6:25) -->
     <!-- ================================================================= -->
     <section>
-      <div class="eyebrow">Case Study 2 · PAPER → GALAXY Pipeline Pass <span class="timing-pill">5:50 - 7:00</span></div>
+      <div class="eyebrow">Case Study 2 · PAPER → GALAXY Pipeline Pass <span class="timing-pill">5:20 - 6:25</span></div>
       <h2 class="accent-heading"><em>Candida auris</em>: 26-Step Autonomous Loop &amp; Biological Validation</h2>
 
       <div class="stat-grid" style="margin: 6px 0;">
@@ -782,16 +782,92 @@
       </div>
 
       <aside class="notes">
-        [5:50 - 7:00] Talking Points:
+        [5:20 - 6:25] Talking Points:
         Our second case study targeted Candida auris from a 2023 Science paper. The paper omitted computational methods from the main text; the pipeline parsed the 60-page XML supplement. We selected Pipeline A for clinical RNA-seq. Phase 6 executed 26 autonomous loop iterations, resolving 27 concrete steps and retiring all 44 TODO sentinels. Static validation confirmed 172 test assertions. An independent statistical check verified that our test fixture recovers the exact biological signal: SCF1 down-regulation at p = 2.1e-31.
       </aside>
     </section>
 
     <!-- ================================================================= -->
-    <!-- SLIDE 8: Real Traps Found at the Edge (7:00 - 8:00) -->
+    <!-- SLIDE 8: Case Study 3: Candida auris Reproduction with Sonnet (6:25 - 7:25) -->
     <!-- ================================================================= -->
     <section>
-      <div class="eyebrow">Findings · Grounded in Execution <span class="timing-pill">7:00 - 8:00</span></div>
+      <div class="eyebrow">Case Study 3 · PAPER → GALAXY Reproduction (Scott Cain) <span class="timing-pill">6:25 - 7:25</span></div>
+      <h2 class="accent-heading"><em>Candida auris</em> with Sonnet: Autonomous Tool Authoring</h2>
+
+      <div class="stat-grid" style="margin: 6px 0;">
+        <div class="stat-box" style="padding: 5px 4px;">
+          <div class="stat-num green">12 / 12</div>
+          <div class="stat-label">Phases Completed</div>
+        </div>
+        <div class="stat-box" style="padding: 5px 4px;">
+          <div class="stat-num">9</div>
+          <div class="stat-label">Loop Iterations</div>
+        </div>
+        <div class="stat-box" style="padding: 5px 4px;">
+          <div class="stat-num gold">3 UDTs</div>
+          <div class="stat-label">User Tools Authored</div>
+        </div>
+        <div class="stat-box" style="padding: 5px 4px;">
+          <div class="stat-num green">Live API</div>
+          <div class="stat-label">Executed on usegalaxy.org</div>
+        </div>
+      </div>
+
+      <div class="split split-3-2" style="gap: 14px;">
+        <div>
+          <div class="card card-gold" style="padding: 8px 12px; margin-bottom: 6px;">
+            <div class="card-eyebrow" style="color:var(--deck-gold-ink);">Reproduction Objective &amp; Model</div>
+            <div class="card-body" style="font-size: 0.38em; line-height: 1.35;">
+              <strong>Model:</strong> Re-executed the <code>paper-to-galaxy</code> pipeline using Claude 3.5 Sonnet to test cross-model robustness.<br>
+              <strong>Scope:</strong> Evaluated all 12 phases from initial literature parsing through live execution and output triage.
+            </div>
+          </div>
+
+          <div class="card" style="padding: 8px 12px; margin-bottom: 6px;">
+            <div class="card-eyebrow">Autonomous Tool Authoring (UDT)</div>
+            <div class="card-body" style="font-size: 0.37em; line-height: 1.35;">
+              • <strong>Gaps Detected:</strong> When the Tool Shed lacked exact wrappers for custom extraction steps, Sonnet fell through to <code>author-galaxy-tool-wrapper</code>.<br>
+              • <strong>Artifacts Emitted:</strong> Authored 3 containerized User-Defined Tools (<code>class: GalaxyUserTool</code>) with container environments.<br>
+              • <strong>Execution Feedback:</strong> Captured 25 structured feedback items in <code>foundry-feedback.ledger.yml</code>.
+            </div>
+          </div>
+
+          <div class="card card-success" style="padding: 8px 12px;">
+            <div class="card-eyebrow">Live Galaxy Server Execution</div>
+            <div class="card-body" style="font-size: 0.38em; line-height: 1.35;">
+              Invoked directly on <code>usegalaxy.org</code> (Invocation <code>8d8af9e4b30d11f18054bc24110164aa</code>, History <code>bbd44e69cb8906b54be4b938868d5a9d</code>).
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card card-gold" style="padding: 8px 12px;">
+            <div class="card-eyebrow">Key Cross-Model Finding</div>
+            <div class="card-body" style="font-size: 0.37em; line-height: 1.35;">
+              • Sonnet completed 9 draft concretion iterations compared to 26 iterations with the frontier model, opting for custom UDT wrappers rather than searching through deep Tool Shed revisions.<br>
+              • Live execution succeeded across all 11 evaluation genes.<br>
+              • Resulting feedback drafts exposed tool state normalization differences in <code>galaxy.key</code> API workflows.
+            </div>
+          </div>
+          <div style="text-align: right; margin-top: 6px;">
+            <a href="../case_studies/auris-scf1-rnaseq-sonnet5/dashboard.html" target="_blank" class="ref-link" style="font-size: 0.40em; font-family: var(--r-code-font);">
+              Open Sonnet Run Dashboard ↗
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <aside class="notes">
+        [6:25 - 7:25] Talking Points:
+        Scott Cain executed a third case study, reproducing the paper-to-galaxy pipeline using Claude 3.5 Sonnet. All 12 pipeline phases completed. When the pipeline encountered gaps in the public Tool Shed, it authored three containerized Galaxy User-Defined Tools. The workflow was installed and executed live on usegalaxy.org, recording 25 feedback entries for upstream Foundry hardening.
+      </aside>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- SLIDE 9: Real Traps Found at the Edge (7:25 - 8:15) -->
+    <!-- ================================================================= -->
+    <section>
+      <div class="eyebrow">Findings · Grounded in Execution <span class="timing-pill">7:25 - 8:15</span></div>
       <h2 class="accent-heading">Four Empirical Edge Traps Discovered During Execution</h2>
       <div class="lede" style="margin-bottom: 8px;">
         Click each discovery below to inspect how unverified generation fails in practice:
@@ -815,16 +891,16 @@
       </div>
 
       <aside class="notes">
-        [7:00 - 8:00] Talking Points:
+        [7:25 - 8:15] Talking Points:
         Real execution uncovers errors that static models miss. First: DESeq2 outputs have asymmetric headers. The IWC workflow prepends a synthetic header and then skips it with header_lines: 1. If you copy that rule naively, you delete row 1. In this paper, row 1 is SCF1—the primary discovery of the study. Second: Planemo ignores tool IDs unless explicit tool_shed_repository blocks are defined in the YAML. Third: deep sandbox paths break conda's 128-character shebang limit, necessitating Docker BioContainers.
       </aside>
     </section>
 
     <!-- ================================================================= -->
-    <!-- SLIDE 9: Upstream Hardening & Cross-Repo Impact (8:00 - 8:55) -->
+    <!-- SLIDE 10: Upstream Hardening & Cross-Repo Impact (8:15 - 9:05) -->
     <!-- ================================================================= -->
     <section>
-      <div class="eyebrow">Upstream Contributions <span class="timing-pill">8:00 - 8:55</span></div>
+      <div class="eyebrow">Upstream Contributions <span class="timing-pill">8:15 - 9:05</span></div>
       <h2 class="accent-heading">Upstream Hardening Across Repositories</h2>
       <div class="lede" style="margin-bottom: 8px;">
         Over 30 upstream commits across 4 repositories from Wednesday to Friday:
@@ -896,16 +972,16 @@
       </div>
 
       <aside class="notes">
-        [8:00 - 8:55] Talking Points:
+        [8:15 - 9:05] Talking Points:
         We do not work around upstream defects; we fix them at the source. Across Galaxy, Foundry, and galaxy-tool-util, over 30 targeted improvements were committed. Galaxy core received MCP discovery endpoints, Tool Shed search pagination repairs, and enforced subworkflow completion rules. Foundry gained the Workflow Brief contract and draft step loop hardening.
       </aside>
     </section>
 
     <!-- ================================================================= -->
-    <!-- SLIDE 10: The Conversion Run Dashboard & GitHub Pages (8:55 - 9:35) -->
+    <!-- SLIDE 11: The Conversion Run Dashboard & GitHub Pages (9:05 - 9:40) -->
     <!-- ================================================================= -->
     <section>
-      <div class="eyebrow">Deliverables &amp; Tooling <span class="timing-pill">8:55 - 9:35</span></div>
+      <div class="eyebrow">Deliverables &amp; Tooling <span class="timing-pill">9:05 - 9:40</span></div>
       <h2 class="accent-heading">Deterministic Run Dashboards &amp; Live Publication</h2>
 
       <div class="split split-3-2">
@@ -954,16 +1030,16 @@
       </div>
 
       <aside class="notes">
-        [8:55 - 9:35] Talking Points:
+        [9:05 - 9:40] Talking Points:
         To eliminate prose-based progress reports, foundry-build run-dashboard was engineered: a 6,900-line TypeScript tool that parses run manifests and outputs self-contained HTML dashboards. The dashboard visualizes phase status, artifact lineage, and Planemo execution logs with zero external network dependencies. Both case studies and all generated artifacts are published live on GitHub Pages.
       </aside>
     </section>
 
     <!-- ================================================================= -->
-    <!-- SLIDE 11: Conclusion & Takeaways (9:35 - 10:00) -->
+    <!-- SLIDE 12: Conclusion & Takeaways (9:40 - 10:00) -->
     <!-- ================================================================= -->
     <section class="galaxy-cover">
-      <div class="eyebrow">Summary · NIAID-BRCs AI Codeathon 2.0 <span class="timing-pill" style="background: rgba(255,255,255,0.2); color:#fff;">9:35 - 10:00</span></div>
+      <div class="eyebrow">Summary · NIAID-BRCs AI Codeathon 2.0 <span class="timing-pill" style="background: rgba(255,255,255,0.2); color:#fff;">9:40 - 10:00</span></div>
       <h1 style="font-size: 1.5em;">Principles for Autonomous Scientific Workflows</h1>
 
       <div class="cards cards-3" style="margin: 18px auto 14px auto;">
@@ -1002,7 +1078,7 @@
       </div>
 
       <aside class="notes">
-        [9:35 - 10:00] Wrap-up:
+        [9:40 - 10:00] Wrap-up:
         Autonomous workflow generation succeeds when governed by deterministic rails. The Foundry Pattern compiles typed knowledge into frozen skills. Live MCP queries ground decisions in community registries. And execution oracles guarantee that outputs are reproducible science rather than plausible hallucinations. Slide credits: Marius van den Beek, John Chilton, Dave Rogers, Dejian Zhao, and Scott Cain. Thank you. We welcome your questions.
       </aside>
     </section>
@@ -1032,7 +1108,7 @@
   });
 
   // --------------------------------------------------------------------------
-  // Interactive Component 1: 12-Phase Pipeline Explorer (Slide 4)
+  // Interactive Component 1: 12-Phase Pipeline Explorer (Slide 5)
   // --------------------------------------------------------------------------
   const phaseData = {
     1: {
@@ -1060,7 +1136,7 @@
       desc: "Designs the workflow graph: separates per-sample mapping (Salmon/Cutadapt) from collective reduction (DESeq2 count matrix assembly)."
     },
     4: {
-      title: "Phase 4: IWC Exemplar Grounding",
+      title: "Phase 4: IWC Grounding",
       mold: "compare-against-iwc-exemplar",
       inputs: "Interface and Data Flow briefs + local/remote IWC corpus",
       outputs: "iwc-comparison-notes.md + iwc-exemplar.gxwf.yml",
@@ -1155,7 +1231,7 @@
   }
 
   // --------------------------------------------------------------------------
-  // Interactive Component 2: Real Research Edge Traps (Slide 8)
+  // Interactive Component 2: Real Research Edge Traps (Slide 9)
   // --------------------------------------------------------------------------
   const trapData = {
     1: {
@@ -1208,7 +1284,7 @@
   }
 
   // --------------------------------------------------------------------------
-  // Interactive Component 3: Filterable Upstream Commits (Slide 9)
+  // Interactive Component 3: Filterable Upstream Commits (Slide 10)
   // --------------------------------------------------------------------------
   const commitList = [
     { repo: "foundry", hash: "7c0c715d", desc: "Add conversion-run dashboard and the run record it reads (6,900+ LOC TS)" },
