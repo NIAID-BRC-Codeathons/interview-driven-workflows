@@ -47,6 +47,17 @@ Team assignments are still being finalized. Participants can review their projec
 
 This repository is the team's working space for the codeathon — code, notebooks, data pointers, and notes. Replace this README with the real thing once the charter is written. Team members get access through the [NIAID-BRC-Codeathons](https://github.com/NIAID-BRC-Codeathons) organization; accept the invitation if you have not already.
 
+## Case studies
+
+Two end-to-end runs of the [Galaxy Workflow Foundry](https://github.com/galaxyproject/foundry) pipelines, each with a run dashboard, the generated workflow, tests, validation reports, and a phase-by-phase write-up. The site version of this page is at <https://niaid-brc-codeathons.github.io/interview-driven-workflows/>.
+
+| Case study | Pipeline | Outcome | Dashboard | Write-up |
+| --- | --- | --- | --- | --- |
+| Ebola virus host RNA-seq | INTERVIEW → GALAXY | 12/12 phases, Planemo tests passing | [dashboard](case_studies/ebola-rnaseq/dashboard.html) | [CASE_STUDY.md](case_studies/ebola-rnaseq/CASE_STUDY.md) · [bundle](case_studies/ebola-rnaseq/) |
+| *Candida auris* SCF1 adhesin RNA-seq | PAPER → GALAXY | 10/12 phases, static gates green, execution not yet passing | [dashboard](case_studies/auris-scf1-rnaseq/dashboard.html) | [CASE_STUDY.md](case_studies/auris-scf1-rnaseq/CASE_STUDY.md) · [bundle](case_studies/auris-scf1-rnaseq/) |
+
+Test fixtures are not committed. Each bundle's `test-data-refs.json` records the pinned source URLs, checksums, and subsetting recipe needed to regenerate them; dashboard links into `test-data/` will not resolve on the published site.
+
 ## Implementations
 
 - [Talk to Galaxy — Dejian Zhao](dejian_workflow/): pipeline code, interviews, evaluation results, and presentation decks. See the [setup guide](dejian_workflow/SETUP.md) to get started.

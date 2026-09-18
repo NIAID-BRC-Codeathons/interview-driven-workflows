@@ -1,0 +1,11 @@
+title: Interview-Driven Workflow Construction and Repair in Galaxy
+description: NIAID-BRCs AI Codeathon 2.0 — turning a free-form analysis request into a validated, runnable Galaxy workflow.
+theme: jekyll-theme-primer
+markdown: kramdown
+
+exclude:
+  - case_studies/*/test-data/
+  - dejian_workflow/requirements.txt
+  - "**/__pycache__/"
+  - .omc/
+  - .github/
